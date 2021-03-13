@@ -4,21 +4,30 @@ const router = new express.Router()
 const connection = require('../models/db')
 const OrganizerModule = require('../models/Organizer')
 const auth = require('../middleware/auth')
+var multer = require('multer');
 
 // fix the routres small letters
 
+const upload = multer({
+    limits: {
+        fileSize: 16000000
+    },
+}).array('image', 2)
 
 
 
-router.post('/createOrganizer',async(req,res)=>{
-    const organizer = await OrganizerModule.createOrganizer(req.body)
-    if(organizer.err)
-    res.status(500).send(organizer.err)
-    else{
+router.post('/createOrganizer',upload, async(req,res)=>{
+    console.log(req.files)
+    console.log(JSON.parse(req.body.organizer))
+    // const organizer = await OrganizerModule.createOrganizer(req.body)
+    // if(organizer.err)
+    //     res.status(500).send(organizer.err)
+    // else{
 
-        res.status(200).send(organizer)
-    }
-
+    //     res.status(200).send(organizer)
+    // }
+    
+    res.sendStatus(200)
 
 })
 
