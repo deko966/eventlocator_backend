@@ -10,9 +10,11 @@ module.exports = {
     createOrganizer: ( organizer ) => {
       return new Promise(resolve => {
         hashed = bcrypt.hashSync(organizer.Password, 8)
-        input = [organizer.Name,organizer.Email,hashed,organizer.Description,organizer.ProofImage,organizer.PhoneNumber,organizer.FacebookName,organizer.FacebookLink,organizer.InstagramName,
-          organizer.InstagramLink,organizer.TwitterName,organizer.TwitterLink,
-          organizer.YouTubeName,organizer.YouTubeLink]
+        input = [organizer.Name,organizer.Email,hashed,organizer.Description,organizer.ProofImage,
+          organizer.PhoneNumber,organizer.socialmedia[0].accountname,
+          organizer.socialmedia[0].url,organizer.socialmedia[1].accountname,
+          organizer.socialmedia[1].url,organizer.socialmedia[2].accountname,
+          organizer.socialmedia.url[2],organizer.socialmedia[3].accountname,organizer.socialmedia[3].url]
         sql.query("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink) values (?,?,?,?,?,?,?,?,?,?,?,?,?)" 
         ,input,  (err, result)=> {
             if (err) {

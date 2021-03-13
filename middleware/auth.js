@@ -21,7 +21,6 @@ authAdmin:(req,res,next)=>{
 createOrganizerToken: (organizer)=>{
     const token =  jwt.sign({ID: organizer.ID.toString(), email: organizer.Email.toString(),
     password: organizer.Password.toString(), phoneNumber: organizer.PhoneNumber.toString() } ,config.secret)
-    
     return token
 
 },
@@ -36,13 +35,16 @@ authOrganizer:(req,res,next)=>{
 createParticipantToken:(participant)=>{
     const token = jwt.sign({id:participant.ID.toString(),password:participant.Password.toString(),
     email:participant.Email.toString()},config.secret)
+    return token
 },
 authParticipant:(req,res,next)=>{
+    console.log(req)
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret,(err, decoded)=> {
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.participant=decoded
-        next()
+    req.participant=decoded.id
+    console.log(decoded)
+    next()
       });
 },
 

@@ -24,10 +24,10 @@ module.exports = {
     })
     },
 
-    login:(req)=>{
+    login:(participant)=>{
         return new Promise(resolve => {
           
-          hashed = bcrypt.hashSync(req.body.Password, 8)
+          hashed = bcrypt.hashSync(participant.Password, 8)
           input = [ participant.Email,hashed]
           sql.query("Select firstName,lastName,Email,city from participant where Email =? AND Password =?", input ,  (err, result)=> 
            {
@@ -56,7 +56,7 @@ module.exports = {
         });
       })
       },
-    UnfollowOrganizer:(organizer)=>{
+    unfollowOrganizer:(organizer)=>{
         return new Promise(resolve =>{
         input = organizer.id
         sql.query("delete  from participantsfolloworganizer where organizerID = ? ", input ,  (err, result)=>{

@@ -7,7 +7,7 @@ const auth = require('../middleware/auth')
 //use the req and the create variables that can be stored in the req 
 
 
-router.post('createParticipant',async (req,res)=>{
+router.post('/createParticipant',async (req,res)=>{
     const participant = await ParticipantModule.createParticipant(req.body)
     if(participant.err)
 
@@ -19,9 +19,11 @@ router.post('createParticipant',async (req,res)=>{
     }
 
 })
+
+
 router.post('/participantLogin',async (req,res)=>{
 
-    const participant = await ParticipantModule.login(req)
+    const participant = await ParticipantModule.login(req.body)
     if(participant.err)
     res.status(500).send(participant.err)
     else{
@@ -29,6 +31,25 @@ router.post('/participantLogin',async (req,res)=>{
         res.status(200).send(token)
     }
 })
+
+router.get('/organizerByName/:name',auth.authParticipant,async (req,res)=>{
+    const participant = await ParticipantModule.getOrganizer(req.params.name)
+    if(participant.err)
+        res.status(500).send(participant.err)
+    else{
+       res.sendStatus(200).send("success")
+    }
+})
+
+
+// router.patch('/unFollowOrganizer/:id',auth.authParticipant,async (req,res)=>{
+//     const unfollow = await participant.unfollowOrganizer(req.params.id)
+//     if(participant.err)
+//         res.status(500).send(participant.err)
+//     else{
+//         res.status(200)
+// }
+// })
 
 // router.patch('/ModifyParticipantProfile',auth,async (req,res)=>{
 
@@ -39,15 +60,11 @@ router.post('/participantLogin',async (req,res)=>{
 // router.get('/OrganizersInfo',auth,async (req,res)=>{
 
 // })
-// router.get('/OrganizerByName/:name',auth,async (req,res)=>{
 
-// })
 
 // router.get('/FollowOrganizer/:id',auth,async (req,res)=>{
 
 // })
-// router.patch('/unFollowOrganizer/:id',auth,async (req,res)=>{
 
-// })
 
 module.exports = router
