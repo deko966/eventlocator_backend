@@ -42,7 +42,7 @@ module.exports = {
        })
        },
 
-    FollowOrganizer:(organizer)=>{
+    FollowOrganizer:(organizer,particpant)=>{
         return new Promise(resolve => {
           input =  organizer.id
           sql.query("insert into participantsfolloworganizer (participantID) where organizerID = ?" , input ,  (err, result)=> 

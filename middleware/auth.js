@@ -42,7 +42,7 @@ authParticipant:(req,res,next)=>{
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret,(err, decoded)=> {
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.participant=decoded.id
+    req.participantID=decoded.id
     console.log(decoded)
     next()
       });

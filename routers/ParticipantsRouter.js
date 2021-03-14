@@ -32,14 +32,14 @@ router.post('/participantLogin',async (req,res)=>{
     }
 })
 
-router.get('/organizerByName/:name',auth.authParticipant,async (req,res)=>{
+router.get('/organizerByName/:name',auth.authParticipant ,async (req,res)=>{
     const participant = await ParticipantModule.getOrganizer(req.params.name)
     if(participant.err)
         res.status(500).send(participant.err)
     else{
        res.sendStatus(200).send("success")
     }
-})
+})  
 
 
 // router.patch('/unFollowOrganizer/:id',auth.authParticipant,async (req,res)=>{
