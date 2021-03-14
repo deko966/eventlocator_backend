@@ -21,6 +21,7 @@ module.exports = {
           resolve({undefined,err})
             }
             else{
+              
          resolve({result, undefined})
           }
         });
@@ -38,10 +39,10 @@ login:(organizer)=>{
           console.log(result)
         if (err) {
           resolve({undefined,err})
-            }
-            else{
-         resolve({result, undefined})
-          }
+        }
+        else{
+          resolve({result, undefined})
+        }
       });
     })
     },
