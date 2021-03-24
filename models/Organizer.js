@@ -24,11 +24,10 @@ function makeDBQuery(query, arguments) {
 
 module.exports = {
     createOrganizer: async (organizer,images, type) => {
-      console.log(organizer.password)
       hashed = await bcrypt.hashSync(organizer.password, 8)
       emailInput = [organizer.email]
   
-      generalInput = [organizer.name, organizer.email, hashed, organizer.description,
+      generalInput = [organizer.name,organizer.email,hashed, organizer.description,
           organizer.phoneNumber, organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,
           organizer.socialMediaAccounts[1].url, organizer.socialMediaAccounts[2].accountName,

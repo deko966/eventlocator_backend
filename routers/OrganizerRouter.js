@@ -19,7 +19,7 @@ const uploads = multer({
 //first picture is the proof second is profile
 //image stored in the req.files[0].Buffer
 
-router.post('/organizers/signup/:type',uploads.array('images',2), async(req,res)=>{
+router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
         
        try{ 
             const organizer =  JSON.parse(req.body.organizer)

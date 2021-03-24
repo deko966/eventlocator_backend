@@ -54,26 +54,32 @@ module.exports = {
 },
 
 
-  getOrganizerEvents:async () => {  
-
+  getOrganizerEvents:async (organizerData) => {
+    organizerID = [organizerData.id]
+    const result = await makeDBQuery("select event.name,event.description,event.picture,event.numberofparticipants,event.startdate,event.enddate,event.registrationclosedatetime,event.maxparticipants,event.rating ,event.whatsapplink,event.eventstatus from event join organizer on event.organizerid =organizer.id  where organizer.id = ? and eventstatus <> 2"
+    ,organizerID)
+    if (result.length ==0 )
+    return null
+    else{
+      return result
+    }
+      
 
 
   },
 
   getEventByID: async (eventData) => {
     eventID = [eventData]
-    console.log(eventID)
-    result = await makeDBQuery("select name,description,picture,numberofparticipants,startdate,enddate,registrationclosedatetime,maxparticipants,rating whatsapplink,response,responseDatetime,eventstatus from event where eventstatus <> 2 and event.id =?"
+
+    const result = await makeDBQuery("select name,description,picture,numberofparticipants,startdate,enddate,registrationclosedatetime,maxparticipants,rating whatsapplink,eventstatus from event where eventstatus <> 2 and event.id =?"
    ,eventID)
-   console.log(result)
+
     if(result.length == 0 ){
     return null
     }
     else{
       return result 
     }
-
-
   },
     
     
@@ -88,8 +94,8 @@ module.exports = {
     getParticipantsOfAnEvent: async (eventID) => {
       const result = await makeDBQuery("select isnull(participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent.participantID = participant.id where event.id =?,0) "
       ,eventID)
-      if(result == 0){
-        return "no participants"
+      if(result.length == 0){
+        return null
         }        
       else{
         return result 

@@ -31,7 +31,7 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
 
 
 
-router.post('/organizers/events/:id/cancel',async (req,res) => {
+router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
     try{
     const canceledEvent = await eventModel.canceledEvent(req.body,req.params.id)
      res.sendStatus(200)
@@ -51,32 +51,48 @@ router.get('/EventInfo/:id',async (req,res)=>{
     }
 })
 
-router.post('/organizers/events/:id/participants',async (req,res) =>{
+router.post('/organizers/events/:id/participants',auth.authOrganizer, async (req,res) =>{
     const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
     res.status(200).send(participants)
 })
 
 router.get('/registerInEvent/:id',async (req,res)=>{
-    try{
+    
     const event = await eventModel.ParticipantRegisterEvent(req.params.id)
-    res.sendStatus(201)
+    if(event!=null){
+        res.sendStatus(201)
     }
-    catch(e){
+    else{
         res.status(400).send(e)
     }
 
 })
 
 
-router.get('/organizers/events/:id',async (req,res) =>{
-   
-        const event = await eventModel.getEventByID(req.params.id)
-        console.log(req.params.id)
-        res.status(200).send(event)
+router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
     
+        const event = await eventModel.getEventByID(req.params.id)
+        if(event != null){
+            res.status(200).send(event)
+        }
+        else{
+            res.status(404).send("event not found")
+    }
 
 })
 
+router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
+    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo)
+        if(events != null){
+            res.status(200).send(events)
+        }
+        else{
+            res.status(404).send("event not found")
+    }
+  
+
+
+})
 router.patch('/ModifyEvent',async (req,res)=>{
 //2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 
 // applies penalty for participants who did not attend it, and removes penalty
