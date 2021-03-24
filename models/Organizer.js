@@ -28,12 +28,12 @@ module.exports = {
       emailInput = [organizer.email]
   
       generalInput = [organizer.name,organizer.email,hashed, organizer.description,
-          organizer.phoneNumber, organizer.socialMediaAccounts[0].accountName,
+          organizer.phoneNumber,organizer.status, organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,
           organizer.socialMediaAccounts[1].url, organizer.socialMediaAccounts[2].accountName,
           organizer.socialMediaAccounts[2].url, organizer.socialMediaAccounts[3].accountName, organizer.socialMediaAccounts[3].url,type,images[0].buffer]
       if (type == 0) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
+          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,status,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
           const organizerID= await makeDBQuery('select ID from organizer where email =?', emailInput);
           
           
@@ -42,7 +42,8 @@ module.exports = {
       }
   
       if (type == 1) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
+          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,status,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+          ,generalInput);
          const organizerID= await makeDBQuery ('select id from organizer where email =?',emailInput)
           indiviudalInput = [organizerID[0].id,images[0].buffer,organizer.socialMediaAccounts[4].accountName,organizer.socialMediaAccounts[4].url]
           await makeDBQuery("INSERT INTO individual2 (OrganizerID,profilepicture,LinkedInName,LinkedInLink) values (?,?,?,?)" , indiviudalInput);
@@ -50,15 +51,15 @@ module.exports = {
   },
 
 //retrive most basic info
-login: async(organizer)=>{
+login: async(credentials)=>{
 
-    organizerInfo = [organizer.credentials[0]]
+    organizerInfo = [credentials[0]]
     const result = await makeDBQuery("Select id,email,password,phoneNumber,type from organizer where Email =? ", organizerInfo)
      
     if(result.length == 0){
       return null
     }
-    const isMatch = await bcrypt.compare(organizer.credentials[1],result[0].password)
+    const isMatch = await bcrypt.compare(credentials[1],result[0].password)
     if(!isMatch){
       return null
       }
@@ -98,6 +99,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         email:result[0].Email,
         description:result[0].Description,
         phoneNumber:result[0].Rating,
+        status:result[0].status,
         socialMediaAccounts:[{accountName:result[0].FacebookName,url:result[0].FacebookLink},
         {accountName:result[0].InstagramName,url:result[0].InstagramLink},
         {accountName:result[0].TwitterName,url:result[0].TwitterLink},

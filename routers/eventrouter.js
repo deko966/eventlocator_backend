@@ -89,8 +89,10 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
         else{
             res.status(404).send("event not found")
     }
-  
+})
 
+router.post('/organizers/signup/partial',async (req,res) =>{
+    
 
 })
 router.patch('/ModifyEvent',async (req,res)=>{
