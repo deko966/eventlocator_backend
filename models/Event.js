@@ -46,16 +46,12 @@ module.exports = {
     const eventCatgeoriesData =[result[0].id, eventInfo.eventCategories]
     await makeDBQuery("insert into eventcategories(eventID,eventcategory) values (?,?)",eventCatgeoriesData )
 
-
+    if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
     const limitedLocatedSessionData =[result[0].id,eventInfo.sessions.id,eventInfo.sessions.checkInTime]
-      
-    if(eventInfo.sessions.checkInTime != undefined)
-      await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
-      else{
-        const limitedLocatedStartTime = [result[0].id,eventInfo.sessions.id,eventInfo.sessions.checkInTime]
-        await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedStartTime)
-      }
-  },
+    await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
+   
+  }
+},
 
 
   getOrganizerEvents:async () => {  

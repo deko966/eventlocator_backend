@@ -14,15 +14,13 @@ const uploads = multer({
 
 router.post('/createEvent',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
    
-   try{
+  
 
     const eventData =  JSON.parse(req.body.event)
     const event = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
     res.sendStatus(201)
-   }
-catch(e){
-    res.sendStatus(400)
-}
+
+
 
 })
 
