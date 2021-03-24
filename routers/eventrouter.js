@@ -12,7 +12,7 @@ const uploads = multer({
   })
    
 
-router.post('/createEvent',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
+router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
    
     try{
     const eventData =  JSON.parse(req.body.event)
@@ -26,6 +26,7 @@ router.post('/createEvent',auth.authOrganizer,uploads.single('image'),async (req
 
 
 })
+
 
 
 
@@ -51,7 +52,8 @@ router.get('/EventInfo/:id',async (req,res)=>{
 })
 
 router.post('/organizers/events/:id/participants',async (req,res) =>{
-
+    const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
+    res.status(200).send(participants)
 })
 
 router.get('/registerInEvent/:id',async (req,res)=>{
@@ -65,6 +67,15 @@ router.get('/registerInEvent/:id',async (req,res)=>{
 
 })
 
+
+router.get('/organizers/events/:id',async (req,res) =>{
+   
+        const event = await eventModel.getEventByID(req.params.id)
+        console.log(req.params.id)
+        res.status(200).send(event)
+    
+
+})
 
 router.patch('/ModifyEvent',async (req,res)=>{
 //2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 

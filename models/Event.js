@@ -60,6 +60,21 @@ module.exports = {
 
   },
 
+  getEventByID: async (eventData) => {
+    eventID = [eventData]
+    console.log(eventID)
+    result = await makeDBQuery("select name,description,picture,numberofparticipants,startdate,enddate,registrationclosedatetime,maxparticipants,rating whatsapplink,response,responseDatetime,eventstatus from event where eventstatus <> 2 and event.id =?"
+   ,eventID)
+   console.log(result)
+    if(result.length == 0 ){
+    return null
+    }
+    else{
+      return result 
+    }
+
+
+  },
     
     
     canceledEvent: async (eventData,eventID) => {
@@ -71,7 +86,8 @@ module.exports = {
 
 
     getParticipantsOfAnEvent: async (eventID) => {
-      const result = await makeDBQuery("select participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent.participantID = participant.id where event.id =? ",eventID)
+      const result = await makeDBQuery("select isnull(participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent.participantID = participant.id where event.id =?,0) "
+      ,eventID)
       if(result == 0){
         return "no participants"
         }        
@@ -79,6 +95,7 @@ module.exports = {
         return result 
       }
     },
+
     
     
 
