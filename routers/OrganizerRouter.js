@@ -34,28 +34,24 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
         
 })
 
-router.post('/organizer/login',async (req,res)=>{
+router.post('/organizers/login',async (req,res)=>{
 
     const token = await OrganizerModel.login(req.body)
-    try{
+   
     if (token != null)
         res.status(202).send(token)
-    
-      
-    }  
-    catch(e){
-        console.log(e)
+   
         res.status(404).send('unable to login')
-    }
- }),
+    }),
 
- router.post('/organizers/signup/partial',async (req,res) =>{
+ router.post('/organizers/partial/sign',async (req,res) =>{
    
     const organizer = await OrganizerModel.organizerPartialSignup(req.body)
     if(organizer == null){
         res.sendStatus(200)
     }
     else{
+    
         res.sendStatus(409)
     }
 
@@ -79,6 +75,7 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
     res.status(202).send(organizer) 
     }
     catch(e){
+        console.log(e)
         res.sendStatus(401)
     }
 }),

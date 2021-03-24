@@ -7,6 +7,7 @@ const { createOrganizerToken, authOrganizer } = require('../middleware/auth');
 //auth we store the ID and phone number and email and password
 //might delete password for organizer
 //auth we store the ID email and password for participant 
+//need to add status for organizer here
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -27,7 +28,7 @@ module.exports = {
       hashed = await bcrypt.hashSync(organizer.password, 8)
       emailInput = [organizer.email]
   
-      generalInput = [organizer.name,organizer.email,hashed, organizer.description,
+      generalInput = [organizer.name,organizer.email,hashed, organizer.about,
           organizer.phoneNumber,organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,
           organizer.socialMediaAccounts[1].url, organizer.socialMediaAccounts[2].accountName,
@@ -58,10 +59,11 @@ module.exports = {
       },
 
   organizerPartialSignup: async (partialInfo) =>{
-
+    
     organizerInfo = [partialInfo[0],partialInfo[1],partialInfo[2]]
     const result = await makeDBQuery ("select email,name,phonenumber from organizer where email =? or name =? or phonenumber=? ",
     organizerInfo)
+  
     if (result.length == 0 ){
       return null
     }
@@ -74,6 +76,7 @@ module.exports = {
 
 //retrive most basic info
 login: async(credentials)=>{
+  console.log(credentials)
     organizerInfo = [credentials[0]]
     const result = await makeDBQuery("Select id,email,password,phoneNumber,type from organizer where Email =? ", organizerInfo)
 
@@ -81,8 +84,8 @@ login: async(credentials)=>{
       return null
     }
     const isMatch = await bcrypt.compare(credentials[1],result[0].password)
-  
-    if(isMatch){
+    console.log(isMatch)
+    if(!isMatch){
       return null
       }
     else{    
@@ -90,19 +93,16 @@ login: async(credentials)=>{
     }
 },
 
-organizerFollower:(organizerID)=>{
-  return new Promise(resolve => {
+organizerFollower:async (organizerID)=>{
+
     input =  organizerID
-    sql.query("SELECT participant.FirstName,participant.LastName FROM participant  JOIN participantfolloworganizer  ON participant.ID = participantfolloworganizer.participantID   AND participantFollowOrganizer.organizerID = ?" , input ,  (err, result)=> 
-    {
-    if (err) {
-      resolve({undefined,err})
-        }
-        else{
-     resolve({result, undefined})
-      }
-  });
-})
+    const result = await makeDBQuery("SELECT participant.FirstName,participant.LastName FROM participant  JOIN participantfolloworganizer  ON participant.ID = participantfolloworganizer.participantID   AND participantFollowOrganizer.organizerID = ?" 
+    ,input)
+    if (result.length==0){
+      return null
+    }
+    return result
+
 },
 
 getOrganizerInfo: async (organizerAuthInfo) => {
@@ -126,7 +126,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         {accountName:result[0].instagramName,url:result[0].instagramLink},
         {accountName:result[0].twitterName,url:result[0].twitterLink},
         {accountName:result[0].youtubeName,url:result[0].youtubeLink}],
-        image:result[0].image  
+        image:Buffer.from(result[0].image.buffer).toString('base64')
       }
     }      
   }
@@ -145,11 +145,13 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             numberOfFollowers: result[0].followers,
             name: result[0].name,
             email:result[0].email,
-            description:result[0].description,
+            about:result[0].description,
             phoneNumber:result[0].rating,
-            image:result[0].profilePicture,
-            socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},{accountName:result[0].instagramName,url:result[0].instagramLink},
-            {accountName:result[0].twitterName,url:result[0].twitterLink},{accountName:result[0].youTubeName,url:result[0].youTubeLink},{accountName:result[0].linkedInName,url:result[0].linkedInLink}]
+            image:Buffer.from(result[0].profilePicture.buffer).toString('base64'),
+            socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},
+            {accountName:result[0].instagramName,url:result[0].instagramLink},{accountName:result[0].twitterName,
+            url:result[0].twitterLink},{accountName:result[0].youTubeName,url:result[0].youTubeLink},{
+            accountName:result[0].linkedInName,url:result[0].linkedInLink}]
           }
         
         }
