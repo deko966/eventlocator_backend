@@ -81,17 +81,16 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
 }),
 
 router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{
-    const followers = await OrganizerModule.organizerFollower(req.params.id)
-    try{
+    const followers = await OrganizerModel.organizerFollower(req.params.id)
+        if(followers!=null){
+
         res.status(202).send(followers)
+        }
+        else{
+            res.sendStatus(404)
     }
-    catch(e){
 
-        res.status(500).send(e)
-    }
-
- })
-,
+ }),
 
 
 

@@ -23,8 +23,6 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
         res.status(401).send(e)
     }
 
-
-
 })
 
 
@@ -51,9 +49,14 @@ router.get('/EventInfo/:id',async (req,res)=>{
     }
 })
 
-router.post('/organizers/events/:id/participants',auth.authOrganizer, async (req,res) =>{
+router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,res) =>{
     const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
+    if(participants!=null){
     res.status(200).send(participants)
+    }
+    else{
+        res.status(404).send("no participants")
+    }
 })
 
 router.get('/registerInEvent/:id',async (req,res)=>{
@@ -67,11 +70,18 @@ router.get('/registerInEvent/:id',async (req,res)=>{
     }
 
 })
-
+router.get('/organizers/events/feedback/:id',async (req,res)=>{
+    const feedback = await eventModel.getEventsFeedback(req.params.id)
+    if(feedback != null)
+    res.status(200).send(feedback)
+    else{
+        res.status(404).send("no event/feedback")
+    }
+}),
 
 router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
     
-        const event = await eventModel.getEventByID(req.params.id)
+        const event = await eventModel.getEventDetailsByID(req.params.id)
         if(event != null){
             res.status(200).send(event)
         }

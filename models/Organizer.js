@@ -84,7 +84,6 @@ login: async(credentials)=>{
       return null
     }
     const isMatch = await bcrypt.compare(credentials[1],result[0].password)
-    console.log(isMatch)
     if(!isMatch){
       return null
       }
@@ -93,11 +92,13 @@ login: async(credentials)=>{
     }
 },
 
-organizerFollower:async (organizerID)=>{
 
-    input =  organizerID
-    const result = await makeDBQuery("SELECT participant.FirstName,participant.LastName FROM participant  JOIN participantfolloworganizer  ON participant.ID = participantfolloworganizer.participantID   AND participantFollowOrganizer.organizerID = ?" 
-    ,input)
+
+organizerFollower:async (organizerData)=>{
+    console.log(organizerData)
+     organizerID = [organizerData] 
+    const result = await makeDBQuery("SELECT participant.FirstName,participant.LastName FROM participant  JOIN participantsfolloworganizer  ON participant.ID = participantsfolloworganizer.participantID   AND participantsFollowOrganizer.organizerID = ?" 
+    ,organizerID)
     if (result.length==0){
       return null
     }
