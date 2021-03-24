@@ -22,29 +22,36 @@ const uploads = multer({
 router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
         
        try{ 
+           console.log(req.files)
             const organizer =  JSON.parse(req.body.organizer)
             await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
             res.sendStatus(201);
        }
        catch(e){
+           console.log(e)
            res.sendStatus(503)
        }
         
 })
 
-router.post('/organizers/login',async (req,res)=>{
-
+router.post('/organizer/login',async (req,res)=>{
 
     const token = await OrganizerModel.login(req.body)
-    if (token !=null)
+    try{
+    if (token != null)
         res.status(202).send(token)
-    else{
+    
+      
+    }  
+    catch(e){
+        console.log(e)
         res.status(404).send('unable to login')
-    }   
+    }
  }),
 
  router.post('/organizers/signup/partial',async (req,res) =>{
-    const organizer = await eventModel.organizerPartialSignup(req.body)
+   
+    const organizer = await OrganizerModel.organizerPartialSignup(req.body)
     if(organizer == null){
         res.sendStatus(200)
     }
@@ -56,7 +63,7 @@ router.post('/organizers/login',async (req,res)=>{
 
 router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
 const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
-console.log(req.authOrganizerInfo)
+
  if (type == undefined)
     res.status(404).send("user not found")
 else{
@@ -103,7 +110,7 @@ router.patch('/modifyOrganizerProfile',async (req,res)=>{
 //       })
 
 router.patch('/modifyRating',auth.authOrganizer,async (req,res)=>{
-    const rating = await OrganizerModule.alterRating(req.body)
+    const rating = await OrganizerModel.alterRating(req.body)
     if (rating.err)
     res.status(500).send(rating.err)
     else

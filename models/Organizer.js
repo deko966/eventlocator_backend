@@ -28,12 +28,12 @@ module.exports = {
       emailInput = [organizer.email]
   
       generalInput = [organizer.name,organizer.email,hashed, organizer.description,
-          organizer.phoneNumber,organizer.status, organizer.socialMediaAccounts[0].accountName,
+          organizer.phoneNumber,organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,
           organizer.socialMediaAccounts[1].url, organizer.socialMediaAccounts[2].accountName,
           organizer.socialMediaAccounts[2].url, organizer.socialMediaAccounts[3].accountName, organizer.socialMediaAccounts[3].url,type,images[0].buffer]
       if (type == 0) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,status,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
+          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
           const organizerID= await makeDBQuery('select ID from organizer where email =?', emailInput);
           
           
@@ -42,18 +42,25 @@ module.exports = {
       }
   
       if (type == 1) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,status,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofImage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofImage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
           ,generalInput);
-         const organizerID= await makeDBQuery ('select id from organizer where email =?',emailInput)
-          indiviudalInput = [organizerID[0].id,images[1].buffer,organizer.socialMediaAccounts[4].accountName,organizer.socialMediaAccounts[4].url]
+
+          if(images[1]==undefined){
+           checkedImage=images[1]=null
+          }
+          if(images[1]!=null){
+            checkedImage=images[1].buffer
+          }       
+          const organizerID = await makeDBQuery ('select id from organizer where email =?',emailInput)
+          indiviudalInput = [organizerID[0].id,checkedImage,organizer.socialMediaAccounts[4].accountName,organizer.socialMediaAccounts[4].url]
           await makeDBQuery("INSERT INTO individual2 (OrganizerID,profilepicture,LinkedInName,LinkedInLink) values (?,?,?,?)" , indiviudalInput);
-      }
-  },
+        }
+      },
 
   organizerPartialSignup: async (partialInfo) =>{
 
     organizerInfo = [partialInfo[0],partialInfo[1],partialInfo[2]]
-    const result = await makeDBQuery ("select email,name,phone from organizer where email =? or name =? or phone=? ",
+    const result = await makeDBQuery ("select email,name,phonenumber from organizer where email =? or name =? or phonenumber=? ",
     organizerInfo)
     if (result.length == 0 ){
       return null
@@ -67,19 +74,19 @@ module.exports = {
 
 //retrive most basic info
 login: async(credentials)=>{
-
     organizerInfo = [credentials[0]]
     const result = await makeDBQuery("Select id,email,password,phoneNumber,type from organizer where Email =? ", organizerInfo)
-     
+
     if(result.length == 0){
       return null
     }
     const isMatch = await bcrypt.compare(credentials[1],result[0].password)
-    if(!isMatch){
+  
+    if(isMatch){
       return null
       }
     else{    
-      return createOrganizerToken(result[0])
+      return auth.createOrganizerToken(result[0])
     }
 },
 
@@ -112,7 +119,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         numberOfFollowers: result[0].followers,
         name: result[0].name,
         email:result[0].email,
-        description:result[0].description,
+        about:result[0].description,
         phoneNumber:result[0].rating,
         status:result[0].status,
         socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},
@@ -135,12 +142,12 @@ getOrganizerInfo: async (organizerAuthInfo) => {
       else{
         
           return indiviudalInfo= {
-            image:result[0].profilePicture,
             numberOfFollowers: result[0].followers,
             name: result[0].name,
             email:result[0].email,
             description:result[0].description,
             phoneNumber:result[0].rating,
+            image:result[0].profilePicture,
             socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},{accountName:result[0].instagramName,url:result[0].instagramLink},
             {accountName:result[0].twitterName,url:result[0].twitterLink},{accountName:result[0].youTubeName,url:result[0].youTubeLink},{accountName:result[0].linkedInName,url:result[0].linkedInLink}]
           }

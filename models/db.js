@@ -6,7 +6,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'eventlocater_dev'
+  database: 'eventlocator_dev'
 });
 connection.connect(error => {
     if (error) throw error;
