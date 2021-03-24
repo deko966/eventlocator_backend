@@ -88,9 +88,7 @@ module.exports = {
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
     },
 
-
-
-
+   
     getParticipantsOfAnEvent: async (eventID) => {
       const result = await makeDBQuery("select isnull(participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent.participantID = participant.id where event.id =?,0) "
       ,eventID)

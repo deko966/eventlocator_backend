@@ -50,6 +50,21 @@ module.exports = {
       }
   },
 
+  organizerPartialSignup: async (partialInfo) =>{
+
+    organizerInfo = [partialInfo[0],partialInfo[1],partialInfo[2]]
+    const result = await makeDBQuery ("select email,name,phone from organizer where email =? or name =? or phone=? ",
+    organizerInfo)
+    if (result.length == 0 ){
+      return null
+    }
+    else{
+      return result
+    }
+  },
+
+
+
 //retrive most basic info
 login: async(credentials)=>{
 
@@ -87,23 +102,23 @@ getOrganizerInfo: async (organizerAuthInfo) => {
     organizerID = [organizerAuthInfo.id]
     //join first with the organizer type then with the followers table
     if (organizerAuthInfo.type == 0){
-     const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,ogranization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on organization.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
+     const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on organization.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
        ,organizerID)
       if(result.length == 0) {
         return null
       }
     else {
-      organization = {
-        numberOfFollowers: result[0].Followers,
-        name: result[0].Name,
-        email:result[0].Email,
-        description:result[0].Description,
-        phoneNumber:result[0].Rating,
+      return organization = {
+        numberOfFollowers: result[0].followers,
+        name: result[0].name,
+        email:result[0].email,
+        description:result[0].description,
+        phoneNumber:result[0].rating,
         status:result[0].status,
-        socialMediaAccounts:[{accountName:result[0].FacebookName,url:result[0].FacebookLink},
-        {accountName:result[0].InstagramName,url:result[0].InstagramLink},
-        {accountName:result[0].TwitterName,url:result[0].TwitterLink},
-        {accountName:result[0].YoutubeName,url:result[0].YoutubeLink}],
+        socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},
+        {accountName:result[0].instagramName,url:result[0].instagramLink},
+        {accountName:result[0].twitterName,url:result[0].twitterLink},
+        {accountName:result[0].youtubeName,url:result[0].youtubeLink}],
         image:result[0].image  
       }
     }      
@@ -118,7 +133,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
       }
     
       else{
-        console.log(result)
+        
           return indiviudalInfo= {
             image:result[0].profilePicture,
             numberOfFollowers: result[0].followers,

@@ -43,6 +43,17 @@ router.post('/organizers/login',async (req,res)=>{
     }   
  }),
 
+ router.post('/organizers/signup/partial',async (req,res) =>{
+    const organizer = await eventModel.organizerPartialSignup(req.body)
+    if(organizer == null){
+        res.sendStatus(200)
+    }
+    else{
+        res.sendStatus(409)
+    }
+
+}),
+
 router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
 const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
 console.log(req.authOrganizerInfo)
