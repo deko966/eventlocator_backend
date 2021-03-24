@@ -42,10 +42,10 @@ module.exports = {
       }
   
       if (type == 1) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,status,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,status,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofImage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
           ,generalInput);
          const organizerID= await makeDBQuery ('select id from organizer where email =?',emailInput)
-          indiviudalInput = [organizerID[0].id,images[0].buffer,organizer.socialMediaAccounts[4].accountName,organizer.socialMediaAccounts[4].url]
+          indiviudalInput = [organizerID[0].id,images[1].buffer,organizer.socialMediaAccounts[4].accountName,organizer.socialMediaAccounts[4].url]
           await makeDBQuery("INSERT INTO individual2 (OrganizerID,profilepicture,LinkedInName,LinkedInLink) values (?,?,?,?)" , indiviudalInput);
       }
   },
