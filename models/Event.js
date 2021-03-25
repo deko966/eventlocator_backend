@@ -22,7 +22,7 @@ module.exports = {
       eventInfo.endDate, eventInfo.registrationCloseDateTime,eventInfo.maxParticipants,
       eventInfo.whatsappLink,eventInfo.eventStatus,authOrganizerInfo.id,image.buffer] 
 
-      await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticiapants, whatsappLink, eventStatus,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
+      await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticipants, whatsappLink, eventStatus,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
       ,eventgeneralDetails)
       
       organizerID =[authOrganizerInfo.id]
