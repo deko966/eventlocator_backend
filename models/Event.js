@@ -59,7 +59,7 @@ module.exports = {
     const result = await makeDBQuery("select event.name,event.description,event.picture,event.numberofparticipants,event.startdate,event.enddate,event.registrationclosedatetime,event.maxparticipants,event.rating ,event.whatsapplink,event.eventstatus from event join organizer on event.organizerid =organizer.id  where organizer.id = ? and eventstatus <> 2"
     ,organizerID)
     
-    console.log(result[1])
+    
     if (result.length ==0 )
     return null
     else{

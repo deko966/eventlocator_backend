@@ -95,7 +95,7 @@ login: async(credentials)=>{
 
 
 organizerFollower:async (organizerData)=>{
-    console.log(organizerData)
+  
      organizerID = [organizerData] 
     const result = await makeDBQuery("SELECT participant.FirstName,participant.LastName FROM participant  JOIN participantsfolloworganizer  ON participant.ID = participantsfolloworganizer.participantID   AND participantsFollowOrganizer.organizerID = ?" 
     ,organizerID)

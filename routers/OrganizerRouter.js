@@ -22,7 +22,7 @@ const uploads = multer({
 router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
         
        try{ 
-           console.log(req.files)
+          
             const organizer =  JSON.parse(req.body.organizer)
             await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
             res.sendStatus(201);
