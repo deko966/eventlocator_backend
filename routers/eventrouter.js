@@ -42,7 +42,7 @@ router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) =
 
 router.get('/EventInfo/:id',async (req,res)=>{
     try{
-    const event = await eventModel.eventDetails(req.params.id)
+    const event = await eventModel.getEventDetails(req.params.id)
     }
     catch(e){
         res.status(400).send(e)

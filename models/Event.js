@@ -52,14 +52,14 @@ module.exports = {
    
   }
 },
-
+//need to check how to get to pictures for each event and convert,will check this tmrw morning 
 
   getOrganizerEvents:async (organizerData) => {
     organizerID = [organizerData.id]
     const result = await makeDBQuery("select event.name,event.description,event.picture,event.numberofparticipants,event.startdate,event.enddate,event.registrationclosedatetime,event.maxparticipants,event.rating ,event.whatsapplink,event.eventstatus from event join organizer on event.organizerid =organizer.id  where organizer.id = ? and eventstatus <> 2"
     ,organizerID)
     
-    console.log(result)
+    console.log(result[1])
     if (result.length ==0 )
     return null
     else{
@@ -119,7 +119,7 @@ module.exports = {
 //     },
 
 
-eventDetails: async ( event ) =>{   
+getEventDetails: async ( event ) =>{   
   eventID = event.id
   await makeDBQuery("SELECT id, name, description, numberOfParticipants, startDate, endDate, registrationCloseDateTime, eventStatus, whatsappLink from event where ID = ?" 
   ,eventID)

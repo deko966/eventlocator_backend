@@ -76,7 +76,7 @@ module.exports = {
 
 //retrive most basic info
 login: async(credentials)=>{
-  console.log(credentials)
+
     organizerInfo = [credentials[0]]
     const result = await makeDBQuery("Select id,email,password,phoneNumber,type from organizer where Email =? ", organizerInfo)
 
@@ -147,7 +147,8 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             name: result[0].name,
             email:result[0].email,
             about:result[0].description,
-            phoneNumber:result[0].rating,
+            phoneNumber:result[0].phoneNumber,
+            rating:result[0].phoneNumber,
             image:Buffer.from(result[0].profilePicture.buffer).toString('base64'),
             socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},
             {accountName:result[0].instagramName,url:result[0].instagramLink},{accountName:result[0].twitterName,

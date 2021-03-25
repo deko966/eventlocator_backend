@@ -40,8 +40,9 @@ router.post('/organizers/login',async (req,res)=>{
    
     if (token != null)
         res.status(202).send(token)
-   
-        res.status(404).send('unable to login')
+    else
+    if (token == null)
+        res.sendStatus(404)
     }),
 
  router.post('/organizers/partial/sign',async (req,res) =>{
