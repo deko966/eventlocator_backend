@@ -138,7 +138,7 @@ module.exports = {
 
   getEventDetailsByID: async (eventData) => {
     eventID = [eventData]
-    const result = []
+    
     const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
     eventID)
     console.log(eventResult[0].picture)
@@ -183,7 +183,7 @@ module.exports = {
     return null
     }
 
-       result.push({
+       return{
         id: eventResult[0].id,
         name: eventResult[0].name,
         description: eventResult[0].description,
@@ -201,8 +201,7 @@ module.exports = {
         canceledEventData: canceledEventData,
         image: Buffer.from(eventResult[0].picture.buffer).toString('base64'),
         whatsAppLink: eventResult[0].whatsAppLink
-      })
-      return result
+      }
     
   },
   
