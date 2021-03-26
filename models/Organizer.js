@@ -128,7 +128,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         {accountName:result[0].youTubeName,url:result[0].youTubeLink},
         {accountName:result[0].instagramName,url:result[0].instagramLink},
         {accountName:result[0].twitterName,url:result[0].twitterLink}],
-        image:Buffer.from(result[0].image.buffer).toString('base64')
+        //image:Buffer.from(result[0].image.buffer).toString('base64')
       }
     }      
   }
@@ -150,7 +150,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             about:result[0].description,
             phoneNumber:result[0].phoneNumber,
             rating:result[0].rating,
-            image:Buffer.from(result[0].profilePicture.buffer).toString('base64'),
+            //image:Buffer.from(result[0].profilePicture.buffer).toString('base64'),
             socialMediaAccounts:[
             {accountName:result[0].facebookName,url:result[0].facebookLink},
             {accountName:result[0].youTubeName,url:result[0].youTubeLink},
