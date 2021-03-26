@@ -16,7 +16,7 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
    
     try{
     const eventData =  JSON.parse(req.body.event)
-    const event = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
+    await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
     res.sendStatus(201)
     }
     catch(e){
@@ -31,8 +31,8 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
 
 router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
     try{
-    const canceledEvent = await eventModel.canceledEvent(req.body,req.params.id)
-     res.sendStatus(200)
+    await eventModel.canceledEvent(req.body,req.params.id)
+    res.sendStatus(200)
     }
     catch(e){
     res.status(400).send(e)
@@ -50,7 +50,7 @@ router.get('/EventInfo/:id',async (req,res)=>{
 })
 
 router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,res) =>{
-    const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
+    const participants = await eventModel.getParticipantsOfAnEvent(req.params.id)
     if(participants!=null){
     res.status(200).send(participants)
     }

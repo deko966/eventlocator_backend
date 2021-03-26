@@ -20,9 +20,9 @@ module.exports = {
   createEvent: async ( eventInfo ,authOrganizerInfo,image) => {
       const eventgeneralDetails = [ eventInfo.name, eventInfo.description, eventInfo.startDate, 
       eventInfo.endDate, eventInfo.registrationCloseDateTime,eventInfo.maxParticipants,
-      eventInfo.whatsappLink,eventInfo.eventStatus,authOrganizerInfo.id,image.buffer] 
+      eventInfo.whatsAppLink,eventInfo.status,authOrganizerInfo.id,image.buffer] 
 
-      await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticipants, whatsappLink, eventStatus,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
+      await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticipants, whatsappLink, status,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
       ,eventgeneralDetails)
       
       organizerID =[authOrganizerInfo.id]
@@ -37,15 +37,19 @@ module.exports = {
       if(eventInfo.sessions!= undefined){
         numberOfSessions = eventInfo.sessions.length;
         for(i= 0; i<numberOfSessions;i++){
-        const sessionData = [result[0].id,eventInfo.sessions[i].id,eventInfo.sessions[i].sessionDate,
+        const sessionData = [result[0].id,eventInfo.sessions[i].id,eventInfo.sessions[i].date,
         eventInfo.sessions[i].startTime,eventInfo.sessions[i].endTime,eventInfo.sessions[i].dayOfWeek]
-        await makeDBQuery("insert into session (eventID,id,sessionDate,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
+        await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
       }
     }     
-    
-    const eventCatgeoriesData =[result[0].id, eventInfo.eventCategories]
-    await makeDBQuery("insert into eventcategories(eventID,eventcategory) values (?,?)",eventCatgeoriesData )
+    const eventID = result[0].id
+   
+    for(i = 0; i<eventInfo.categories.length; i++){
 
+    eventCategoriesData = [eventID, eventInfo.categories[i]]
+    await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
+    
+  }
     if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
     const limitedLocatedSessionData =[result[0].id,eventInfo.sessions.id,eventInfo.sessions.checkInTime]
     await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
@@ -56,33 +60,62 @@ module.exports = {
 
   getOrganizerEvents:async (organizerData) => {
     organizerID = [organizerData.id]
-    const result = await makeDBQuery("select event.name,event.description,event.picture,event.numberofparticipants,event.startdate,event.enddate,event.registrationclosedatetime,event.maxparticipants,event.rating ,event.whatsapplink,event.eventstatus from event join organizer on event.organizerid =organizer.id  where organizer.id = ? and eventstatus <> 2"
+    let session={}
+    const result = await makeDBQuery("SELECT event.id ,event.name,event.description,convert(event.startDate,Char) as startDate,convert(event.endDate,char) as endDate,convert(event.registrationCloseDatetime,char) as registrationCloseDatetime ,event.maxParticipants,event.rating, event.whatsAppLink,event.status from event where event.status <> 2 and event.organizerid =?"
     ,organizerID)
     
+    event_session ={
+      result
+      
+    }
+    console.log(event_session)
+    for(i=0; i < result.length; i++)
+    {
+     session[i] = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
+    ,result[i].id)
+   
+    
+    
+    }
+    console.log(event_session)
     
     if (result.length ==0 )
     return null
     else{
       return result
     }
-      
-
-
   },
+
 
   getEventDetailsByID: async (eventData) => {
     eventID = [eventData]
 
-    const result = await makeDBQuery("select name,description,picture,numberofparticipants,startdate,enddate,registrationclosedatetime,maxparticipants,rating whatsapplink,eventstatus from event where eventstatus <> 2 and event.id =?"
-   ,eventID)
+    const result = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
+    eventID)
 
+    const sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
+    ,eventID)    
+ 
     if(result.length == 0 ){
     return null
     }
     else{
-      return result 
+      return {
+        name:result[0].name,
+        description:result[0].description,
+        picture:Buffer.from(result[0].picture.buffer).toString('base64'),
+        startDate:result[0].startDate,
+        endDate:result[0].endDate,
+        registrationCloseDateTime:result[0].registrationCloseDateTime,
+        maxParticipants:result[0].maxParticipants,
+        rating:result[0].rating,
+        whatsAppLink:result[0].whatsAppLink,
+        status:result[0].status,
+        sessions:sessions
+      }
     }
   },
+  
     
     
     canceledEvent: async (eventData,eventID) => {
@@ -119,11 +152,5 @@ module.exports = {
 //     },
 
 
-getEventDetails: async ( event ) =>{   
-  eventID = event.id
-  await makeDBQuery("SELECT id, name, description, numberOfParticipants, startDate, endDate, registrationCloseDateTime, eventStatus, whatsappLink from event where ID = ?" 
-  ,eventID)
-  
-  },   
-}
 
+}
