@@ -31,12 +31,13 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
 
 router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
     try{
-    await eventModel.canceledEvent(req.body,req.params.id)
-    res.sendStatus(200)
+        await eventModel.canceledEvent(req.body,req.params.id)
+        res.sendStatus(200)
     }
     catch(e){
-    res.status(400).send(e)
-    
+        console.log(e)
+        res.status(400).send(e)
+
     }
 })
 
@@ -80,14 +81,18 @@ router.get('/organizers/events/feedback/:id',async (req,res)=>{
 }),
 
 router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
-    
-        const event = await eventModel.getEventDetailsByID(req.params.id)
-        if(event != null){
-            res.status(200).send(event)
+        try{
+            const event = await eventModel.getEventDetailsByID(req.params.id)
+            if (event==null){
+                res.status(404)
+            }
+            else {
+                res.status(200).send(event)
+            }
         }
-        else{
-            res.status(404).send("event not found")
-    }
+        catch(e){
+            res.status(500)
+        }
 
 })
 

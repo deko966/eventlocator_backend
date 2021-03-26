@@ -82,6 +82,11 @@ module.exports = {
           sessions[j].checkInTime = limitedLocatedSessionData[i].checkInTime
         }
       }
+      else{
+        for(j =0; j< sessions.length; j++){
+          sessions[j].checkInTime = ""
+        }
+      }
 
       const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", id)
     
@@ -92,10 +97,14 @@ module.exports = {
       categories.push(categoriesResult[k].category)
 
       let locatedEventData= null
-      if (locatedEventDataResult.length>0)
-      locatedEventData = {
-        city: locatedEventDataResult[0].city,
-        location: [locatedEventDataResult[0].latitude, locatedEventDataResult[0].longtitude]
+      let locations = []
+      if (locatedEventDataResult.length>0){
+        locations.push(locatedEventDataResult[0].latitude)
+        locations.push(locatedEventDataResult[0].longtitude)
+        locatedEventData = {
+          city: locatedEventDataResult[0].city,
+          location: locations
+        }
       }
 
       let canceledEventData = null
@@ -131,44 +140,51 @@ module.exports = {
 
     
     }
-    console.log(result)
     return result
   },
 
 
-  getEventDetailsByID: async (eventData) => {
-    eventID = [eventData]
+  getEventDetailsByID: async (eventID) => {
     const result = []
     const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
     eventID)
-    console.log(eventResult[0].picture)
-    const sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
-    ,eventID)    
-    const categories = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
-  
+
+    let sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
+    ,eventID)
+    sessions = JSON.parse(JSON.stringify(sessions))
+
+    const categoriesResult = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
+    const categories = []
+    for(k = 0; k < categoriesResult.length; k++)
+    categories.push(categoriesResult[k].category)
  
     const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
     
-    let locatedEventData= null
-    if (locatedEventDataResult.length>0)
-    locatedEventData = {
-      city: locatedEventDataResult[0].city,
-      location: [locatedEventDataResult[0].latitude, locatedEventDataResult[0].longitude]
-    }
 
-    if (eventResult.maxParticipants > 0 && locatedEventDataResult.length >0){
+
+    if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
       let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
-      for(i =0; i< sessions.length; i++){
-        sessions[i].checkInTime = limitedLocatedSessionData[i]
+      for(j =0; j< sessions.length; j++){
+        sessions[j].checkInTime = limitedLocatedSessionData[i].checkInTime
+      }
+    }
+    else{
+      for(j =0; j< sessions.length; j++){
+        sessions[j].checkInTime = ""
       }
     }
 
     const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
     
-    if (locatedEventDataResult.length>0)
-    locatedEventData = {
-      city: locatedEventDataResult[0].city,
-      location: [locatedEventDataResult[0].latitude, locatedEventDataResult[0].longitude]
+    let locatedEventData= null
+    let locations = []
+    if (locatedEventDataResult.length>0){
+      locations.push(locatedEventDataResult[0].latitude)
+      locations.push(locatedEventDataResult[0].longtitude)
+      locatedEventData = {
+        city: locatedEventDataResult[0].city,
+        location: locations
+      }
     }
 
     let canceledEventData = null
@@ -202,14 +218,14 @@ module.exports = {
         image: Buffer.from(eventResult[0].picture.buffer).toString('base64'),
         whatsAppLink: eventResult[0].whatsAppLink
       })
-      return result
+      return result[0]
     
   },
   
     
     
-    canceledEvent: async (eventData,eventID) => {
-      cancelData = [eventID,eventData.data[0],eventData.data[1]]
+    canceledEvent: async (canceledEventData,eventID) => {
+      cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
     },
 
