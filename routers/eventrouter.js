@@ -102,6 +102,13 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
 })
 
 
+router.get('/organizers/events/getAttendanceInfo/:id', async (req,res) => {
+
+
+}
+)
+
+
 router.patch('/ModifyEvent',async (req,res)=>{
 //2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 
 // applies penalty for participants who did not attend it, and removes penalty
