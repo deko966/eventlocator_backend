@@ -43,8 +43,9 @@ module.exports = {
       }
     }     
     const eventID = result[0].id
+    numberOfCategories = eventInfo.categories.length
    
-    for(i = 0; i<eventInfo.categories.length; i++){
+    for(i = 0; i<numberOfCategories; i++){
 
     eventCategoriesData = [eventID, eventInfo.categories[i]]
     await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
