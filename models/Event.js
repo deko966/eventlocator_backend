@@ -55,7 +55,7 @@ module.exports = {
     if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
 
       for(i=0;i<numberOfSessions;i++){
-        const limitedLocatedSessionData =[eventID,eventInfo.sessions[i].id,eventInfo.sessions.checkInTime]
+        const limitedLocatedSessionData =[eventID,eventInfo.sessions[i].id,eventInfo.sessions[i].checkInTime]
         await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
       }
   }
