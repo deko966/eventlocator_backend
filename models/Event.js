@@ -218,6 +218,16 @@ module.exports = {
         return result 
       }
     },
+    getAttendaceOfAnEvent: async(eventID) =>{
+      
+      const attendees = await makeDBQuery()
+
+
+    },
+
+
+
+
     getEventsFeedback:async (eventData) => {
       eventID=[eventData]
       const result = await makeDBQuery ("select feedback,rating from  participantsrateevent where participantsrateevent.eventid =?",eventID)

@@ -110,7 +110,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
     organizerID = [organizerAuthInfo.id]
     //join first with the organizer type then with the followers table
     if (organizerAuthInfo.type == 0){
-     const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on organization.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
+     const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on organization.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
        ,organizerID)
       if(result.length == 0) {
         return null
@@ -123,10 +123,11 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         about:result[0].description,
         phoneNumber:result[0].phoneNumber,
         rating:result[0].rating,
-        socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},
+        socialMediaAccounts:[
+        {accountName:result[0].facebookName,url:result[0].facebookLink},
+        {accountName:result[0].youTubeName,url:result[0].youTubeLink},
         {accountName:result[0].instagramName,url:result[0].instagramLink},
-        {accountName:result[0].twitterName,url:result[0].twitterLink},
-        {accountName:result[0].youtubeName,url:result[0].youtubeLink}],
+        {accountName:result[0].twitterName,url:result[0].twitterLink}],
         image:Buffer.from(result[0].image.buffer).toString('base64')
       }
     }      
@@ -150,12 +151,13 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             phoneNumber:result[0].phoneNumber,
             rating:result[0].rating,
             image:Buffer.from(result[0].profilePicture.buffer).toString('base64'),
-            socialMediaAccounts:[{accountName:result[0].facebookName,url:result[0].facebookLink},
-            {accountName:result[0].instagramName,url:result[0].instagramLink},{accountName:result[0].twitterName,
-            url:result[0].twitterLink},{accountName:result[0].youTubeName,url:result[0].youTubeLink},{
-            accountName:result[0].linkedInName,url:result[0].linkedInLink}]
-          }
-        
+            socialMediaAccounts:[
+            {accountName:result[0].facebookName,url:result[0].facebookLink},
+            {accountName:result[0].youTubeName,url:result[0].youTubeLink},
+            {accountName:result[0].instagramName,url:result[0].instagramLink},
+            {accountName:result[0].twitterName,url:result[0].twitterLink},
+            {accountName:result[0].linkedInName,url:result[0].linkedInLink}
+          ]}
         }
     }
 },
