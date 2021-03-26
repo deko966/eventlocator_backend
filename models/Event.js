@@ -26,7 +26,7 @@ module.exports = {
       ,eventgeneralDetails)
       
       organizerID =[authOrganizerInfo.id]
-      const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =?",organizerID)
+      const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =? order by id DESC",organizerID)
       
       if(eventInfo.locatedEventData != undefined){
        const  eventlocation = [result[0].id,eventInfo.locatedEventData.city,eventInfo.locatedEventData.location[0],eventInfo.locatedEventData.location[1]]
@@ -51,10 +51,13 @@ module.exports = {
     await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
     
   }
+
     if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
-    const limitedLocatedSessionData =[result[0].id,eventInfo.sessions.id,eventInfo.sessions.checkInTime]
-    await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
-   
+
+      for(i=0;i<numberOfSessions;i++){
+        const limitedLocatedSessionData =[eventID,eventInfo.sessions[i].id,eventInfo.sessions.checkInTime]
+        await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
+      }
   }
 },
 //need to check how to get to pictures for each event and convert,will check this tmrw morning 
@@ -65,13 +68,13 @@ module.exports = {
     const eventsResult = await makeDBQuery("SELECT event.id ,event.name,event.description,convert(event.startDate,Char) as startDate,convert(event.endDate,char) as endDate,convert(event.registrationCloseDatetime,char) as registrationCloseDatetime ,event.maxParticipants,event.rating, event.whatsAppLink,event.status, picture from event where event.status <> 2 and event.organizerid =?"
     ,organizerID)
 
-    for(i=0; i < eventResult.length; i++)
+    for(i=0; i < eventsResult.length; i++)
     {
-      const id = [eventResult[i].id]
-     const sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where and eventID =? ORDER BY id ASC",id)
+      const id = [eventsResult[i].id]
+     const sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where eventID =? ORDER BY id ASC",id)
 
 
-    const locatedEventDataResult = await makeDBQuery("SELECT city, logitude, latitude FROM locatedevent WHERE EventID = ?", id)
+    const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", id)
     
     if (eventsResult[i].maxParticipants > 0 && locatedEventDataResult.length >0){
       let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", id)

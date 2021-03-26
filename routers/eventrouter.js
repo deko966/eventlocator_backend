@@ -14,14 +14,14 @@ const uploads = multer({
 
 router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
    
-
+    try{
     const eventData =  JSON.parse(req.body.event)
     await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
     res.sendStatus(201)
-
-        console.log(e)
+    }
+    catch(e){
         res.status(401).send(e)
-    
+    }
 
 })
 
@@ -97,7 +97,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
             res.status(200).send(events)
         }
         else{
-            res.status(404)
+            res.status(404).send("event not found")
     }
 })
 
