@@ -34,7 +34,7 @@ module.exports = {
           organizer.socialMediaAccounts[1].url, organizer.socialMediaAccounts[2].accountName,
           organizer.socialMediaAccounts[2].url, organizer.socialMediaAccounts[3].accountName, organizer.socialMediaAccounts[3].url,type,images[0].buffer]
       if (type == 0) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
+          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,YouTubeName,YouTubeLink,InstagramName,InstagramLink,TwitterName,TwitterLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
           const organizerID= await makeDBQuery('select ID from organizer where email =?', emailInput);
           
           
@@ -142,7 +142,8 @@ getOrganizerInfo: async (organizerAuthInfo) => {
       }
     
       else{
-        
+        let image = ""
+        if (result[0].profilePicture != null) image = Buffer.from(result[0].profilePicture.buffer).toString('base64')
           return indiviudalInfo= {
             numberOfFollowers: result[0].followers,
             name: result[0].name,
@@ -150,7 +151,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             about:result[0].description,
             phoneNumber:result[0].phoneNumber,
             rating:result[0].rating,
-            image:Buffer.from(result[0].profilePicture.buffer).toString('base64'),
+            image:image,
             socialMediaAccounts:[
             {accountName:result[0].facebookName,url:result[0].facebookLink},
             {accountName:result[0].youTubeName,url:result[0].youTubeLink},

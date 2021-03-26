@@ -73,6 +73,7 @@ else{
 router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
     try{
     const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
+    console.log(organizer)
     res.status(202).send(organizer) 
     }
     catch(e){
