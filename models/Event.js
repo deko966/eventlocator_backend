@@ -95,6 +95,8 @@ module.exports = {
 
     const sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
     ,eventID)    
+    const categories = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
+
  
     if(result.length == 0 ){
     return null
@@ -111,7 +113,8 @@ module.exports = {
         rating:result[0].rating,
         whatsAppLink:result[0].whatsAppLink,
         status:result[0].status,
-        sessions:sessions
+        sessions:sessions,
+        categories:categories
       }
     }
   },
