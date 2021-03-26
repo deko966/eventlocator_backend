@@ -50,7 +50,7 @@ router.get('/EventInfo/:id',async (req,res)=>{
 })
 
 router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,res) =>{
-    const participants = await eventModel.getParticipantsOfAnEvent(req.params.id)
+    const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
     if(participants!=null){
     res.status(200).send(participants)
     }

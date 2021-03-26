@@ -26,8 +26,8 @@ module.exports = {
       ,eventgeneralDetails)
       
       organizerID =[authOrganizerInfo.id]
-      const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =? order by id DESC",organizerID)
-      
+      const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =? order by event.id DESC",organizerID)
+      console.log(eventInfo.locatedEventData)
       if(eventInfo.locatedEventData != undefined){
        const  eventlocation = [result[0].id,eventInfo.locatedEventData.city,eventInfo.locatedEventData.location[0],eventInfo.locatedEventData.location[1]]
         await makeDBQuery("insert into locatedevent (eventID,city,longtitude,latitude) values (?,?,?,?) ",eventlocation)
@@ -60,7 +60,7 @@ module.exports = {
       }
   }
 },
-//need to check how to get to pictures for each event and convert,will check this tmrw morning 
+ 
 
   getOrganizerEvents:async (organizerData) => {
     organizerID = [organizerData.id]
@@ -83,11 +83,10 @@ module.exports = {
       }
     }
 
-    const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime WHERE EventID = ?", id)
+    const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", id)
     
-    const categoriesResult = await makeDBQuery("SELECT eventCategory from eventCategories WHERE EventID = ?", id)
-
-    let locatedEventData = null
+    const categoriesResult = await makeDBQuery("SELECT category from eventCategories WHERE EventID = ?", id)
+    let locatedEventData= null
     if (locatedEventDataResult.length>0)
     locatedEventData = {
       city: locatedEventDataResult[0].city,
@@ -133,34 +132,72 @@ module.exports = {
 
   getEventDetailsByID: async (eventData) => {
     eventID = [eventData]
-
-    const result = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
+    const result = []
+    const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
     eventID)
-
+    console.log(eventResult[0].picture)
     const sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
     ,eventID)    
     const categories = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
-
+  
  
-    if(result.length == 0 ){
-    return null
+    const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+    
+    let locatedEventData= null
+    if (locatedEventDataResult.length>0)
+    locatedEventData = {
+      city: locatedEventDataResult[0].city,
+      location: [locatedEventDataResult[0].latitude, locatedEventDataResult[0].longitude]
     }
-    else{
-      return {
-        name:result[0].name,
-        description:result[0].description,
-        picture:Buffer.from(result[0].picture.buffer).toString('base64'),
-        startDate:result[0].startDate,
-        endDate:result[0].endDate,
-        registrationCloseDateTime:result[0].registrationCloseDateTime,
-        maxParticipants:result[0].maxParticipants,
-        rating:result[0].rating,
-        whatsAppLink:result[0].whatsAppLink,
-        status:result[0].status,
-        sessions:sessions,
-        categories:categories
+
+    if (eventResult.maxParticipants > 0 && locatedEventDataResult.length >0){
+      let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
+      for(i =0; i< sessions.length; i++){
+        sessions[i].checkInTime = limitedLocatedSessionData[i]
       }
     }
+
+    const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
+    
+    if (locatedEventDataResult.length>0)
+    locatedEventData = {
+      city: locatedEventDataResult[0].city,
+      location: [locatedEventDataResult[0].latitude, locatedEventDataResult[0].longitude]
+    }
+
+    let canceledEventData = null
+    if (canceledEventDataResult.length > 0){
+      canceledEventData = {
+        cancellationDateTime: canceledEventDataResult[0].cancellationDateTime,
+        cancellationReason: canceledEventDataResult[0].cancelationReason
+      }
+    }
+
+    if(eventResult.length == 0 ){
+    return null
+    }
+
+       result.push({
+        id: eventResult[0].id,
+        name: eventResult[0].name,
+        description: eventResult[0].description,
+        categories: categories,
+        startDate: eventResult[0].startDate,
+        endDate: eventResult[0].endDate,
+        registrationCloseDateTime: eventResult[0].registrationCloseDateTime,
+        status: eventResult[0].status,
+        maxParticipants: eventResult[0].maxParticipants,
+        rating: eventResult[0].rating,
+        sessions: sessions,
+        participants: [],
+        feedback: [],
+        locatedEventData: locatedEventData,
+        canceledEventData: canceledEventData,
+        image: Buffer.from(eventResult[0].picture.buffer).toString('base64'),
+        whatsAppLink: eventResult[0].whatsAppLink
+      })
+      return result
+    
   },
   
     
