@@ -20,6 +20,7 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
     res.sendStatus(201)
     }
     catch(e){
+        console.log(e)
         res.status(401).send(e)
     }
 
@@ -97,7 +98,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
             res.status(200).send(events)
         }
         else{
-            res.status(404).send("event not found")
+            res.status(404)
     }
 })
 
