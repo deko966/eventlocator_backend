@@ -34,7 +34,7 @@ authOrganizer:(req,res,next)=>{
       });
 },
 createParticipantToken:(participant)=>{
-    const token = jwt.sign({id:participant.id.toString(),password:participant.password.toString(),
+    const token = jwt.sign({id:participant.id.toString(),
     email:participant.email.toString()},config.secret)
     return token
 },

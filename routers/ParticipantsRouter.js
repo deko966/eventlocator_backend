@@ -1,32 +1,60 @@
-var mysql = require('mysql');
 const express = require('express')
 const router =  express.Router()
 const connection = require('../models/db')
-const ParticipantModule = require('../models/Participant')
+const ParticipantModel = require('../models/Participant')
 const auth = require('../middleware/auth')
 //use the req and the create variables that can be stored in the req 
 
-
-router.post('/createParticipant',async (req,res)=>{
-    const participant = await ParticipantModule.createParticipant(req.body)
-    if(participant.err)
-
-    res.status(500).send(participant.err)
+router.post('/participants/signup/partial',async (req,res)=>{
     
-    else{
+    try{
+    const participant = await ParticipantModel.partialSignup(req.body)
+        
+    if(participant == null){
+        res.sendStatus(200)
+    }
 
-        res.status(200).send(participant)
+    else{    
+        res.sendStatus(409)
+    }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
+})
+
+router.post('/participants/signup',async (req,res)=>{
+
+       try{ const participant = await ParticipantModel.createParticipant(req.body)
+        
+        if(participant == 1){
+            res.sendStatus(409)
+        }
+        else{   
+        res.sendStatus(200)
+        }
+    }
+    catch(e){
+        res.sendStatus(500)
     }
 
 })
 
 
-router.post('/participantLogin',async (req,res)=>{
 
-    const participant = await ParticipantModule.login(req.body)
-    res.status(200).send(token)
+router.post('/participantLogin',async (req,res)=>{
+    try{ 
+        const token = await ParticipantModel.login(req.body)
+        if (token != null)
+            res.status(202).send(token)
+        else
+        if (token == null)
+            res.sendStatus(404)
+}
+    catch(e){
+        res.sendStatus(500)
     }
-)
+}),
 
 
 router.get('/organizerByName/:name',auth.authParticipant ,async (req,res)=>{

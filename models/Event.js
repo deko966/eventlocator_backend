@@ -144,7 +144,7 @@ module.exports = {
   },
 
 
-  getEventDetailsByID: async (eventID) => {
+  getEventByID: async (eventID) => {
     const result = []
     const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
     eventID)
@@ -240,12 +240,31 @@ module.exports = {
         return result 
       }
     },
+    getParticipantsOfLimitedEvent: async(eventID) =>{
+      const notCheckedIn=""
+      const participants = await makeDBQuery("select participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
+      ,eventID)
+      const checkIn = await makeDBQuery ("select participantID,arrivalTime from checkinparticipant",eventID)
+      
+      for(i=0;i<participants.length;i++){
+        if(participant[i].id == checkIn[i].id){
+          participants[i].push =checkIn[i].arrivalTime
+        }
+        else{
+          participants[i].push=notCheckedIn
+        }
+      }
+
+    },
+
+
     getAttendaceOfAnEvent: async(eventID) =>{
       
-      const attendees = await makeDBQuery()
+      const attendees = await makeDBQuery("select count(participant.id) as total from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =?" )
 
 
     },
+
 
 
 

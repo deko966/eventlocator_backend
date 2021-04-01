@@ -5,7 +5,6 @@ const config = require('../config/config');
 const auth = require('../middleware/auth');
 const { createOrganizerToken, authOrganizer } = require('../middleware/auth');
 //auth we store the ID and phone number and email and password
-//might delete password for organizer
 //auth we store the ID email and password for participant 
 //need to add status for organizer here
 

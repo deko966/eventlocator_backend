@@ -3,6 +3,7 @@ const bcrypt =require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const organizer = require('../models/Organizer');
+const auth = require('../middleware/auth');
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -18,38 +19,51 @@ function makeDBQuery(query, arguments) {
 }
 
 
-
-
-
 module.exports = {
-    createParticipant:( participant ) => {
-      return new Promise (resolve =>  {
-        hashed = bcrypt.hashSync(participant.Password, 8)
-        input = [participant.FirstName,participant.LastName,participant.Email,hashed,participant.City]
-        sql.query("INSERT INTO participant (firstName,lastName,Email,Password,city) values (?,?,?,?,?)",input,  (err, result)=> {
-            if (err) {
-          resolve({undefined,err})
-            }
-            else{
-         resolve({result, undefined})
-          }
-        });
-    })
-    },
+    createParticipant: async( participant ) => {
+      used = 0
+      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
+      if( emailCheck.length !=0 ) {
+        used = 1
+        return used
+      }  
+      else{ 
+      hashed = bcrypt.hashSync(participant.password, 8)
+      participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
+      await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
+      const email = [participant.email] 
+      participantID = await makeDBQuery("select id from participant where email = ?",email)
+      
+      numberOfCategories = participant.categories.length
+      for(i=0;i<numberOfCategories;i++){
+        participantCategoriesData = [participantID[0].id,participant.categories[i]]
+        result = await makeDBQuery("INSERT INTO preferredcategory(participantID, category) VALUES (?,?)",participantCategoriesData )
+        }
+      }
+      },
 
-login:async (participant)=>{ 
-    participantInfo =  [participant.credentials[0]] 
-    const result = await makeDBQuery("Select firstName,lastName,Email,city from participant where Email =? AND Password =?", participantInfo )
-    
+partialSignup: async (email) =>{
+  emailInput =[email]
+  result = await makeDBQuery("select email from participant where email =?",emailInput)
+ 
+ 
+},
+
+
+login:async (credentials)=>{ 
+  console.log(credentials)
+    participantInfo =  [credentials[0]] 
+    const result = await makeDBQuery("Select id,firstName,lastName,email, password,city  from participant where Email =?", participantInfo )
+   
     if(result.length == 0){
       return null
     }
-    const isMatch = await bcrypt.compare(participant.credentials[1],result[0].password)
-    if(!ismatch){
+    const isMatch = await bcrypt.compare(credentials[1],result[0].password)
+    if(!isMatch){
       return null
       }
     else{    
-      return createParticipantToken(result[0])
+      return auth.createParticipantToken(result[0])
     }
     },
 

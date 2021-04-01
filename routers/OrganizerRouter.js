@@ -28,7 +28,6 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
             res.sendStatus(201);
        }
        catch(e){
-           console.log(e)
            res.sendStatus(503)
        }
         
@@ -36,36 +35,52 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
 
 router.post('/organizers/login',async (req,res)=>{
 
-    const token = await OrganizerModel.login(req.body)
+   try{ 
+    
+        const token = await OrganizerModel.login(req.body)
    
-    if (token != null)
-        res.status(202).send(token)
-    else
-    if (token == null)
-        res.sendStatus(404)
-    }),
+        if (token != null)
+            res.status(202).send(token)
+        else
+        if (token == null)
+            res.sendStatus(404)
+}
+    catch(e){
+        res.sendStatus(500)
+    }
+}),
 
  router.post('/organizers/partial/sign',async (req,res) =>{
    
-    const organizer = await OrganizerModel.organizerPartialSignup(req.body)
-    if(organizer == null){
-        res.sendStatus(200)
+    try{
+        const organizer = await OrganizerModel.organizerPartialSignup(req.body)
+        if(organizer == null){
+            res.sendStatus(200)
     }
-    else{
-    
+
+    else{    
         res.sendStatus(409)
     }
+}
+catch(e){
+    res.sendStatus(500)
+}
 
 }),
 
 router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
 const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
 
- if (type == undefined)
-    res.status(404).send("user not found")
-else{
-    res.status(202).send(type)
-}
+ try{
+     if (type == undefined)
+        res.status(404).send("user not found")
+    else{
+        res.status(202).send(type)
+    }
+ }
+ catch(e){
+     res.sendStatus(500)
+ }
 }),
 
 
@@ -73,23 +88,33 @@ else{
 router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
     try{
     const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
-    console.log(organizer)
-    res.status(202).send(organizer) 
+    if(organizer != null){
+        res.status(202).send(organizer) 
+        
     }
-    catch(e){
-        console.log(e)
+
+    else{
         res.sendStatus(401)
+    }
+}
+    catch(e){
+    
+        res.sendStatus(500)
     }
 }),
 
 router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{
+    try{
     const followers = await OrganizerModel.organizerFollower(req.params.id)
         if(followers!=null){
-
         res.status(202).send(followers)
         }
         else{
             res.sendStatus(404)
+    }
+    }
+    catch(e){
+        res.sendStatus(500)
     }
 
  }),
