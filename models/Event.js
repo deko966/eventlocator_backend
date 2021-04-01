@@ -267,8 +267,6 @@ module.exports = {
 
 
 
-
-
     getEventsFeedback:async (eventData) => {
       eventID=[eventData]
       const result = await makeDBQuery ("select feedback,rating from  participantsrateevent where participantsrateevent.eventid =?",eventID)
@@ -352,20 +350,20 @@ module.exports = {
     },
 
     getUpcomingEvents: async (currentParticipantID) =>{
-      const eventResult = await makeDBQuery("SELECT event.id, event.name, event.startDate, event.endDate, event.registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where sessionID = 1 AND eventID = event.id) ) as datetime) < NOW()")
-      const registeredEvents = await makeDBQuery("SELECT EventID FROM participantregisterinevent WHERE participantID = ? AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where sessionID = 1 AND eventID = event.id) ) as datetime) < NOW()", currentParticipantID)
+      const eventResult = await makeDBQuery("SELECT event.id, event.name, event.startDate, event.endDate, event.registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) < NOW()")
+      const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent,event WHERE participantID = ? AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) < NOW()", currentParticipantID)
       const result = []
       for(let i = 0; i< eventResult.length; i++){
-        const id = eventResult[0].id
-        const numberOfParticipants = makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", eventID)
+        const eventID = eventResult[0].id
+        const numberOfParticipants = await makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", eventID)
         const isParticipantRegistered = registeredEvents.includes(eventResult[i].id)
-        let sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where eventID =? ORDER BY id ASC",id)
+        let sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where eventID =? ORDER BY id ASC",eventID)
       sessions = JSON.parse(JSON.stringify(sessions))
 
-     const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", id)
+     const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
     
-      if (eventsResult[i].maxParticipants > 0 && locatedEventDataResult.length >0){
-        let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", id)
+      if (eventResult[i].maxParticipants > 0 && locatedEventDataResult.length >0){
+        let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
         for(j =0; j< sessions.length; j++){
           sessions[j].checkInTime = limitedLocatedSessionData[i].checkInTime
         }
@@ -376,14 +374,14 @@ module.exports = {
         }
       }
 
-      const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", id)
+      const canceledEventDataResult = await makeDBQuery("SELECT cancelationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
     
-      const categoriesResult = await makeDBQuery("SELECT category from eventCategories WHERE EventID = ?", id)
+      const categoriesResult = await makeDBQuery("SELECT category from eventCategories WHERE EventID = ?", eventID)
 
       const categories = []
-      for(k = 0; k < categoriesResult.length; k++)
+      for(k = 0; k < categoriesResult.length; k++){
       categories.push(categoriesResult[k].category)
-
+      }
       let locatedEventData= null
       let locations = []
       if (locatedEventDataResult.length>0){
@@ -402,7 +400,7 @@ module.exports = {
           cancellationReason: canceledEventDataResult[0].cancelationReason
         }
       }
-
+  
       result.push({
         id: eventResult[i].id,
         description: "",
@@ -429,7 +427,7 @@ module.exports = {
   },
 
   getUpcomingEventsByFollowedOrganizers: async (currentParticipantID) => {
-    const eventResult = await makeDBQuery("SELECT event.id, event.name, event.startDate, event.endDate, event.registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where sessionID = 1 AND eventID = event.id) ) as datetime) < NOW() AND organizer.id IN (SELECT organizerID FROM paticipantsfolloworganizer WHERE participantID = ?)", currentParticipantID)
+    const eventResult = await makeDBQuery("SELECT event.id, event.name, event.startDate, event.endDate, event.registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) < NOW() AND organizer.id IN (SELECT organizerID FROM participantsfolloworganizer WHERE participantID = ?)", currentParticipantID)
     //the rest is literally the same as the function above
     //وكما يقول المثل الشهير: الحياة صعبة
   },

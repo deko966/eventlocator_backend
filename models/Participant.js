@@ -85,7 +85,7 @@ login:async (credentials)=>{
     unfollowOrganizer:(organizer)=>{
         return new Promise(resolve =>{
         input = organizer.id
-        sql.query("delete  from participantsfolloworganizer where organizerID = ? ", input ,  (err, result)=>{
+        sql.query("delete  from participantsfolloworganizer where organizerID = ? and participantID=? ", input ,  (err, result)=>{
           
         if (err) {
             resolve({undefined,err})

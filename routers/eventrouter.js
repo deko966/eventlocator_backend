@@ -10,6 +10,18 @@ const uploads = multer({
     },
   
   })
+
+
+router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
+    const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+
+        res.sendStatus(404)
+    }
+})
+
    
 
 router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
@@ -112,6 +124,31 @@ router.get('/organizers/events/getAttendanceInfo/:id', async (req,res) => {
 
 }
 )
+
+router.get('/participants/organizer/:id/events', async (req,res) =>{
+    
+    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+        res.sendStatus(404)
+    }
+
+
+})
+
+router.get('/participants/events/upcoming',auth.authParticipant, async (req,res) =>{
+    const events = await eventModel.getUpcomingEvents(req.participantID)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+        res.sendStatus(404)
+    }
+})
+
+
+
+
 
 
 router.patch('/ModifyEvent',async (req,res)=>{
