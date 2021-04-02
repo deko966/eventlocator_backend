@@ -3,6 +3,7 @@ const router =  express.Router()
 const connection = require('../models/db')
 const ParticipantModel = require('../models/Participant')
 const auth = require('../middleware/auth')
+const { authParticipant } = require('../middleware/auth')
 //use the req and the create variables that can be stored in the req 
 
 router.post('/participants/signup/partial',async (req,res)=>{
@@ -66,23 +67,78 @@ router.get('/organizerByName/:name',auth.authParticipant ,async (req,res)=>{
     }
 })  
 
-router.get('/FollowOrganizer/:id',auth.authParticipant,async (req,res)=>{
-    const participant = await ParticipantModule.getOrganizer(req.params.id,req.participantID)
-    if(participant.err)
-        res.status(500).send(participant.err)
+router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req,res)=>{
+    try{
+    const participant = await ParticipantModel.followOrganizer(req.params.id,req.participantID)
+    res.sendStatus(200)
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
+
+})
+
+router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
+    try{
+    const participant = await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
+    res.sendStatus(200)
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
+})
+router.get('/participants/organizers/followed', auth.authParticipant, async(req,res)=>{
+   try{
+    const organizers = await ParticipantModel.organizerFollowedByParticipant(req.participantID)
+    if(organizers != null){
+        res.status(202).send(organizers)
+    }
     else{
-       res.sendStatus(200).send("success")
+        res.sendStatus(404)
+    }
+}
+    catch(e){
+        res.status(500).send(e)
     }
 })
 
-// router.patch('/unFollowOrganizer/:id',auth.authParticipant,async (req,res)=>{
-//     const unfollow = await participant.unfollowOrganizer(req.params.id)
-//     if(participant.err)
-//         res.status(500).send(participant.err)
-//     else{
-//         res.status(200)
-// }
-// })
+
+
+router.get('/participants/event/:id/register', auth.authParticipant, async(req,res)=>{
+    
+  try{  
+    await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
+      res.sendStatus(202)
+    }
+    catch(e){
+        res.sendStatus(406)
+    }
+})
+
+
+router.post('/participants/event/:id/register', auth.authParticipant, async(req,res)=>{
+    
+    try{  
+      await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
+        res.sendStatus(202)
+      }
+      catch(e){
+          res.sendStatus(406)
+      }
+  })
+
+  router.post('/participants/event/:id/unregister', auth.authParticipant, async(req,res)=>{
+    
+    try{
+        await ParticipantModel.participantUnregisterInEvent(req.participantID,req.params.id)
+        res.sendStatus(202)
+    }
+    catch(e){     
+         res.sendStatus(406)
+     }
+  })  
+
+
 
 // router.patch('/ModifyParticipantProfile',auth,async (req,res)=>{
 

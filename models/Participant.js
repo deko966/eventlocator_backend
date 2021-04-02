@@ -37,9 +37,12 @@ module.exports = {
       for(i=0;i<numberOfCategories;i++){
         participantCategoriesData = [participantID[0].id,participant.categories[i]]
         result = await makeDBQuery("INSERT INTO preferredcategory(participantID, category) VALUES (?,?)",participantCategoriesData )
-        }
       }
-      },
+    }
+},
+
+
+
 
 partialSignup: async (email) =>{
   emailInput =[email]
@@ -47,6 +50,8 @@ partialSignup: async (email) =>{
  
  
 },
+
+
 
 
 login:async (credentials)=>{ 
@@ -63,45 +68,68 @@ login:async (credentials)=>{
     else{    
       return auth.createParticipantToken(result[0])
     }
-    },
-
-FollowOrganizer:async (organizerID,particpantID)=>{
-      
-    const inputDetails =  [organizerID,particpantID]
-    await makeDBQuery("Insert into participantfolloworganizer values (?,?)",inputDetails) 
 },
 
-unfollowOrganizer:async (organizer)=>{
+
+
+
+followOrganizer:async (organizerID,particpantID)=>{
+      console.log(organizerID,particpantID)
+  const inputDetails =  [2,114]
+  const result =  await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",inputDetails) 
+  console.log(result)
+
+},  
+
+
+
+unfollowOrganizer:async (organizerID,participantID)=>{
     
-    organizerID = organizer.id
-    await makeDBQuery("delete  from participantsfolloworganizer(organizerID,participantID) where organizerID = ? and participantID=? ",organizerID)
+    registrationIDs = [organizerID,participantID]
+    await makeDBQuery("delete  from participantsfolloworganizer where organizerID = ? and participantID=? ",registrationIDs)
         
 },
+
 
 getOrganizer:async (organizerName)=>{
      
     input = [organizerName]
     await makeDBQuery("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input)    
 }, 
+
+
+
 participantRegisterInEvent: async (participantID,eventID) => {
-    registrationIDs = [participantID,eventID]
-    await makeDBQuery("insert into participantregisterinevent(participantID,organizerID) values (?,?)",registrationIDs)
+  registrationIDs = [eventID,participantID]
+    await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
 },
+
+
+
 participantUnregisterInEvent: async (participantID,eventID) =>{
   registrationIDs = [participantID,eventID]
-  await makeDBQuery("delete from  participantregisterinevent where participantID = ? and eventID = ?",registrationIDs)
+  await makeDBQuery("delete from  participantsregisterinevent where participantID = ? and eventID = ?",registrationIDs)
 },
 
-organizerFollowedByParticipant: async (participantID) =>{
-  const noOfFollowers=0;
+
+//i failed at this one
+
+getorganizerFollowedByParticipant: async (participantID) =>{
+  
   let result=[]
-  const organizer = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID where participantsfolloworganizer.ParticipantID =?" ,participantID)
-  organizerID =[organizer[0].id]
-  const followers = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organzierID = ?",organizerID)
- if(followers!=undefined)
-  noOfFollowers=followers[0].followers 
+  const organizer = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID where participantsfolloworganizer.ParticipantID = ?" ,participantID)
+
+  for(i=0;i<organizer.length;i++){
+  organizerID = [organizer[i].id]
+  const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)
+  let noOfFollowers =0
+    if(tempResult[0].followers!= undefined)
+      noOfFollowers=tempResult[0].followers 
+ }
+
 
   if(organizer!= undefined)
+  for(i=0;i<organizer.length;i++){
   result.push({
       id:organizer[0].id, 
       name: organizer[0].name,
@@ -113,14 +141,11 @@ organizerFollowedByParticipant: async (participantID) =>{
       previousEvents:"",
       canceledEvents:"",
       image: "",
-      numberOfFollowers: noOfFollowers,
+      numberOfFollowers: noOfFollowers[i],
       isFollowedByCurrentParticipant: true,
       
   })
-
-  
-
-
+  }
+  return result 
 }
-
 }
