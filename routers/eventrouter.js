@@ -12,15 +12,6 @@ const uploads = multer({
   })
 
 
-router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
-    const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
-    if(events != null)
-    res.status(202).send(events)
-    else{
-
-        res.sendStatus(404)
-    }
-})
 
    
 
@@ -53,14 +44,6 @@ router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) =
     }
 })
 
-router.get('/EventInfo/:id',async (req,res)=>{
-    try{
-    const event = await eventModel.getEventDetails(req.params.id)
-    }
-    catch(e){
-        res.status(400).send(e)
-    }
-})
 
 router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,res) =>{
     const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
@@ -93,19 +76,14 @@ router.get('/organizers/events/feedback/:id',async (req,res)=>{
 }),
 
 router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
-        try{
-            const event = await eventModel.getEventDetailsByID(req.params.id)
+        
+            const event = await eventModel.getEventByID(req.params.id)
             if (event==null){
                 res.status(404)
             }
             else {
                 res.status(200).send(event)
             }
-        }
-        catch(e){
-            res.status(500)
-        }
-
 })
 
 router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
@@ -147,6 +125,35 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
 })
 
 
+router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
+    const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+
+        res.sendStatus(404)
+    }
+})
+
+router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
+    const event = await eventModel.getEventByIdForParticipant(req.participantID,req.params.id)
+    if(event != null){
+        res.status(202).send(event)
+    }
+    else{
+        res.sendStatus(404)
+    }
+})
+router.get('/participants/events',auth.authParticipant, async (req,res) =>{
+  
+    const events = await eventModel.getParticipantEvents(req.participantID)
+    if(events != null){
+        res.status(202).send(events)
+    }
+    else{
+        res.sendStatus(404)
+    }
+})
 
 
 

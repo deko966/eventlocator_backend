@@ -18,7 +18,6 @@ function makeDBQuery(query, arguments) {
   })
 }
 
-
 module.exports = {
     createParticipant: async( participant ) => {
       used = 0
@@ -51,7 +50,6 @@ partialSignup: async (email) =>{
 
 
 login:async (credentials)=>{ 
-  console.log(credentials)
     participantInfo =  [credentials[0]] 
     const result = await makeDBQuery("Select id,firstName,lastName,email, password,city  from participant where Email =?", participantInfo )
    
@@ -67,48 +65,62 @@ login:async (credentials)=>{
     }
     },
 
-    FollowOrganizer:(organizerID,particpantID)=>{
-        return new Promise(resolve => {
-          input =  [organizerID,particpantID]
-          sql.query("Insert into participantfolloworganizer values (?,?)" , input ,  (err, result)=> 
-          {
-          if (err) {
-            resolve({undefined,err})
-              }
-              else{
-           resolve({result, undefined})
-            }
-        }
-        ) 
-      })
-      },
-    unfollowOrganizer:(organizer)=>{
-        return new Promise(resolve =>{
-        input = organizer.id
-        sql.query("delete  from participantsfolloworganizer where organizerID = ? and participantID=? ", input ,  (err, result)=>{
-          
-        if (err) {
-            resolve({undefined,err})
-        }
-        else{
-           resolve({result, undefined})
-        }
-        });
-        })
+FollowOrganizer:async (organizerID,particpantID)=>{
+      
+    const inputDetails =  [organizerID,particpantID]
+    await makeDBQuery("Insert into participantfolloworganizer values (?,?)",inputDetails) 
 },
-    getOrganizer:(organizerName)=>{
-        return new Promise(resolve =>{
-        input = [organizerName]
-        sql.query("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input ,  (err, result)=>{
-              
-        if (err) {
-            resolve({undefined,err})
-        }
-        else{
-            resolve({result, undefined})
-        }
-        });
-        })
-    },
+
+unfollowOrganizer:async (organizer)=>{
+    
+    organizerID = organizer.id
+    await makeDBQuery("delete  from participantsfolloworganizer(organizerID,participantID) where organizerID = ? and participantID=? ",organizerID)
+        
+},
+
+getOrganizer:async (organizerName)=>{
+     
+    input = [organizerName]
+    await makeDBQuery("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input)    
+}, 
+participantRegisterInEvent: async (participantID,eventID) => {
+    registrationIDs = [participantID,eventID]
+    await makeDBQuery("insert into participantregisterinevent(participantID,organizerID) values (?,?)",registrationIDs)
+},
+participantUnregisterInEvent: async (participantID,eventID) =>{
+  registrationIDs = [participantID,eventID]
+  await makeDBQuery("delete from  participantregisterinevent where participantID = ? and eventID = ?",registrationIDs)
+},
+
+organizerFollowedByParticipant: async (participantID) =>{
+  const noOfFollowers=0;
+  let result=[]
+  const organizer = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID where participantsfolloworganizer.ParticipantID =?" ,participantID)
+  organizerID =[organizer[0].id]
+  const followers = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organzierID = ?",organizerID)
+ if(followers!=undefined)
+  noOfFollowers=followers[0].followers 
+
+  if(organizer!= undefined)
+  result.push({
+      id:organizer[0].id, 
+      name: organizer[0].name,
+      email: "",
+      about: "",
+      rating: organizer[0].rating,
+      socialMediaAccounts: "",
+      upcomingEvents: "",
+      previousEvents:"",
+      canceledEvents:"",
+      image: "",
+      numberOfFollowers: noOfFollowers,
+      isFollowedByCurrentParticipant: true,
+      
+  })
+
   
-}  
+
+
+}
+
+}
