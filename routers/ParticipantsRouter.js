@@ -85,15 +85,16 @@ router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req
 
 router.get('/participants/organizers/followed', auth.authParticipant, async(req,res)=>{
     try{
-     const organizers = await ParticipantModel.organizerFollowedByParticipant(req.participantID)
+     const organizers = await ParticipantModel.getOrganizersFollowedByParticipant(req.participantID)
      if(organizers != null){
          res.status(202).send(organizers)
      }
      else{
          res.sendStatus(404)
      }
- }
+    }
      catch(e){
+         console.log(e)
          res.status(500).send(e)
      }
  })

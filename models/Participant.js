@@ -92,7 +92,6 @@ unfollowOrganizer:async (organizerID,participantID)=>{
 
 
 getOrganizer:async (organizerName)=>{
-     
     input = [organizerName]
     await makeDBQuery("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input)    
 }, 
@@ -114,34 +113,29 @@ participantUnregisterInEvent: async (participantID,eventID) =>{
 
 //i failed at this one
 
-getorganizerFollowedByParticipant: async (participantID) =>{
+getOrganizersFollowedByParticipant: async (participantID) =>{
   
-  let result=[]
-  const organizer = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID where participantsfolloworganizer.ParticipantID = ?" ,participantID)
-
-  for(i=0;i<organizer.length;i++){
-  organizerID = [organizer[i].id]
+  const result=[]
+  const organizers = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID and participantsfolloworganizer.ParticipantID = ?" ,participantID)
+  for(let i=0;i<organizers.length;i++){
+  organizerID = [organizers[i].id]
   const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)
-  let noOfFollowers =0
+  let noOfFollowers = 0
     if(tempResult[0].followers!= undefined)
-      noOfFollowers=tempResult[0].followers 
- }
+      noOfFollowers=tempResult[0].followers
 
-
-  if(organizer!= undefined)
-  for(i=0;i<organizer.length;i++){
   result.push({
-      id:organizer[0].id, 
-      name: organizer[0].name,
+      id:organizers[i].id, 
+      name: organizers[i].name,
       email: "",
       about: "",
-      rating: organizer[0].rating,
+      rating: organizers[i].rating,
       socialMediaAccounts: "",
       upcomingEvents: "",
       previousEvents:"",
       canceledEvents:"",
       image: "",
-      numberOfFollowers: noOfFollowers[i],
+      numberOfFollowers: noOfFollowers,
       isFollowedByCurrentParticipant: true,
       
   })
