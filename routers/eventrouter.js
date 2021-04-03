@@ -29,7 +29,117 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
 })
 
 
+router.get('/participants/events/upcoming',auth.authParticipant, async (req,res) =>{
+    const events = await eventModel.getUpcomingEvents(req.participantID)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+        res.sendStatus(404)
+    }
+})
 
+router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
+    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo)
+        if(events != null){
+            res.status(200).send(events)
+        }
+        else{
+            res.status(404).send("event not found")
+    }
+})
+
+router.get('/participants/events',auth.authParticipant, async (req,res) =>{
+  
+    const events = await eventModel.getParticipantEvents(req.participantID)
+    if(events != null){
+        res.status(202).send(events)
+    }
+    else{
+        res.sendStatus(404)
+    }
+})
+
+
+
+
+
+
+router.get('/registerInEvent/:id',async (req,res)=>{
+    
+    const event = await eventModel.ParticipantRegisterEvent(req.params.id)
+    if(event!=null){
+        res.sendStatus(201)
+    }
+    else{
+        res.status(400).send(e)
+    }
+
+})
+
+
+
+router.get('/organizers/events/feedback/:id',async (req,res)=>{
+    const feedback = await eventModel.getEventsFeedback(req.params.id)
+    if(feedback != null)
+    res.status(200).send(feedback)
+    else{
+        res.status(404).send("no event/feedback")
+    }
+}),
+
+
+
+
+router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
+        
+            const event = await eventModel.getEventByID(req.params.id)
+            if (event==null){
+                res.status(404)
+            }
+            else {
+                res.status(200).send(event)
+            }
+})
+
+
+
+
+
+router.get('/participants/organizer/events/:id', async (req,res) =>{
+    
+    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+        res.sendStatus(404)
+    }
+
+
+})
+
+
+router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
+    const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
+    if(events != null)
+    res.status(202).send(events)
+    else{
+
+        res.sendStatus(404)
+    }
+})
+
+
+
+
+router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
+    const event = await eventModel.getEventByIdForParticipant(req.participantID,req.params.id)
+    if(event != null){
+        res.status(202).send(event)
+    }
+    else{
+        res.sendStatus(404)
+    }
+})
 
 
 router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
@@ -55,108 +165,12 @@ router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,
     }
 })
 
-router.get('/registerInEvent/:id',async (req,res)=>{
-    
-    const event = await eventModel.ParticipantRegisterEvent(req.params.id)
-    if(event!=null){
-        res.sendStatus(201)
-    }
-    else{
-        res.status(400).send(e)
-    }
-
-})
-router.get('/organizers/events/feedback/:id',async (req,res)=>{
-    const feedback = await eventModel.getEventsFeedback(req.params.id)
-    if(feedback != null)
-    res.status(200).send(feedback)
-    else{
-        res.status(404).send("no event/feedback")
-    }
-}),
-
-router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
-        
-            const event = await eventModel.getEventByID(req.params.id)
-            if (event==null){
-                res.status(404)
-            }
-            else {
-                res.status(200).send(event)
-            }
-})
-
-router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
-    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo)
-        if(events != null){
-            res.status(200).send(events)
-        }
-        else{
-            res.status(404).send("event not found")
-    }
-})
-
 
 router.get('/organizers/events/getAttendanceInfo/:id', async (req,res) => {
 
 
 }
 )
-
-router.get('/participants/organizer/:id/events', async (req,res) =>{
-    
-    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
-    if(events != null)
-    res.status(202).send(events)
-    else{
-        res.sendStatus(404)
-    }
-
-
-})
-
-router.get('/participants/events/upcoming',auth.authParticipant, async (req,res) =>{
-    const events = await eventModel.getUpcomingEvents(req.participantID)
-    if(events != null)
-    res.status(202).send(events)
-    else{
-        res.sendStatus(404)
-    }
-})
-
-
-router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
-    const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
-    if(events != null)
-    res.status(202).send(events)
-    else{
-
-        res.sendStatus(404)
-    }
-})
-
-router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
-    const event = await eventModel.getEventByIdForParticipant(req.participantID,req.params.id)
-    if(event != null){
-        res.status(202).send(event)
-    }
-    else{
-        res.sendStatus(404)
-    }
-})
-router.get('/participants/events',auth.authParticipant, async (req,res) =>{
-  
-    const events = await eventModel.getParticipantEvents(req.participantID)
-    if(events != null){
-        res.status(202).send(events)
-    }
-    else{
-        res.sendStatus(404)
-    }
-})
-
-
-
 
 router.patch('/ModifyEvent',async (req,res)=>{
 //2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 
