@@ -6,6 +6,26 @@ const auth = require('../middleware/auth')
 const { authParticipant } = require('../middleware/auth')
 //use the req and the create variables that can be stored in the req 
 
+
+router.post('/participants/signup',async (req,res)=>{
+
+    try{ const participant = await ParticipantModel.createParticipant(req.body)
+     
+     if(participant == 1){
+         res.sendStatus(409)
+     }
+     else{   
+     res.sendStatus(200)
+     }
+ }
+ catch(e){
+     res.sendStatus(500)
+ }
+
+})
+
+
+
 router.post('/participants/signup/partial',async (req,res)=>{
     
     try{
@@ -24,22 +44,7 @@ router.post('/participants/signup/partial',async (req,res)=>{
     }
 })
 
-router.post('/participants/signup',async (req,res)=>{
 
-       try{ const participant = await ParticipantModel.createParticipant(req.body)
-        
-        if(participant == 1){
-            res.sendStatus(409)
-        }
-        else{   
-        res.sendStatus(200)
-        }
-    }
-    catch(e){
-        res.sendStatus(500)
-    }
-
-})
 
 
 
@@ -78,6 +83,22 @@ router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req
 
 })
 
+router.get('/participants/organizers/followed', auth.authParticipant, async(req,res)=>{
+    try{
+     const organizers = await ParticipantModel.organizerFollowedByParticipant(req.participantID)
+     if(organizers != null){
+         res.status(202).send(organizers)
+     }
+     else{
+         res.sendStatus(404)
+     }
+ }
+     catch(e){
+         res.status(500).send(e)
+     }
+ })
+ 
+
 router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
     const participant = await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
@@ -85,20 +106,6 @@ router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (r
     }
     catch(e){
         res.sendStatus(500)
-    }
-})
-router.get('/participants/organizers/followed', auth.authParticipant, async(req,res)=>{
-   try{
-    const organizers = await ParticipantModel.organizerFollowedByParticipant(req.participantID)
-    if(organizers != null){
-        res.status(202).send(organizers)
-    }
-    else{
-        res.sendStatus(404)
-    }
-}
-    catch(e){
-        res.status(500).send(e)
     }
 })
 
