@@ -43,7 +43,7 @@ router.post('/participants/signup',async (req,res)=>{
 
 
 
-router.post('/participantLogin',async (req,res)=>{
+router.post('/participants/login',async (req,res)=>{
     try{ 
         const token = await ParticipantModel.login(req.body)
         if (token != null)

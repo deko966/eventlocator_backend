@@ -103,15 +103,14 @@ router.get('/organizers/events/getAttendanceInfo/:id', async (req,res) => {
 }
 )
 
-router.get('/participants/organizer/:id/events', async (req,res) =>{
-    
-    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
+router.get('/participants/organizer/:id/events', auth.authParticipant, async (req,res) =>{
+    console.log(req.params.id)
+    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.participantID,req.params.id)
     if(events != null)
     res.status(202).send(events)
     else{
         res.sendStatus(404)
     }
-
 
 })
 
