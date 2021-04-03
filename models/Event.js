@@ -144,9 +144,10 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
   result.push({
     id: eventResult[i].id,
     description: "",
+    name: eventResult[i].name,
     categories: categories,
     startDate: eventResult[i].startDate,
-    endDate: eventResult[i].endTime,
+    endDate: eventResult[i].endDate,
     registrationCloseDateTime: eventResult[i].registrationCloseDateTime,
     rating: eventResult[i].rating,
     sessions: sessions,
@@ -406,9 +407,10 @@ module.exports = {
         result.push({
           id: tempResult[i].id,
           description: "",
+          name: tempResult[i].name,
           categories: tempResult[i].categories,
           startDate: tempResult[i].startDate,
-          endDate: tempResult[i].endTime,
+          endDate: tempResult[i].endDate,
           registrationCloseDateTime: tempResult[i].registrationCloseDateTime,
           rating: tempResult[i].rating,
           sessions: tempResult[i].sessions,
@@ -429,12 +431,12 @@ module.exports = {
     },
 
     getUpcomingEvents: async (currentParticipantID) =>{
-      const eventResult = await makeDBQuery("SELECT event.id, event.name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() ")
+      const eventResult = await makeDBQuery("SELECT event.id, event.name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() ")
       return await prepareUpcomingEventsUtil(currentParticipantID,eventResult)
   },
 
   getUpcomingEventsByFollowedOrganizers: async (currentParticipantID) => {
-    const eventResult = await makeDBQuery("SELECT event.id, event.name, event.startDate, event.endDate, event.registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() AND organizer.id IN (SELECT organizerID FROM participantsfolloworganizer WHERE participantID = ?)", currentParticipantID)
+    const eventResult = await makeDBQuery("SELECT event.id, event.name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime,, event.rating, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() AND organizer.id IN (SELECT organizerID FROM participantsfolloworganizer WHERE participantID = ?)", currentParticipantID)
     return await prepareUpcomingEventsUtil(currentParticipantID,eventResult)
   },
 
@@ -455,9 +457,9 @@ module.exports = {
     
     if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
       let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
-    
+      //limitedLocatedSessionData = JSON.parse(JSON.stringify(limitedLocatedSessionData))
       for(j =0; j< sessions.length; j++){
-        sessions[j].checkInTime = limitedLocatedSessionData[0]
+        sessions[j].checkInTime = limitedLocatedSessionData[0].checkInTime
       }
     }
     else{
@@ -487,7 +489,6 @@ module.exports = {
       }
     }
     const numberOfParticipants =  await  makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", eventID)
-   console.log(numberOfParticipants)
     const isParticipantRegistered = registeredEvents.includes(eventResult[0].id)
     const finishDateTime = Date.parse(eventResult[0].endDate +'T'+sessions[sessions.length-1].endTime)
     const now = Date.now()
@@ -495,7 +496,7 @@ module.exports = {
     if (now > finishDateTime){
       if (isParticipantRegistered){
         if (eventResult[0].locatedEventData!=null && eventResult[0].maxParticipants>0){
-          const limitedLocatedSessions = await makeDBQuery("SELECT SessionID FROM checkinparticipant WHERE participantID = ? AND eventID = ?", [currentParticipantID, eventResult[i].id])
+          const limitedLocatedSessions = await makeDBQuery("SELECT SessionID FROM checkinparticipant WHERE participantID = ? AND eventID = ?", [currentParticipantID, eventResult[0].id])
           if (limitedLocatedSessions.length > 0) hasParticipantAttended = 1
           else hasParticipantAttended = 2
         }
@@ -508,13 +509,13 @@ module.exports = {
       }
     }
     else{
-      const limitedLocatedSessions = await makeDBQuery("SELECT SessionID FROM checkinparticipant WHERE participantID = ? AND eventID = ?", [currentParticipantID, eventResult[i].id])
+      const limitedLocatedSessions = await makeDBQuery("SELECT SessionID FROM checkinparticipant WHERE participantID = ? AND eventID = ?", [currentParticipantID, eventResult[0].id])
       if (limitedLocatedSessions.length > 0) hasParticipantAttended = 1
     }
 
     let feedback = null
     if (hasParticipantAttended == 1){
-      const tempFeedback = await makeDBQuery("SELECT rating, feedback FROM participantsrateevent WHERE participantID = ? AND eventID = ?", [currentParticipantID, eventResult[i].id])
+      const tempFeedback = await makeDBQuery("SELECT rating, feedback FROM participantsrateevent WHERE participantID = ? AND eventID = ?", [currentParticipantID, eventResult[0].id])
       if (tempFeedback.length>0){
         feedback = {
           rating: tempFeedback[0].rating,
@@ -525,10 +526,11 @@ module.exports = {
 
     return {
       id: eventResult[0].id,
+      name: eventResult[0].name,
       description: eventResult[0].description,
       categories: categories,
       startDate: eventResult[0].startDate,
-      endDate: eventResult[0].endTime,
+      endDate: eventResult[0].endDate,
       registrationCloseDateTime: eventResult[0].registrationCloseDateTime,
       rating: eventResult[0].rating,
       sessions: sessions,
@@ -546,7 +548,7 @@ module.exports = {
   },
 
   getParticipantEvents: async (currentParticipantID) => {
-    const eventResult = await makeDBQuery("SELECT event.id, event.name, event.startDate, event.endDate, event.registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 JOIN participantsregisterinevent ON participantsregisterinevent.participantID = ?", currentParticipantID)
+    const eventResult = await makeDBQuery("SELECT event.id, event.name, CONVERT(event.startDate,char) as startDate, CONVERT(event.endDate,char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id, organizer.name FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 JOIN participantsregisterinevent ON participantsregisterinevent.participantID = ?", currentParticipantID)
     const result = []
     for(let i =0;i< eventResult.length; i++){
       let eventID = eventResult[i].id
@@ -626,9 +628,10 @@ module.exports = {
       result.push({
         id: eventResult[i].id,
         description: "",
+        name: eventResult[i].name,
         categories: categories,
         startDate: eventResult[i].startDate,
-        endDate: eventResult[i].endTime,
+        endDate: eventResult[i].endDate,
         registrationCloseDateTime: eventResult[i].registrationCloseDateTime,
         rating: eventResult[i].rating,
         sessions: sessions,

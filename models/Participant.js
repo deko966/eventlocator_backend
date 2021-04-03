@@ -33,11 +33,13 @@ module.exports = {
       const email = [participant.email] 
       participantID = await makeDBQuery("select id from participant where email = ?",email)
       
-      numberOfCategories = participant.categories.length
-      for(i=0;i<numberOfCategories;i++){
-        participantCategoriesData = [participantID[0].id,participant.categories[i]]
-        result = await makeDBQuery("INSERT INTO preferredcategory(participantID, category) VALUES (?,?)",participantCategoriesData )
+      const categoriesToInsert = []
+      numberOfCategories = participant.preferredEventCategories.length
+      for(let i=0;i<numberOfCategories;i++){
+        categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
       }
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert )
+      
     }
 },
 
@@ -111,7 +113,7 @@ participantUnregisterInEvent: async (participantID,eventID) =>{
 },
 
 
-//i failed at this one
+
 
 getOrganizersFollowedByParticipant: async (participantID) =>{
   
