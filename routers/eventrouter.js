@@ -12,7 +12,6 @@ const uploads = multer({
   })
 
 
-
    
 
 router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
@@ -78,6 +77,7 @@ router.get('/registerInEvent/:id',async (req,res)=>{
 
 
 
+
 router.get('/organizers/events/feedback/:id',async (req,res)=>{
     const feedback = await eventModel.getEventsFeedback(req.params.id)
     if(feedback != null)
@@ -91,15 +91,15 @@ router.get('/organizers/events/feedback/:id',async (req,res)=>{
 
 
 router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
-        
-            const event = await eventModel.getEventByID(req.params.id)
-            if (event==null){
-                res.status(404)
-            }
-            else {
-                res.status(200).send(event)
-            }
+    const event = await eventModel.getEventByID(req.params.id)
+    if (event==null){
+        res.status(404)
+    }
+    else {
+        res.status(200).send(event)
+    }
 })
+
 
 
 
