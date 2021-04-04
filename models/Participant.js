@@ -53,7 +53,7 @@ partialSignup: async (email) =>{
 
 
 
-
+//need to add handlefor status depending on what the status is return proper response
 login:async (credentials)=>{ 
     participantInfo =  [credentials[0]] 
     const result = await makeDBQuery("Select id,firstName,lastName,email, password,city  from participant where Email =?", participantInfo )
@@ -74,8 +74,8 @@ login:async (credentials)=>{
 
 
 followOrganizer:async (organizerID,particpantID)=>{
-      console.log(organizerID,particpantID)
-  const inputDetails =  [2,114]
+
+  const inputDetails =  [particpantID,organizerID]
   const result =  await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",inputDetails) 
   console.log(result)
 
@@ -91,11 +91,24 @@ unfollowOrganizer:async (organizerID,participantID)=>{
 },
 
 
-getOrganizer:async (organizerName)=>{
+getOrganizerByName:async (organizerName)=>{
      
     input = [organizerName]
     await makeDBQuery("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input)    
 }, 
+
+ getOrganizerByID:async (organizerID) =>{
+    input = [organizerID]
+    const type = await makeDBQuery("Select type from organizer where organizer.ID =?",input)
+    if(type==0){
+      await makeDBQuery("select id, name, email,description as about,rating,facebookName,facebookLink,youtubeName,youtubeLink,instagramName,instagramLink,twitterName,TwitterLink,logo from organizer,organization where organizer.id = ?"
+      ,input)
+}
+},
+
+    
+   
+
 
 
 
@@ -105,7 +118,7 @@ participantRegisterInEvent: async (participantID,eventID) => {
 },
 
 
-
+//  need to add number of regisetred organizer to check if possible
 participantUnregisterInEvent: async (participantID,eventID) =>{
   registrationIDs = [participantID,eventID]
   await makeDBQuery("delete from  participantsregisterinevent where participantID = ? and eventID = ?",registrationIDs)

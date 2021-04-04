@@ -19,19 +19,6 @@ const uploads = multer({
 //first picture is the proof second is profile
 //image stored in the req.files[0].Buffer
 
-router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
-        
-       try{ 
-          
-            const organizer =  JSON.parse(req.body.organizer)
-            await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
-            res.sendStatus(201);
-       }
-       catch(e){
-           res.sendStatus(503)
-       }
-        
-})
 
 router.post('/organizers/login',async (req,res)=>{
 
@@ -104,23 +91,6 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
     }
 }),
 
-router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{
-    try{
-    const followers = await OrganizerModel.organizerFollower(req.params.id)
-        if(followers!=null){
-        res.status(202).send(followers)
-        }
-        else{
-            res.sendStatus(404)
-    }
-    }
-    catch(e){
-        res.sendStatus(500)
-    }
-
- }),
-
-
 
 
 router.patch('/modifyOrganizerProfile',async (req,res)=>{
@@ -140,6 +110,40 @@ router.patch('/modifyRating',auth.authOrganizer,async (req,res)=>{
     else
     res.status(200).send("success")
 })
+
+
+
+router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
+        
+    try{ 
+       
+         const organizer =  JSON.parse(req.body.organizer)
+         await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
+         res.sendStatus(201);
+    }
+    catch(e){
+        res.sendStatus(503)
+    }
+     
+})
+
+router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{
+    try{
+    const followers = await OrganizerModel.organizerFollower(req.params.id)
+        if(followers!=null){
+        res.status(202).send(followers)
+        }
+        else{
+            res.sendStatus(404)
+    }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
+
+ }),
+
+
 
 
 module.exports = router

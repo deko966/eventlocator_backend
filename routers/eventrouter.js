@@ -64,19 +64,6 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
 
 
 
-router.get('/registerInEvent/:id',async (req,res)=>{
-    
-    const event = await eventModel.ParticipantRegisterEvent(req.params.id)
-    if(event!=null){
-        res.sendStatus(201)
-    }
-    else{
-        res.status(400).send(e)
-    }
-
-})
-
-
 
 router.get('/organizers/events/feedback/:id',async (req,res)=>{
     const feedback = await eventModel.getEventsFeedback(req.params.id)
