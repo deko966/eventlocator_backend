@@ -92,12 +92,12 @@ const getOrganizerEventsUtil = async (organizerID) => {
 }
 
 const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
-  const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent,event WHERE participantID = ? AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW()", currentParticipantID)
   const result = []
   for(let i = 0; i< eventResult.length; i++){
     const eventID = eventResult[i].id
+    const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent,event WHERE participantID = ? AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() and eventID = ?", [currentParticipantID,eventID])
     const numberOfParticipants = await makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", eventID)
-    const isParticipantRegistered = registeredEvents.includes(eventResult[i].id)
+    const isParticipantRegistered = registeredEvents.length > 0
     let sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where eventID =? ORDER BY id ASC",eventID)
   sessions = JSON.parse(JSON.stringify(sessions))
 
@@ -357,12 +357,11 @@ module.exports = {
 
     getOrganizerEventsForParticipantsApp: async (currentParticipantID,organizerID) => {
       const tempResult = await getOrganizerEventsUtil(organizerID)
-      const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? AND eventID IN (SELECT id FROM event WHERE OrganizerID = ?)", [currentParticipantID, organizerID])
-
       const result = []
       for(let i = 0; i < tempResult.length; i++){
         if (tempResult[i].status!=1) continue
-        const isParticipantRegistered = registeredEvents.includes(tempResult[i].id)
+        const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? AND eventID IN (SELECT id FROM event WHERE OrganizerID = ?) AND eventID = ?", [currentParticipantID, organizerID, tempResult[i]])
+        const isParticipantRegistered = registeredEvents.length > 0
         const numberOfParticipants = await makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", tempResult[i].id)
         const finishDateTime = Date.parse(tempResult[i].endDate +'T'+tempResult[i].sessions[tempResult[i].sessions.length-1].endTime)
         const now = Date.now()
