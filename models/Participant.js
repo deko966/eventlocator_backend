@@ -19,25 +19,27 @@ function makeDBQuery(query, arguments) {
 }
 
 module.exports = {
-    createParticipant: async( participant ) => {
-      used = 0
-      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
-      if( emailCheck.length !=0 ) {
-        used = 1
-        return used
-      }  
-      else{ 
+
+  createParticipant: async( participant ) => {
+    used = 0
+    emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
+    if( emailCheck.length !=0 ) {
+      used = 1
+      return used
+    }  
+    else{ 
       hashed = bcrypt.hashSync(participant.password, 8)
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
       const email = [participant.email] 
       participantID = await makeDBQuery("select id from participant where email = ?",email)
       
-      numberOfCategories = participant.categories.length
-      for(i=0;i<numberOfCategories;i++){
-        participantCategoriesData = [participantID[0].id,participant.categories[i]]
-        result = await makeDBQuery("INSERT INTO preferredcategory(participantID, category) VALUES (?,?)",participantCategoriesData )
+      const categoriesToInsert = []
+      numberOfCategories = participant.preferredEventCategories.length
+      for(let i=0;i<numberOfCategories;i++){
+        categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
       }
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert )
     }
 },
 
@@ -97,25 +99,90 @@ getOrganizerByName:async (organizerName)=>{
     await makeDBQuery("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input)    
 }, 
 
- getOrganizerByID:async (organizerID) =>{
-    input = [organizerID]
-    const type = await makeDBQuery("Select type from organizer where organizer.ID =?",input)
-    if(type==0){
-      await makeDBQuery("select id, name, email,description as about,rating,facebookName,facebookLink,youtubeName,youtubeLink,instagramName,instagramLink,twitterName,TwitterLink,logo from organizer,organization where organizer.id = ?"
-      ,input)
+ getOrganizerByID:async (organizerID,participantID) =>{
+    organizerID = [organizerID]
+    bothIDs = [organizerID,participantID]
+
+    let followed = await makeDBQuery("select organizerID ,participantID from participantsfolloworganizer where organizerID =? and participantID = ?",bothIDs )
+    if (followed == undefined){ followed = 0}
+    else{followd = 1}
+    
+    const type = await makeDBQuery("Select type from organizer where organizer.ID =?",organizerID)
+    if(type == 0){
+      let ogranizationResult = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.participantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on organization.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
+      ,organizerID)
+     
+      if(organizationResult == undefined){
+        return null
+      }
+      else{
+        result.push({
+          id:ogranizationResult[0].id,
+          name: ogranizationResult[0].name,
+          email:ogranizationResult[0].email,
+          about:ogranizationResult[0].about,
+          rating:ogranizationResult[0].rating,
+          socialMediaAccounts:[
+            {accountName:ogranizationResult[0].facebookName,url:ogranizationResult[0].facebookLink},
+            {accountName:ogranizationResult[0].youTubeName,url:ogranizationResult[0].youTubeLink},
+            {accountName:ogranizationResult[0].instagramName,url:ogranizationResult[0].instagramLink},
+            {accountName:ogranizationResult[0].twitterName,url:ogranizationResult[0].twitterLink}
+          ],
+          image:Buffer.from(organizationResult[0].logo.buffer).toString('base64'),
+          isFollowedByCurrentParticipant:followed
+        })
+        return result
+      }
 }
+      if (type == 1 ){
+        let individualResult = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,individual2.profilePicture ,organizer.id name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink, linkedInName, linkedInLink FROM organizer JOIN individual2 ON organizer.id=individual2.OrganizerID join participantsfolloworganizer on individual2.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
+        ,organizerID)
+        
+        if (individualResult == undefined)
+        return null
+      }
+      else{
+        result.push({
+          id:individualResult[0].id,
+          name: individualResult[0].name,
+          email:individualResult[0].email,
+          about:individualResult[0].about,
+          rating:individualResult[0].rating,
+          socialMediaAccounts:[
+            {accountName:individualResult[0].facebookName,url:individualResult[0].facebookLink},
+            {accountName:individualResult[0].youTubeName,url:individualResult[0].youTubeLink},
+            {accountName:individualResult[0].instagramName,url:individualResult[0].instagramLink},
+            {accountName:individualResult[0].twitterName,url:individualResult[0].twitterLink},
+            {accountName:individualResult[0].linkedInName,url:individualResult[0].linkedInLink}
+          ],
+          image:Buffer.from(individualResult[0].profilePicture.buffer).toString('base64'),
+          isFollowedByCurrentParticipant:followed
+        })
+        return result
+      }
 },
 
     
    
 
-
-
-
 participantRegisterInEvent: async (participantID,eventID) => {
-  registrationIDs = [eventID,participantID]
+  let eventsID = [eventID]
+  let registrationIDs = [eventID,participantID]
+  let eventinfo = await makeDBQuery("select maxParticipants from event where eventID = ?",eventsID)
+  
+  if(eventinfo[0].maxParticipants == -1){
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
-},
+  }
+  else{
+    let eventParticipants = await makeDBQuery("select Count(eventID) as total from participantsregisterinevent where eventID =?",eventID)
+    if(eventParticipants[0].total <= eventinfo[0].maxParticipants){
+      await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
+    }
+    else{
+      return -1 
+    }
+  }
+  },
 
 
 //  need to add number of regisetred organizer to check if possible
@@ -125,36 +192,31 @@ participantUnregisterInEvent: async (participantID,eventID) =>{
 },
 
 
-//i failed at this one
 
-getorganizerFollowedByParticipant: async (participantID) =>{
+
+getOrganizersFollowedByParticipant: async (participantID) =>{
   
-  let result=[]
-  const organizer = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID where participantsfolloworganizer.ParticipantID = ?" ,participantID)
-
-  for(i=0;i<organizer.length;i++){
-  organizerID = [organizer[i].id]
+  const result=[]
+  const organizers = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID and participantsfolloworganizer.ParticipantID = ?" ,participantID)
+  for(let i=0;i<organizers.length;i++){
+  organizerID = [organizers[i].id]
   const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)
-  let noOfFollowers =0
+  let noOfFollowers = 0
     if(tempResult[0].followers!= undefined)
-      noOfFollowers=tempResult[0].followers 
- }
+      noOfFollowers=tempResult[0].followers
 
-
-  if(organizer!= undefined)
-  for(i=0;i<organizer.length;i++){
   result.push({
-      id:organizer[0].id, 
-      name: organizer[0].name,
+      id:organizers[i].id, 
+      name: organizers[i].name,
       email: "",
       about: "",
-      rating: organizer[0].rating,
+      rating: organizers[i].rating,
       socialMediaAccounts: "",
       upcomingEvents: "",
       previousEvents:"",
       canceledEvents:"",
       image: "",
-      numberOfFollowers: noOfFollowers[i],
+      numberOfFollowers: noOfFollowers,
       isFollowedByCurrentParticipant: true,
       
   })
