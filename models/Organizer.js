@@ -109,7 +109,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
     organizerID = [organizerAuthInfo.id]
     //join first with the organizer type then with the followers table
     if (organizerAuthInfo.type == 0){
-     const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on organization.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
+     const result = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.ParticipantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on participantsfolloworganizer.OrganizerID = Organizer.ID where organizer.id =?"
        ,organizerID)
       if(result.length == 0) {
         return null
