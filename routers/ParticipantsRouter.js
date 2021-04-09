@@ -97,9 +97,9 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
  })
  
 
-router.get('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
+router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
-    const participant = await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
+    await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
     res.sendStatus(200)
     }
     catch(e){
@@ -110,7 +110,6 @@ router.get('/participants/unfollow/organizer/:id',auth.authParticipant,async (re
 router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>{
     
     const organizer = await ParticipantModel.getOrganizerByID(req.params.id,req.participantID)
-    console.log(organizer)
       res.status(202).send(organizer)
     
 })
