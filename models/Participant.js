@@ -159,7 +159,7 @@ getOrganizerByName:async (organizerName)=>{
       
       else{
         let pic = ""
-        if (result[0].profilePicture != null) pic = Buffer.from(result[0].profilePicture.buffer).toString('base64')
+        if (individualResult[0].profilePicture != null) pic = Buffer.from(result[0].profilePicture.buffer).toString('base64')
         result.push({
           id:individualResult[0].id,
           name: individualResult[0].name,
@@ -185,7 +185,7 @@ getOrganizerByName:async (organizerName)=>{
     
 getParticipantByID:async (participantID) =>{
   participantsID = [participantID] 
-  participant = await makeDBQuery("SELECT id, firstName, lastName, email, password, city, rating, ratingPenalty, accountStatus FROM participant where  id =?",participantsID)
+  participant = await makeDBQuery("SELECT id, firstName, lastName, email,city, rating,accountStatus FROM participant where  id =?",participantsID)
   return participant
 } ,  
 

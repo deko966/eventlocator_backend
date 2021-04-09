@@ -8,7 +8,7 @@ const { authParticipant } = require('../middleware/auth')
 
 
 router.post('/participants/signup',async (req,res)=>{
-
+try{
     const participant = await ParticipantModel.createParticipant(req.body)
      
      if(participant == 1){
@@ -17,6 +17,10 @@ router.post('/participants/signup',async (req,res)=>{
      else{   
      res.sendStatus(200)
      }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
 
 })
 
@@ -45,7 +49,7 @@ router.post('/participants/signup/partial',async (req,res)=>{
 
 
 router.post('/participants/login',async (req,res)=>{
-    console.log(req.body)
+  
     try{ 
         const token = await ParticipantModel.login(req.body)
         if (token != null)
@@ -108,25 +112,45 @@ router.get('/participants/unfollow/organizer/:id',auth.authParticipant,async (re
 })
 
 router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>{
-    
+    try{
     const organizer = await ParticipantModel.getOrganizerByID(req.params.id,req.participantID)
-    console.log(organizer)
+    if(organizer!=undefined)
       res.status(202).send(organizer)
-    
+      else{
+          res.sendStatus(404)
+      }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
 })
 
 router.get('/participant/information', auth.authParticipant, async(req,res) =>{
+   try{
     const participant = await ParticipantModel.getParticipantByID(req.participantID)
-    res.status(202).send(participant)
+    if(participant!=undefined)
+      res.status(202).send(participant)
+      else{
+          res.sendStatus(404)
+      }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
+
 })
 
 router.post('/participants/event/:id/register', auth.authParticipant, async(req,res)=>{
-
+    try{
     const registration = await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
     if(registration == -1)
     res.sendStatus(409)
     else{
     res.sendStatus(202)
+    }
+    }
+    catch(e){
+        res.sendStatus(500)
     }
   })
 
