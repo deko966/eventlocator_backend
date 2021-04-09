@@ -99,9 +99,9 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
  })
  
 
-router.get('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
+router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
-    const participant = await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
+    await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
     res.sendStatus(200)
     }
     catch(e){
@@ -113,7 +113,7 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
     try{
     const organizer = await ParticipantModel.getOrganizerByID(req.params.id,req.participantID)
     if(organizer!=undefined)
-      res.status(202).send(organizer)
+    res.status(202).send(organizer)
       else{
           res.sendStatus(404)
       }
@@ -124,17 +124,14 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
 })
 
 router.get('/participant/information', auth.authParticipant, async(req,res) =>{
-   try{
+   
     const participant = await ParticipantModel.getParticipantByID(req.participantID)
     if(participant!=undefined)
       res.status(202).send(participant)
       else{
           res.sendStatus(404)
       }
-    }
-    catch(e){
-        res.sendStatus(500)
-    }
+    
 
 })
 

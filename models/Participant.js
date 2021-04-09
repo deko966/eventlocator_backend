@@ -110,7 +110,6 @@ followOrganizer:async (organizerID,particpantID)=>{
 
   const inputDetails =  [particpantID,organizerID]
   const result =  await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",inputDetails) 
-  console.log(result)
 
 },  
 
@@ -136,15 +135,7 @@ getOrganizerByName:async (organizerName)=>{
     let followed = await makeDBQuery("select organizerID ,participantID from participantsfolloworganizer where organizerID =? and participantID = ?",bothIDs )
     let result = []
    
-    if (followed.length==0)
-      {
-        followed = false
-      }
-
-    else
-      {
-        followed = true
-      }
+    followed = followed.length>0
     
     const type = await makeDBQuery("Select type from organizer where organizer.ID =?",organizersID)
   
@@ -158,7 +149,7 @@ getOrganizerByName:async (organizerName)=>{
         return null
       }
       else{
-      result.push({
+        result.push({
           id:organizationResult[0].id,
           name: organizationResult[0].name,
           email:organizationResult[0].email,
@@ -174,7 +165,7 @@ getOrganizerByName:async (organizerName)=>{
           image:Buffer.from(organizationResult[0].image.buffer).toString('base64'),
           isFollowedByCurrentParticipant:followed
         })
-        return result
+        return result[0]
       }
 }
       if (type[0].type == 1 ){
@@ -187,7 +178,7 @@ getOrganizerByName:async (organizerName)=>{
       else{
         let pic = ""
         if (individualResult[0].profilePicture != null) pic = Buffer.from(result[0].profilePicture.buffer).toString('base64')
-       result.push({
+        result.push({
           id:individualResult[0].id,
           name: individualResult[0].name,
           email:individualResult[0].email,
@@ -204,17 +195,33 @@ getOrganizerByName:async (organizerName)=>{
           numberOfFollowers:individualResult[0].followers,
           isFollowedByCurrentParticipant:followed
         })
-        return result
+        return result[0]
       }
     }     
 },
 
     
 getParticipantByID:async (participantID) =>{
+  const result = []
   participantsID = [participantID] 
-  participant = await makeDBQuery("SELECT id, firstName, lastName, email,city, rating,accountStatus FROM participant where  id =?",participantsID)
-  categories= await makeDBQuery("select categroires from preferedeventcategories where participantID = ?",participantsID)
-  return participant
+  const participant = await makeDBQuery("SELECT id, firstName, lastName, email,city, rating FROM participant where  id =?",participantsID)
+  const categoriesResult  = await makeDBQuery("select category from  participantpreferredeventcategories where participantID= ?",participantsID)
+  const categories = []
+
+  for(k = 0; k < categoriesResult.length; k++)
+  categories.push(categoriesResult[k].category)
+
+  result.push({
+    id:participant[0].id,
+    firstName:participant[0].firstName,
+    lastName:participant[0].lastName,
+    email:participant[0].email,
+    city:participant[0].city,
+    rating:participant[0].rating,
+    categories:categories
+  })
+
+  return result[0]
 } ,  
 
 participantRegisterInEvent: async (participantID,eventID) => {
@@ -263,10 +270,10 @@ getOrganizersFollowedByParticipant: async (participantID) =>{
       email: "",
       about: "",
       rating: organizers[i].rating,
-      socialMediaAccounts: "",
-      upcomingEvents: "",
-      previousEvents:"",
-      canceledEvents:"",
+      socialMediaAccounts: [],
+      upcomingEvents: [],
+      previousEvents:[],
+      canceledEvents:[],
       image: "",
       numberOfFollowers: noOfFollowers,
       isFollowedByCurrentParticipant: true,
