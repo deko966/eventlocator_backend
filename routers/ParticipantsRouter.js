@@ -8,22 +8,20 @@ const { authParticipant } = require('../middleware/auth')
 
 
 router.post('/participants/signup',async (req,res)=>{
-try{
-    const participant = await ParticipantModel.createParticipant(req.body)
-     
-     if(participant == 1){
-         res.sendStatus(409)
-     }
-     else{   
-     res.sendStatus(200)
-     }
+    try{
+    const participant = await ParticipantModel.createParticipant(req.body)   
+    res.sendStatus(200)
     }
     catch(e){
-        res.sendStatus(500)
+        if(!e.status){
+            console.log(e.status)
+            res.sendStatus(409)
+        }
+        else{
+            res.sendStatus(500)
+        }    
     }
-
 })
-
 
 
 router.post('/participants/signup/partial',async (req,res)=>{
