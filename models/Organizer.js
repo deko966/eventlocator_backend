@@ -26,25 +26,40 @@ module.exports = {
     createOrganizer: async (organizer,images, type) => {
       hashed = await bcrypt.hashSync(organizer.password, 8)
       emailInput = [organizer.email]
-  
+      console.log(images)
       generalInput = [organizer.name,organizer.email,hashed, organizer.about,
           organizer.phoneNumber,organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,
           organizer.socialMediaAccounts[1].url, organizer.socialMediaAccounts[2].accountName,
           organizer.socialMediaAccounts[2].url, organizer.socialMediaAccounts[3].accountName, organizer.socialMediaAccounts[3].url,type,images[0].buffer]
       if (type == 0) {
-          await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,YouTubeName,YouTubeLink,InstagramName,InstagramLink,TwitterName,TwitterLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
-          const organizerID= await makeDBQuery('select ID from organizer where email =?', emailInput);
+          try{
+            await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,YouTubeName,YouTubeLink,InstagramName,InstagramLink,TwitterName,TwitterLink,Type,proofimage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", generalInput);
+          }
+          catch(e){
+
+            return e.message
+          }
+            const organizerID= await makeDBQuery('select ID from organizer where email =?', emailInput);
           
           
           organizationInput = [organizerID[0].ID,images[1].buffer]
+          try{
           await makeDBQuery("INSERT INTO organization (organizerID,Logo) values (?,?)", organizationInput);
-      }
+          }
+          catch(e){
+            return e.message
+          }
+        }
   
       if (type == 1) {
+        try{  
           await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,YouTubeName,YouTubeLink,InstagramName,InstagramLink,TwitterName,TwitterLink,Type,proofImage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
           ,generalInput);
-
+        }
+        catch(e){
+          return e.message
+        }
           if(images[1]==undefined){
            checkedImage=images[1]=null
           }
@@ -53,7 +68,12 @@ module.exports = {
           }       
           const organizerID = await makeDBQuery ('select id from organizer where email =?',emailInput)
           indiviudalInput = [organizerID[0].id,checkedImage,organizer.socialMediaAccounts[4].accountName,organizer.socialMediaAccounts[4].url]
+         try{
           await makeDBQuery("INSERT INTO individual2 (OrganizerID,profilepicture,LinkedInName,LinkedInLink) values (?,?,?,?)" , indiviudalInput);
+         }
+         catch(e){
+          return e.message
+         }
         }
       },
 

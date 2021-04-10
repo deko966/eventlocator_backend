@@ -16,6 +16,7 @@ function makeDBQuery(query, arguments) {
           }
       )
   })
+}
 
 // function getOrganizerUtil(participantID){
 
@@ -47,50 +48,64 @@ function makeDBQuery(query, arguments) {
 // },
 
 
-}
 
 module.exports = {
 
   createParticipant: async( participant ) => {
-  const used = 0
-    emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
-    if (emailCheck !=0){
-      throw({status:409})
-    }
-    else{
-
+  
+   try{ 
+     emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
+   }
+   catch(e){
+     return e.message
+   }
       hashed = bcrypt.hashSync(participant.password, 8)
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
+      try{
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
+      }
+      catch(e){
+        return e.message
+      }
       const email = [participant.email] 
+      try{
       participantID = await makeDBQuery("select id from participant where email = ?",email)
-      
+      }
+      catch(e){
+        return e.message
+      }
       const categoriesToInsert = []
       numberOfCategories = participant.preferredEventCategories.length
       for(let i=0;i<numberOfCategories;i++){
         categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
       }
+      try{
         result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert )
-    }
-},
+      }
+      catch(e){
+        return e.message
+      }
+  },
 
 
 
 
 partialSignup: async (email) =>{
   emailInput =[email]
+  
   result = await makeDBQuery("select email from participant where email =?",emailInput)
- 
- 
+  
+  return result[0]
 },
 
 
 
 //need to add handlefor status depending on what the status is return proper response
 login:async (credentials)=>{ 
+
     participantInfo =  [credentials[0]] 
     const result = await makeDBQuery("Select id,firstName,lastName,email, password,city  from participant where Email =?", participantInfo )
-   
+
     if(result.length == 0){
       return null
     }
@@ -106,11 +121,15 @@ login:async (credentials)=>{
 
 
 
-followOrganizer:async (organizerID,particpantID)=>{
+followOrganizer:async (organizerID,participantID)=>{
 
-  const inputDetails =  [particpantID,organizerID]
-  const result =  await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",inputDetails) 
-
+  registrationIDs =  [participantID,organizerID]
+  try{
+  await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",registrationIDs) 
+  }
+  catch(e){
+    return e.message
+  }
 },  
 
 
@@ -132,11 +151,12 @@ getOrganizerByName:async (organizerName)=>{
  getOrganizerByID:async (organizerID,participantID) =>{
     const organizersID = [organizerID]
     const bothIDs = [organizerID,participantID]
-    let followed = await makeDBQuery("select organizerID ,participantID from participantsfolloworganizer where organizerID =? and participantID = ?",bothIDs )
+    let followedResult = await makeDBQuery("select organizerID ,participantID from participantsfolloworganizer where organizerID =? and participantID = ?",bothIDs )
     let result = []
-   
-    followed = followed.length>0
-    
+    let followed = false
+
+    if(followedResult.length>0)
+    followed = true
     const type = await makeDBQuery("Select type from organizer where organizer.ID =?",organizersID)
   
     
@@ -230,12 +250,23 @@ participantRegisterInEvent: async (participantID,eventID) => {
   let eventinfo = await makeDBQuery("select maxParticipants from event where ID = ?",eventsID)
 
   if(eventinfo[0].maxParticipants == -1){
+    try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
+    }
+    catch(e){
+      return e.message
+    }
   }
   else{
     let eventParticipants = await makeDBQuery("select Count(eventID) as total from participantsregisterinevent where eventID =?",eventID)
     if(eventParticipants[0].total < eventinfo[0].maxParticipants){
+      try{
       await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
+      }
+      catch(e)
+      {
+        return e.message
+      }
     }
     else{
       return -1 
@@ -247,7 +278,12 @@ participantRegisterInEvent: async (participantID,eventID) => {
 //  need to add number of regisetred organizer to check if possible
 participantUnregisterInEvent: async (participantID,eventID) =>{
   registrationIDs = [participantID,eventID]
+  try{
   await makeDBQuery("delete from  participantsregisterinevent where participantID = ? and eventID = ?",registrationIDs)
+  }
+  catch(e){
+    return e.message
+  }
 },
 
 

@@ -49,8 +49,8 @@ router.post('/organizers/login',async (req,res)=>{
         res.sendStatus(409)
     }
 }
-catch(e){
-    res.sendStatus(500)
+    catch(e){
+        res.sendStatus(500)
 }
 
 }),
@@ -76,10 +76,8 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
     try{
     const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
     if(organizer != null){
-        res.status(202).send(organizer) 
-        
+        res.status(202).send(organizer)    
     }
-
     else{
         res.sendStatus(401)
     }
@@ -113,17 +111,23 @@ router.patch('/modifyRating',auth.authOrganizer,async (req,res)=>{
 
 
 router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
-        
-    try{ 
-       
-         const organizer =  JSON.parse(req.body.organizer)
-         await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
-         res.sendStatus(201);
+    try{
+        const organizer =  JSON.parse(req.body.organizer)
+        organizerResult= await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
+        console.log(organizerResult)
+        if(organizerResult == undefined){
+            res.sendStatus(201)
+        }
+        else{
+        if(organizerResult.includes("ER_DUP_ENTRY")){
+            res.sendStatus(409)
+        } 
+        }
     }
     catch(e){
-        res.sendStatus(503)
-    }
-     
+        res.sendStatus(500)
+    }    
+   
 })
 
 router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{

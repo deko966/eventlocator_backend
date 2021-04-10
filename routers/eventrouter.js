@@ -16,27 +16,41 @@ const uploads = multer({
 
 router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image'),async (req,res)=>{
     try{
-    const eventData =  JSON.parse(req.body.event)
-    await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
+    const eventData = JSON.parse(req.body.event)
+    eventResult = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
+    if(eventResult==undefined)
     res.sendStatus(201)
+    else{
+        if(eventResult.includes("ER_DUP_ENTRY"))
+            res.sendStatus(409)
+        else{
+            if(eventResult.includes("ER_NO_REFERENCED"))
+                res.sendStatus(406)
+        }
+    }
     }
     catch(e){
-        res.status(401).send(e)
+        res.sendStatus(500)
     }
 
 })
 
 
 router.get('/participants/events/upcoming',auth.authParticipant, async (req,res) =>{
-    const events = await eventModel.getUpcomingEvents(req.participantID)
+   try{ const events = await eventModel.getUpcomingEvents(req.participantID)
     if(events != null)
     res.status(202).send(events)
     else{
         res.sendStatus(404)
     }
+}
+    catch(e){
+    res.sendStatus(500)
+}
 })
 
 router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
+   try{
     const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo)
         if(events != null){
             res.status(200).send(events)
@@ -44,10 +58,14 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
         else{
             res.status(404).send("event not found")
     }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
 })
 
 router.get('/participants/events',auth.authParticipant, async (req,res) =>{
-  
+  try{
     const events = await eventModel.getParticipantEvents(req.participantID)
     if(events != null){
         res.status(202).send(events)
@@ -55,6 +73,10 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
     else{
         res.sendStatus(404)
     }
+  }
+  catch(e){
+      res.sendStatus(500)
+  }
 })
 
 
@@ -77,12 +99,17 @@ router.get('/organizers/events/feedback/:id',async (req,res)=>{
 
 
 router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
+   try{
     const event = await eventModel.getEventByID(req.params.id)
     if (event==null){
         res.status(404)
     }
     else {
         res.status(200).send(event)
+    }
+    }
+    catch(e){
+        res.send(500)
     }
 })
 
@@ -92,18 +119,23 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
 
 
 router.get('/participants/organizer/events/:id', async (req,res) =>{
-    
+  try{  
     const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
     if(events != null)
     res.status(202).send(events)
     else{
         res.sendStatus(404)
     }
+}
+catch(e){
+    res.sendStatus(500)
+}
 
 })
 
 
 router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
+    try{
     const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
     if(events != null)
     res.status(202).send(events)
@@ -111,12 +143,17 @@ router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticip
 
         res.sendStatus(404)
     }
+}
+    catch(e){
+        res.sendStatus(500)
+    }
 })
 
 
 
 
 router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
+   try{
     const event = await eventModel.getEventByIdForParticipant(req.participantID,req.params.id)
     if(event != null){
         res.status(202).send(event)
@@ -124,29 +161,45 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
     else{
         res.sendStatus(404)
     }
+}
+    catch(e){
+        res.sendStatus(500)
+    }
 })
 
 
 router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
     try{
-        await eventModel.canceledEvent(req.body,req.params.id)
+        eventResult = await eventModel.canceledEvent(req.body,req.params.id)
+        console.log(req.body)
+        if(eventResult == null)
         res.sendStatus(200)
+        else
+        if(eventResult.includes("ER_DUP_ENTRY"))
+            res.sendStatus(409)
+        else
+            if(eventResult.includes("ER_NO_REFERENCED"))
+            res.sendStatus(406)
     }
-    catch(e){
-        console.log(e)
-        res.status(400).send(e)
+    catch(e){  
+        res.status(500).send(e)
 
     }
 })
 
 
 router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,res) =>{
+    try{
     const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
     if(participants!=null){
     res.status(200).send(participants)
     }
     else{
-        res.status(404).send("no participants")
+        res.status(404)
+    }
+    }
+    catch(e){
+        res.send(500)
     }
 })
 

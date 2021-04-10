@@ -9,17 +9,16 @@ const { authParticipant } = require('../middleware/auth')
 
 router.post('/participants/signup',async (req,res)=>{
     try{
-    const participant = await ParticipantModel.createParticipant(req.body)   
-    res.sendStatus(200)
+    const participant = await ParticipantModel.createParticipant(req.body) 
+    if(participant==undefined)
+        res.sendStatus(201)
+    if(participant.includes("ER_DUP_ENTRY")){
+        res.sendStatus(409)
     }
+} 
     catch(e){
-        if(!e.status){
-            console.log(e.status)
-            res.sendStatus(409)
-        }
-        else{
-            res.sendStatus(500)
-        }    
+        res.sendStatus(500)
+
     }
 })
 
@@ -28,8 +27,8 @@ router.post('/participants/signup/partial',async (req,res)=>{
     
     try{
     const participant = await ParticipantModel.partialSignup(req.body)
-        
-    if(participant == null){
+      
+    if(participant== undefined){
         res.sendStatus(200)
     }
 
@@ -73,9 +72,19 @@ router.get('/organizerByName/:name',auth.authParticipant ,async (req,res)=>{
 
 router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
-    await ParticipantModel.followOrganizer(req.params.id,req.participantID)
+    const follow = await ParticipantModel.followOrganizer(req.params.id,req.participantID)
+   if(follow == null)
     res.sendStatus(200)
+    
+    else{
+        if(follow.includes("ER_DUP_ENTRY"))
+            res.sendStatus(409)
+        else{
+            if(follow.includes("ER_NO_REFERENCED"))
+                res.sendStatus(406)
+        }
     }
+}
     catch(e){
         res.sendStatus(500)
     }
@@ -93,7 +102,7 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
      }
     }
      catch(e){
-         console.log(e)
+        
          res.status(500).send(e)
      }
  })
@@ -102,11 +111,22 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
 router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
     await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
+    if(follow == null)
     res.sendStatus(200)
+    
+    else{
+        if(follow.includes("ER_DUP_ENTRY"))
+            res.sendStatus(409)
+        else{
+            if(follow.includes("ER_NO_REFERENCED"))
+                res.sendStatus(406)
+        }
     }
+}
     catch(e){
         res.sendStatus(500)
     }
+
 })
 
 router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>{
@@ -124,13 +144,17 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
 })
 
 router.get('/participant/information', auth.authParticipant, async(req,res) =>{
-   
+   try{
     const participant = await ParticipantModel.getParticipantByID(req.participantID)
     if(participant!=undefined)
       res.status(202).send(participant)
       else{
           res.sendStatus(404)
       }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
     
 
 })
@@ -138,10 +162,11 @@ router.get('/participant/information', auth.authParticipant, async(req,res) =>{
 router.post('/participants/event/:id/register', auth.authParticipant, async(req,res)=>{
     try{
     const registration = await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
-    if(registration == -1)
-    res.sendStatus(409)
+    if(registration == -1|| registration.includes("ER_DUP_ENTRY"))
+        res.sendStatus(409)
     else{
-    res.sendStatus(202)
+        if(registration.includes("ER_NO_REFERENCED"))
+        res.sendStatus(406)
     }
     }
     catch(e){
@@ -152,11 +177,16 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
   router.post('/participants/event/:id/unregister', auth.authParticipant, async(req,res)=>{
     
     try{
-        await ParticipantModel.participantUnregisterInEvent(req.participantID,req.params.id)
+        unregister = await ParticipantModel.participantUnregisterInEvent(req.participantID,req.params.id)
+       if(unregister == null)
         res.sendStatus(202)
+    
+    else
+        if(unregister.includes("ER_NO_REFERENCED"))
+        res.sendStatus(406)
     }
     catch(e){     
-         res.sendStatus(406)
+         res.sendStatus(500)
      }
   })  
 

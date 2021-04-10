@@ -176,14 +176,23 @@ module.exports = {
       const eventgeneralDetails = [ eventInfo.name, eventInfo.description, eventInfo.startDate, 
       eventInfo.endDate, eventInfo.registrationCloseDateTime,eventInfo.maxParticipants,
       eventInfo.whatsAppLink,eventInfo.status,authOrganizerInfo.id,image.buffer] 
+      try{
       await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticipants, whatsappLink, status,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
       ,eventgeneralDetails)
+      }
+      catch(e){
+        return e.message
+      }
       organizerID =[authOrganizerInfo.id]
       const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =? order by event.id DESC",organizerID)
       if(eventInfo.locatedEventData != undefined){
        const  eventlocation = [result[0].id,eventInfo.locatedEventData.city,eventInfo.locatedEventData.location[0],eventInfo.locatedEventData.location[1]]
-        await makeDBQuery("insert into locatedevent (eventID,city,longtitude,latitude) values (?,?,?,?) ",eventlocation)
-  
+       try{ 
+       await makeDBQuery("insert into locatedevent (eventID,city,longtitude,latitude) values (?,?,?,?) ",eventlocation)
+       }
+       catch(e){
+         return e.message
+       }
       }
 
       if(eventInfo.sessions!= undefined){
@@ -191,7 +200,12 @@ module.exports = {
         for(i= 0; i<numberOfSessions;i++){
         const sessionData = [result[0].id,eventInfo.sessions[i].id,eventInfo.sessions[i].date,
         eventInfo.sessions[i].startTime,eventInfo.sessions[i].endTime,eventInfo.sessions[i].dayOfWeek]
+      try{
         await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
+        }
+      catch(e){
+        return e.message
+      }
       }
     }     
     const eventID = result[0].id
@@ -200,15 +214,24 @@ module.exports = {
     for(i = 0; i<numberOfCategories; i++){
 
     eventCategoriesData = [eventID, eventInfo.categories[i]]
+    try{
     await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
-    
+    }
+    catch(e){
+      return e.message
+    }
   }
 
     if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
 
       for(i=0;i<numberOfSessions;i++){
         const limitedLocatedSessionData =[eventID,eventInfo.sessions[i].id,eventInfo.sessions[i].checkInTime]
+       try{
         await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
+       }
+       catch(e){
+         return e.message
+       }
       }
   }
 },
@@ -216,7 +239,12 @@ module.exports = {
 
   getOrganizerEvents:async (organizerData) => {
     organizerID = [organizerData.id]
+    try{
     return await getOrganizerEventsUtil(organizerID)
+    }
+    catch(e){
+     return e.message
+    }
   },
 
 
@@ -297,7 +325,13 @@ module.exports = {
     
     canceledEvent: async (canceledEventData,eventID) => {
       cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
+     
+      try{
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
+     }
+     catch(e){
+       return e.message
+     }
     },
 
    
@@ -310,6 +344,8 @@ module.exports = {
       else{
         return result 
       }
+    
+   
     },
     getParticipantsOfLimitedEvent: async(eventID) =>{
       const notCheckedIn=""
