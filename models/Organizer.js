@@ -76,19 +76,37 @@ module.exports = {
          }
         }
       },
-
+      //need to add 3 sql functions
   organizerPartialSignup: async (partialInfo) =>{
+    result=[]
+    let nameResult=null
+    let  emailResult =null
+    let phoneNumberResult=null
+    organizerEmail = [partialInfo[0]]
+    organizerName = [partialInfo[1]]
+    organizerPhone = [partialInfo[2]]
+    emailResult = await makeDBQuery ("select email from organizer where email =?"
+    ,organizerEmail)
     
-    organizerInfo = [partialInfo[0],partialInfo[1],partialInfo[2]]
-    const result = await makeDBQuery ("select email,name,phonenumber from organizer where email =? or name =? or phonenumber=? ",
-    organizerInfo)
-  
-    if (result.length == 0 ){
+    nameResult = await makeDBQuery ("select name from organizer where name =?"
+    ,organizerName)
+    phoneNumberResult = await makeDBQuery ("select phoneNumber from organizer where phoneNumber =?"
+    ,organizerPhone)
+
+    if (emailResult.length == 0 && nameResult.length == 0  && phoneNumberResult.length == 0 ){
       return null
     }
-    else{
-      return result
+    if(emailResult.length>0){
+      result.push(0)
     }
+    if(nameResult.length>0){
+      result.push(1)
+    }
+    if(phoneNumberResult.length>0){
+      result.push(2)
+    }
+    return result 
+  
   },
 
 

@@ -5,6 +5,7 @@ const connection = require('../models/db')
 const OrganizerModel = require('../models/Organizer')
 const auth = require('../middleware/auth')
 const  multer = require('multer');
+const { authOrganizer } = require('../middleware/auth');
 
 
 // fix the routres small letters
@@ -38,20 +39,19 @@ router.post('/organizers/login',async (req,res)=>{
 }),
 
  router.post('/organizers/partial/sign',async (req,res) =>{
+   const conflict = []
    
-    try{
         const organizer = await OrganizerModel.organizerPartialSignup(req.body)
         if(organizer == null){
             res.sendStatus(200)
     }
-
-    else{    
-        res.sendStatus(409)
+    else{
+       for(i=0;i<organizer.length;i++){
+           if(organizer[i]!=null)
+           conflict.push(organizer[i])
+       }
+       res.status(409).send(conflict)
     }
-}
-    catch(e){
-        res.sendStatus(500)
-}
 
 }),
 
@@ -73,6 +73,7 @@ const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
 
 
 router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
+  
     try{
     const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
     if(organizer != null){

@@ -42,7 +42,21 @@ router.post('/participants/signup/partial',async (req,res)=>{
 })
 
 
-
+router.get('/participants/organizers/all',async (req,res) =>{
+    try{
+        const organizers = await ParticipantModel.getAllOrganizers()
+        if(organizers.length==0){
+            res.sendStatus(404)
+        }
+        else{
+            res.status(200).send(organizers)
+        }
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
+    
+})
 
 
 router.post('/participants/login',async (req,res)=>{
@@ -69,6 +83,7 @@ router.get('/organizerByName/:name',auth.authParticipant ,async (req,res)=>{
        res.status(200).send(participant)
     }
 })  
+
 
 router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
@@ -184,7 +199,12 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
     else
         if(unregister.includes("ER_NO_REFERENCED"))
         res.sendStatus(406)
+    
+    else{
+        if(unregister.includes("ER_DUP_ENTRY"))
+        res.sendStatus(409)
     }
+}
     catch(e){     
          res.sendStatus(500)
      }
