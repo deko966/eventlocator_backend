@@ -171,7 +171,6 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
 router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
     try{
         eventResult = await eventModel.canceledEvent(req.body,req.params.id)
-        console.log(req.body)
         if(eventResult == null)
         res.sendStatus(200)
         else

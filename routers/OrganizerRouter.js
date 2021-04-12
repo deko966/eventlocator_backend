@@ -79,7 +79,7 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
         res.status(202).send(organizer)    
     }
     else{
-        res.sendStatus(401)
+        res.sendStatus(404)
     }
 }
     catch(e){
