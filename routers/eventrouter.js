@@ -118,7 +118,7 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
 
 
 
-router.get('/participants/organizer/events/:id', async (req,res) =>{
+router.get('/participants/organizer/:id/events', async (req,res) =>{
   try{  
     const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
     if(events != null)

@@ -26,13 +26,20 @@ createOrganizerToken: (organizer)=>{
 },
 
 authOrganizer:(req,res,next)=>{
+    if(!req.headers.authorization)  {
+        res.sendStatus(401)
+        return -1
+    }
+
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret, (err, decoded)=> {
         if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        
         req.authOrganizerInfo= {id:decoded.id,type:decoded.Type}
         next()
       });
 },
+
 createParticipantToken:(participant)=>{
     const token = jwt.sign({id:participant.id.toString(),
     email:participant.email.toString()},config.secret)
@@ -40,6 +47,10 @@ createParticipantToken:(participant)=>{
     return token
 },
 authParticipant:(req,res,next)=>{
+    if(!req.headers.authorization)  
+    {   res.sendStatus(401)
+        return -1
+    }
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret,(err, decoded)=> {
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });

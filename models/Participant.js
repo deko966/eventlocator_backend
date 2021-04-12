@@ -49,6 +49,7 @@ function makeDBQuery(query, arguments) {
 
 
 
+
 module.exports = {
 
   createParticipant: async( participant ) => {
@@ -321,7 +322,32 @@ getOrganizersFollowedByParticipant: async (participantID) =>{
 
 
 getAllOrganizers: async ()=>{
-  const organzizers = await makeDBQuery("select ")
+  let result = []
+  const organizers = await makeDBQuery("SELECT id, name, rating FROM organizer WHERE 1")
+  for(let i=0;i<organizers.length;i++){
+    organizerID = [organizers[i].id]
+    const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)
+    let noOfFollowers = 0
+      if(tempResult[0].followers!= undefined)
+        noOfFollowers=tempResult[0].followers
+  
+    result.push({
+        id:organizers[i].id, 
+        name: organizers[i].name,
+        email: "",
+        about: "",
+        rating: organizers[i].rating,
+        socialMediaAccounts: [],
+        upcomingEvents: [],
+        previousEvents:[],
+        canceledEvents:[],
+        image: "",
+        numberOfFollowers: noOfFollowers,
+        isFollowedByCurrentParticipant: true,
+        
+    })
+    }
+    return result 
 }
 }
 
