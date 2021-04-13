@@ -239,7 +239,7 @@ getParticipantByID:async (participantID) =>{
     email:participant[0].email,
     city:participant[0].city,
     rating:participant[0].rating,
-    categories:categories
+    preferredEventCategories:categories
   })
 
   return result[0]
@@ -308,13 +308,9 @@ getOrganizersFollowedByParticipant: async (participantID) =>{
       about: "",
       rating: organizers[i].rating,
       socialMediaAccounts: [],
-      upcomingEvents: [],
-      previousEvents:[],
-      canceledEvents:[],
       image: "",
       numberOfFollowers: noOfFollowers,
       isFollowedByCurrentParticipant: true,
-      
   })
   }
   return result 
@@ -338,9 +334,6 @@ getAllOrganizers: async ()=>{
         about: "",
         rating: organizers[i].rating,
         socialMediaAccounts: [],
-        upcomingEvents: [],
-        previousEvents:[],
-        canceledEvents:[],
         image: "",
         numberOfFollowers: noOfFollowers,
         isFollowedByCurrentParticipant: true,
