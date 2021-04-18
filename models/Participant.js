@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const organizer = require('../models/Organizer');
 const auth = require('../middleware/auth');
+const ratingUtils = require('../utils/ratingUtils');
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -248,11 +249,20 @@ getParticipantByID:async (participantID) =>{
 participantRegisterInEvent: async (participantID,eventID) => {
   let eventsID = [eventID]
   let registrationIDs = [eventID,participantID]
-  let eventinfo = await makeDBQuery("select maxParticipants from event where ID = ?",eventsID)
-
+  let eventinfo = await makeDBQuery("select maxParticipants, endDate from event where ID = ?",eventsID)
+  let lastSessionEndTime = await makeDBQuery("SELECT endTime from session WHERE eventID = ? AND id = (SELECT MAX(id) FROM session WHERE eventID = ?)", [eventID, eventID])
+  lastSessionEndTime = lastSessionEndTime[0].endTime
+  let locatedEventData = await makeDBQuery("SELECT city from locatedevent WHERE eventID = ? ", eventID)
   if(eventinfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
+    if (locatedEventData.length > 0 && eventinfo[0].maxParticipants > -1){
+      const finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
+      const now = Date.now()
+      setTimeout(() => {
+        await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
+      }, finishDateTime - now)
+    }
     }
     catch(e){
       return e.message

@@ -168,9 +168,9 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
 })
 
 
-router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) => {
+router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,res) => {
     try{
-        eventResult = await eventModel.canceledEvent(req.body,req.params.id)
+        eventResult = await eventModel.canceledEvent(req.body,req.params.id, req.params.late, req.authOrganizerInfo.id)
         if(eventResult == null)
         res.sendStatus(200)
         else
@@ -187,7 +187,7 @@ router.post('/organizers/events/:id/cancel',auth.authOrganizer,async (req,res) =
 })
 
 
-router.get('/organizers/events/participants/:id',auth.authOrganizer, async (req,res) =>{
+router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,res) =>{
     try{
     const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
     if(participants!=null){

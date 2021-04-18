@@ -1,4 +1,7 @@
 const sql = require('./db.js');
+const ratingUtils = require('../utils/ratingUtils')
+
+const updateRatingMap = new Map()
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -15,7 +18,7 @@ function makeDBQuery(query, arguments) {
 
 const getOrganizerEventsUtil = async (organizerID) => {
   const result = []
-  const eventsResult = await makeDBQuery("SELECT id ,name,description,convert(startDate,Char) as startDate,convert(endDate,char) as endDate,convert(registrationCloseDatetime,char) as registrationCloseDatetime ,maxParticipants,rating, whatsAppLink,status from event where status <> 2 and organizerid = ? "
+  const eventsResult = await makeDBQuery("SELECT id ,name,description,convert(startDate,Char) as startDate,convert(endDate,char) as endDate,convert(registrationCloseDatetime,char) as registrationCloseDatetime ,maxParticipants, whatsAppLink,status from event where status <> 2 and organizerid = ? "
   ,organizerID)
 
   for(i=0; i < eventsResult.length; i++)
@@ -65,6 +68,7 @@ const getOrganizerEventsUtil = async (organizerID) => {
         cancellationReason: canceledEventDataResult[0].cancelationReason
       }
     }
+    const rating = await ratingUtils.getEventRating(eventResult[i].id)
 
     result.push(
       {
@@ -77,7 +81,7 @@ const getOrganizerEventsUtil = async (organizerID) => {
         registrationCloseDateTime: eventsResult[i].registrationCloseDatetime,
         status: eventsResult[i].status,
         maxParticipants: eventsResult[i].maxParticipants,
-        rating: eventsResult[i].rating,
+        rating: rating,
         sessions: sessions,
         locatedEventData: locatedEventData,
         canceledEventData: canceledEventData,
@@ -139,6 +143,8 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
     }
   }
 
+  const rating = await ratingUtils.getEventRating(eventResult[i].id)
+
   result.push({
     id: eventResult[i].id,
     description: "",
@@ -147,7 +153,7 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
     startDate: eventResult[i].startDate,
     endDate: eventResult[i].endDate,
     registrationCloseDateTime: eventResult[i].registrationCloseDateTime,
-    rating: eventResult[i].rating,
+    rating: rating,
     sessions: sessions,
     feedback: null,
     locatedEventData: locatedEventData,
@@ -232,6 +238,16 @@ module.exports = {
        }
       }
   }
+
+  const finishDateTime = Date.parse(eventInfo.endDate +'T'+eventInfo.sessions[eventInfo.sessions.length-1].endTime)
+  const now = Date.now()
+
+  //TODO: cancel this when the event gets updated or canceled
+  let timer = setTimeout( () => {
+    await ratingUtils.removePenatlyFromAnOrganizer(organizerID)
+  }, finishDateTime - now)
+
+  updateRatingMap[result[0].id] = timer
 },
  
 
@@ -248,7 +264,7 @@ module.exports = {
 
   getEventByID: async (eventID) => {
     const result = []
-    const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, rating, whatsAppLink, organizerID FROM event where event.ID =?",  
+    const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, whatsAppLink, organizerID FROM event where event.ID =?",  
     eventID)
     let sessions = await makeDBQuery("select id,convert(session.date,char) as date,startTime,endTime,dayOfWeek from session where eventid =? ORDER BY id ASC",eventID)
     sessions = JSON.parse(JSON.stringify(sessions))
@@ -296,6 +312,8 @@ module.exports = {
     return null
     }
 
+    const rating = await ratingUtils.getEventRating(eventResult[0].id)
+
        result.push({
         id: eventResult[0].id,
         name: eventResult[0].name,
@@ -306,7 +324,7 @@ module.exports = {
         registrationCloseDateTime: eventResult[0].registrationCloseDateTime,
         status: eventResult[0].status,
         maxParticipants: eventResult[0].maxParticipants,
-        rating: eventResult[0].rating,
+        rating: rating,
         sessions: sessions,
         locatedEventData: locatedEventData,
         canceledEventData: canceledEventData,
@@ -319,11 +337,14 @@ module.exports = {
   
     
     
-    canceledEvent: async (canceledEventData,eventID) => {
+    canceledEvent: async (canceledEventData,eventID, late, organizerID) => {
       cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
      
       try{
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
+      if (late){
+        await ratingUtils.applyPenaltyToAnOrganizer(organizerID)
+      }
      }
      catch(e){
        return e.message
@@ -428,6 +449,9 @@ module.exports = {
             }
           }
         }
+
+        const rating = await ratingUtils.getEventRating(tempResult[i].id)
+
         result.push({
           id: tempResult[i].id,
           description: "",
@@ -436,7 +460,7 @@ module.exports = {
           startDate: tempResult[i].startDate,
           endDate: tempResult[i].endDate,
           registrationCloseDateTime: tempResult[i].registrationCloseDateTime,
-          rating: tempResult[i].rating,
+          rating: rating,
           sessions: tempResult[i].sessions,
           feedback: feedback,
           locatedEventData: tempResult[i].locatedEventData,
@@ -455,17 +479,17 @@ module.exports = {
     },
 
     getUpcomingEvents: async (currentParticipantID) =>{
-      const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() ")
+      const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() ")
       return await prepareUpcomingEventsUtil(currentParticipantID,eventResult)
   },
 
   getUpcomingEventsByFollowedOrganizers: async (currentParticipantID) => {
-      const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() AND organizer.id IN (SELECT organizerID FROM participantsfolloworganizer WHERE participantID = ?)", currentParticipantID)
+      const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() AND organizer.id IN (SELECT organizerID FROM participantsfolloworganizer WHERE participantID = ?)", currentParticipantID)
     return await prepareUpcomingEventsUtil(currentParticipantID,eventResult)
   },
 
   getEventByIdForParticipant: async (currentParticipantID, eventID) => {
-    const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, event.description, event.picture, CONVERT(event.startDate,char) as startDate, CONVERT(event.endDate,char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer ON event.organizerID = organizer.id and event.status = 1  and event.id = ?", eventID)
+    const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, event.description, event.picture, CONVERT(event.startDate,char) as startDate, CONVERT(event.endDate,char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer ON event.organizerID = organizer.id and event.status = 1  and event.id = ?", eventID)
     let registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? and eventID = ?", [currentParticipantID,eventID])
     let sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
     ,eventID)
@@ -546,7 +570,7 @@ module.exports = {
         }
       }
     }
-
+    const rating = await ratingUtils.getEventRating(eventResult[0].id)
     return {
       id: eventResult[0].id,
       name: eventResult[0].name,
@@ -555,7 +579,7 @@ module.exports = {
       startDate: eventResult[0].startDate,
       endDate: eventResult[0].endDate,
       registrationCloseDateTime: eventResult[0].registrationCloseDateTime,
-      rating: eventResult[0].rating,
+      rating: rating,
       sessions: sessions,
       feedback: feedback,
       locatedEventData: locatedEventData,
@@ -571,7 +595,7 @@ module.exports = {
   },
 
   getParticipantEvents: async (currentParticipantID) => {
-    const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate,char) as startDate, CONVERT(event.endDate,char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.rating, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer ON event.organizerID = organizer.id JOIN participantsregisterinevent ON participantsregisterinevent.eventid = event.id and event.status = 1  and participantsregisterinevent.participantID = ?", currentParticipantID)
+    const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate,char) as startDate, CONVERT(event.endDate,char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer ON event.organizerID = organizer.id JOIN participantsregisterinevent ON participantsregisterinevent.eventid = event.id and event.status = 1  and participantsregisterinevent.participantID = ?", currentParticipantID)
     const result = []
     for(let i =0;i< eventResult.length; i++){
       let eventID = eventResult[i].id
@@ -647,7 +671,7 @@ module.exports = {
           }
         }
       }
-  
+      const rating = await ratingUtils.getEventRating(eventResult[i].id)
       result.push({
         id: eventResult[i].id,
         description: "",
@@ -656,7 +680,7 @@ module.exports = {
         startDate: eventResult[i].startDate,
         endDate: eventResult[i].endDate,
         registrationCloseDateTime: eventResult[i].registrationCloseDateTime,
-        rating: eventResult[i].rating,
+        rating: rating,
         sessions: sessions,
         feedback: feedback,
         locatedEventData: locatedEventData,
