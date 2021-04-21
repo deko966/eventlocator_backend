@@ -115,10 +115,13 @@ module.exports = {
 login: async(credentials)=>{
 
     organizerInfo = [credentials[0]]
-    const result = await makeDBQuery("Select id,email,password,phoneNumber,type from organizer where Email =? ", organizerInfo)
-
+    const result = await makeDBQuery("Select id,email,password,phoneNumber,type, accountStatus from organizer where Email =? ", organizerInfo)
+    
     if(result.length == 0){
       return null
+    }
+    else if (result[0].accountStatus != 1){
+      return result[0].accountStatus.toString()
     }
     const isMatch = await bcrypt.compare(credentials[1],result[0].password)
     if(!isMatch){
@@ -147,7 +150,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
     organizerID = [organizerAuthInfo.id]
     //join first with the organizer type then with the followers table
     if (organizerAuthInfo.type == 0){
-     const result = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.ParticipantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, rating, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on participantsfolloworganizer.OrganizerID = Organizer.ID where organizer.id =?"
+     const result = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.ParticipantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on participantsfolloworganizer.OrganizerID = Organizer.ID where organizer.id =?"
        ,organizerID)
       if(result.length == 0) {
         return null
@@ -159,7 +162,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         email:result[0].email,
         about:result[0].description,
         phoneNumber:result[0].phoneNumber,
-        rating:result[0].rating,
+        status: 1,
         socialMediaAccounts:[
         {accountName:result[0].facebookName,url:result[0].facebookLink},
         {accountName:result[0].youTubeName,url:result[0].youTubeLink},
@@ -172,7 +175,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
     
     if(organizerAuthInfo.type == 1){
      
-      const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,individual2.profilePicture , name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink, linkedInName, linkedInLink FROM organizer JOIN individual2 ON organizer.id=individual2.OrganizerID join participantsfolloworganizer on individual2.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
+      const result = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,individual2.profilePicture , name, email, description, phoneNumber, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink, linkedInName, linkedInLink FROM organizer JOIN individual2 ON organizer.id=individual2.OrganizerID join participantsfolloworganizer on individual2.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
       ,organizerID) 
       if(result.length == 0) {
         return null
@@ -187,7 +190,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             email:result[0].email,
             about:result[0].description,
             phoneNumber:result[0].phoneNumber,
-            rating:result[0].rating,
+            status: 1,
             image:image,
             socialMediaAccounts:[
             {accountName:result[0].facebookName,url:result[0].facebookLink},

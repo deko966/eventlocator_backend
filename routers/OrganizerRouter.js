@@ -25,12 +25,11 @@ router.post('/organizers/login',async (req,res)=>{
 
    try{ 
     
-        const token = await OrganizerModel.login(req.body)
-   
-        if (token != null)
-            res.status(202).send(token)
-        else
-        if (token == null)
+    const token = await OrganizerModel.login(req.body)
+    
+    if (token != null)
+        res.status(202).send(token)
+    else if (token == null)
             res.sendStatus(404)
 }
     catch(e){
