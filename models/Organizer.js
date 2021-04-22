@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const auth = require('../middleware/auth');
 const { createOrganizerToken, authOrganizer } = require('../middleware/auth');
+const ratingUtils = require('../utils/ratingUtils.js');
 //auth we store the ID and phone number and email and password
 //auth we store the ID email and password for participant 
 //need to add status for organizer here
@@ -97,15 +98,15 @@ module.exports = {
       return null
     }
     if(emailResult.length>0){
-      result.push(0)
+      result.push("0")
     }
     if(nameResult.length>0){
-      result.push(1)
+      result.push("1")
     }
     if(phoneNumberResult.length>0){
-      result.push(2)
+      result.push("2")
     }
-    return result 
+    return result
   
   },
 
@@ -156,6 +157,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         return null
       }
     else {
+      const rating = await ratingUtils.getOrganizerRating(organizerID)
       return organization = {
         numberOfFollowers: result[0].followers,
         name: result[0].name,
@@ -163,6 +165,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
         about:result[0].description,
         phoneNumber:result[0].phoneNumber,
         status: 1,
+        rating: rating,
         socialMediaAccounts:[
         {accountName:result[0].facebookName,url:result[0].facebookLink},
         {accountName:result[0].youTubeName,url:result[0].youTubeLink},
@@ -184,6 +187,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
       else{
         let image = ""
         if (result[0].profilePicture != null) image = Buffer.from(result[0].profilePicture.buffer).toString('base64')
+          const rating = await ratingUtils.getOrganizerRating(organizerID)
           return indiviudalInfo= {
             numberOfFollowers: result[0].followers,
             name: result[0].name,
@@ -192,6 +196,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
             phoneNumber:result[0].phoneNumber,
             status: 1,
             image:image,
+            rating: rating,
             socialMediaAccounts:[
             {accountName:result[0].facebookName,url:result[0].facebookLink},
             {accountName:result[0].youTubeName,url:result[0].youTubeLink},
@@ -208,19 +213,6 @@ getOrganizerType:(organizerAuthInfo) =>{
 return organizerAuthInfo.type
 },
 
-alterRating:(organizer)=>{
-  return new Promise(resolve => {
-    input =  [organizer.Rating,organizer.ID]
-    sql.query("UPDATE organizer SET rating = ? where ID  = ?" , input ,  (err, result)=> 
-    {
-    if (err) {
-      resolve({undefined,err})
-        }
-        else{
-     resolve({result, undefined})
-      }
-  });
-})  
-} 
+ 
 
 }

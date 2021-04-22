@@ -5,6 +5,8 @@ const config = require('../config/config');
 const organizer = require('../models/Organizer');
 const auth = require('../middleware/auth');
 const ratingUtils = require('../utils/ratingUtils');
+const schedule = require('node-schedule')
+const moment = require('moment')
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -256,13 +258,7 @@ participantRegisterInEvent: async (participantID,eventID) => {
   if(eventinfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
-    if (locatedEventData.length > 0 && eventinfo[0].maxParticipants > -1){
-      const finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
-      const now = Date.now()
-      setTimeout(() => {
-        await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
-      }, finishDateTime - now)
-    }
+    return undefined
     }
     catch(e){
       return e.message
@@ -273,6 +269,14 @@ participantRegisterInEvent: async (participantID,eventID) => {
     if(eventParticipants[0].total < eventinfo[0].maxParticipants){
       try{
       await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
+      if (locatedEventData.length > 0 && eventinfo[0].maxParticipants > -1){
+        let finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
+        finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
+        schedule.scheduleJob(finishDateTime, async () => {
+          await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
+        })
+      }
+      return undefined
       }
       catch(e)
       {
