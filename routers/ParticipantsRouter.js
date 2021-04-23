@@ -177,7 +177,8 @@ router.get('/participant/information', auth.authParticipant, async(req,res) =>{
 router.post('/participants/event/:id/register', auth.authParticipant, async(req,res)=>{
     try{
     const registration = await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
-    if(registration == -1|| registration.includes("ER_DUP_ENTRY"))
+    if (registration == undefined) res.sendStatus(202)
+    else if(registration == -1|| registration.includes("ER_DUP_ENTRY"))
         res.sendStatus(409)
     else{
         if(registration.includes("ER_NO_REFERENCED"))

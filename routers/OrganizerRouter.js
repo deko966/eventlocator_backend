@@ -37,19 +37,19 @@ router.post('/organizers/login',async (req,res)=>{
     }
 }),
 
- router.post('/organizers/partial/sign',async (req,res) =>{
-   const conflict = []
-   
+ router.post('/organizers/signup/partial',async (req,res) =>{
+   try{
         const organizer = await OrganizerModel.organizerPartialSignup(req.body)
         if(organizer == null){
-            res.sendStatus(200)
+                res.status(200).send([])
+        }
+        else{
+            res.status(201).send(organizer)
+        }
     }
-    else{
-       for(i=0;i<organizer.length;i++){
-           if(organizer[i]!=null)
-           conflict.push(organizer[i])
-       }
-       res.status(409).send(conflict)
+    catch(e){
+        console.log(e)
+        res.sendStatus(500)
     }
 
 }),
@@ -72,18 +72,16 @@ const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
 
 
 router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
-  
     try{
-    const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
-    if(organizer != null){
-        res.status(202).send(organizer)    
+        const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
+        if(organizer != null){
+            res.status(202).send(organizer)    
+        }
+        else{
+            res.sendStatus(404)
+        }
     }
-    else{
-        res.sendStatus(404)
-    }
-}
     catch(e){
-    
         res.sendStatus(500)
     }
 }),
@@ -99,14 +97,6 @@ router.patch('/modifyOrganizerProfile',async (req,res)=>{
 //         res.send(results)  
 //     });
 //       })
-
-router.patch('/modifyRating',auth.authOrganizer,async (req,res)=>{
-    const rating = await OrganizerModel.alterRating(req.body)
-    if (rating.err)
-    res.status(500).send(rating.err)
-    else
-    res.status(200).send("success")
-})
 
 
 
@@ -130,9 +120,9 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
    
 })
 
-router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{
+router.get('organizers/followers',auth.authOrganizer,async (req,res)=>{
     try{
-    const followers = await OrganizerModel.organizerFollower(req.params.id)
+    const followers = await OrganizerModel.getOrganizerFollowers(req.authOrganizerInfo.id)
         if(followers!=null){
         res.status(202).send(followers)
         }

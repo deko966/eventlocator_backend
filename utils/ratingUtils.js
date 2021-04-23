@@ -15,7 +15,8 @@ function makeDBQuery(query, arguments) {
 
   const getFinishedEvents = async (organizerID) => {
       const result = []
-      const events = await makeDBQuery("SELECT id from event WHERE organizerID = ? AND ")
+      //test here
+      const events = await makeDBQuery("SELECT id from event WHERE organizerID = ? AND cast(concat(endDate, ' ',(SELECT endTime FROM session where ID = (SELECT MAX(id) FROM session WHERE eventID = event.id) AND eventID = event.id) ) as datetime) < NOW() ", organizerID)
       for(let i = 0; i< events.length; i ++ ){
         let lastSessionEndTime = await makeDBQuery("SELECT endTime from session WHERE eventID = ? AND id = (SELECT MAX(id) FROM session WHERE eventID = ?)", [events[i].id, events[i].id])
         lastSessionEndTime = lastSessionEndTime[0].endTime
@@ -28,7 +29,7 @@ function makeDBQuery(query, arguments) {
   }
 
   const getEventRatingUtil = async (eventID) => {
-    const result = await makeDBQuery("SELECT Rating from participantsrateevebt WHERE eventID = ?", eventID)
+    const result = await makeDBQuery("SELECT Rating from participantsrateevent WHERE eventID = ?", eventID)
     if (result.length == 0)return -1
     else{
         let sum = 0;
@@ -67,7 +68,7 @@ module.exports = {
     },
 
     getEventRating: async (eventID) => {
-        return this.getEventRatingUtil(eventID)
+        return getEventRatingUtil(eventID)
     },
 
     applyPenaltyToAnOrganizer: async (organizerID) => {
@@ -76,7 +77,7 @@ module.exports = {
     },
 
     removePenatlyFromAnOrganizer: async (organizerID) => {
-        await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(ratingPenatly - 0.2, 0.0) WHERE organizerID = ?", organizerID)
+        await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(ratingPenatly - 0.2, 0.0) WHERE ID = ?", organizerID)
     },
 
     applyParticipantRating: async (participantID, eventID, rating, feedback) => {

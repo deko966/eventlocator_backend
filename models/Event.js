@@ -1,5 +1,7 @@
 const sql = require('./db.js');
 const ratingUtils = require('../utils/ratingUtils')
+const schedule = require('node-schedule')
+const moment = require('moment')
 
 const updateRatingMap = new Map()
 
@@ -68,7 +70,7 @@ const getOrganizerEventsUtil = async (organizerID) => {
         cancellationReason: canceledEventDataResult[0].cancelationReason
       }
     }
-    const rating = await ratingUtils.getEventRating(eventResult[i].id)
+    const rating = await ratingUtils.getEventRating(eventsResult[i].id)
 
     result.push(
       {
@@ -239,19 +241,17 @@ module.exports = {
       }
   }
 
-  const finishDateTime = Date.parse(eventInfo.endDate +'T'+eventInfo.sessions[eventInfo.sessions.length-1].endTime)
-  const now = Date.now()
-
-  //TODO: cancel this when the event gets updated or canceled
-  let timer = setTimeout( () => {
+  let finishDateTime = Date.parse(eventInfo.endDate +'T'+eventInfo.sessions[eventInfo.sessions.length-1].endTime)
+  finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
+  let job = schedule.scheduleJob(finishDateTime, async () => {
     await ratingUtils.removePenatlyFromAnOrganizer(organizerID)
-  }, finishDateTime - now)
+  })
 
-  updateRatingMap[result[0].id] = timer
+  updateRatingMap[result[0].id] = job
 },
  
 
-  getOrganizerEvents:async (organizerData) => {
+  getOrganizerEvents: async (organizerData) => {
     organizerID = [organizerData.id]
     try{
     return await getOrganizerEventsUtil(organizerID)
@@ -337,7 +337,7 @@ module.exports = {
   
     
     
-    canceledEvent: async (canceledEventData,eventID, late, organizerID) => {
+    cancelEvent: async (canceledEventData,eventID, late, organizerID) => {
       cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
      
       try{
@@ -345,6 +345,7 @@ module.exports = {
       if (late){
         await ratingUtils.applyPenaltyToAnOrganizer(organizerID)
       }
+      clearTimeout(updateRatingMap[eventID])
      }
      catch(e){
        return e.message
@@ -353,18 +354,29 @@ module.exports = {
 
    
     getParticipantsOfAnEvent: async (eventID) => {
-      const result = await makeDBQuery("select participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
+      const result = []
+      const participants = await makeDBQuery("select participant.id,participant.firstName,participant.lastName,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
       ,eventID)
-      if(result.length == 0){
+      if(participants.length == 0){
         return null
         }        
       else{
+        for(let i =0; i < participants.length; i++){
+          result.push({
+            id: participants[i].id,
+            firstName: participants[i].firstName,
+            lastName: participants[i].lastName,
+            rating: participants[i].rating,
+            arrivalTime: ""
+          })
+        }
         return result 
       }
     
    
     },
     getParticipantsOfLimitedEvent: async(eventID) =>{
+      //Rework this
       const notCheckedIn=""
       const participants = await makeDBQuery("select participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
       ,eventID)
@@ -382,20 +394,17 @@ module.exports = {
     },
 
 
-    getAttendaceOfAnEvent: async(eventID) =>{
-      
-      const attendees = await makeDBQuery("select count(participant.id) as total from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =?" )
-
-
-    },
-
-
-
-    getEventsFeedback:async (eventData) => {
-      eventID=[eventData]
-      const result = await makeDBQuery ("select feedback,rating from  participantsrateevent where participantsrateevent.eventid =?",eventID)
-      if(result == null){
+    getEventsFeedback:async (eventID) => {
+      const result = []
+      const feedback = await makeDBQuery ("select feedback,rating from  participantsrateevent where participantsrateevent.eventid =?",eventID)
+      if(feedback.length == 0){
         return null
+      }
+      for(let i =0; i < feedback.length; i++){
+        result.push({
+          rating: feedback[i].rating,
+          feedback: feedback[i].feedback
+        })
       }
       return result
     },
@@ -695,7 +704,35 @@ module.exports = {
       })
     }
     return result
-  }
+  },
 
+  prepareToCheckInParticipant: async (eventID, sessionID, participantID) => {
+    const isRegistered = await makeDBQuery("SELECT firstName, lastName FROM participant JOIN participantsregisterinevent on participant.id = participantsregisterinevent.participantID and participant.id = ? and participantsregisterinevent.eventID = ? ", [participantID,eventID])
+
+    if (isRegistered.length == 0) return 1
+    
+    const hasAlreadyCheckedIn = await makeDBQuery("SELECT * FROM checkinparticipant WHERE participantID = ? AND eventID = ? and sessionID = ?", [participantID, eventID, sessionID])
+
+    if (hasAlreadyCheckedIn.length == 1) return 2
+
+    return isRegistered[0].firstName + " " + isRegistered[0].lastName
+
+  },
+
+  checkInParticipant: async (eventID, sessionID, participantID, organizerID) => {
+    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID) VALUES (?,?,?,?)", [organizerID,participantID,eventID,sessionID])
+  },
+
+  getEventStatistics: async (eventID) => {
+    const totalRegistered = await makeDBQuery("SELECT COUNT(participantID) AS total FROM participantsRegisterInEvent WHERE eventID = ?", eventID)
+    let sessionsData = await("SELECT sessionID,COUNT(participantID) as total, CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) AS avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP BY sessionID ORDER BY sessionID ASC", eventID)
+    sessionsData = JSON.parse(JSON.stringify(sessionsData))
+    const res = {
+      total: totalRegistered[0].total,
+      sessions: sessionsData
+    }
+
+    return res
+  }
 
 }

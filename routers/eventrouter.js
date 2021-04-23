@@ -60,7 +60,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500)
     }
 })
 
@@ -71,27 +71,25 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
         res.status(202).send(events)
     }
     else{
-        res.sendStatus(404)
+        res.status(404)
     }
   }
   catch(e){
-      res.sendStatus(500)
+      res.status(500)
   }
 })
 
-
-
-
-
-
-
-
-router.get('/organizers/events/feedback/:id',async (req,res)=>{
-    const feedback = await eventModel.getEventsFeedback(req.params.id)
-    if(feedback != null)
-    res.status(200).send(feedback)
-    else{
-        res.status(404).send("no event/feedback")
+router.get('/organizers/events/:id/feedback',async (req,res)=>{
+    try{
+        const feedback = await eventModel.getEventsFeedback(req.params.id)
+        if(feedback != null)
+        res.status(200).send(feedback)
+        else{
+            res.status(404)
+        }
+    }
+    catch(e){
+        res.status(500)
     }
 }),
 
@@ -112,6 +110,34 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
         res.send(500)
     }
 })
+
+router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID/confirm', 
+    auth.authOrganizer, async (req, res) =>{
+    
+        try{
+            await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID)
+            res.sendStatus(200)
+        }
+        catch(e){
+            res.sendStatus(500)
+        }
+
+})
+
+router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID', 
+    auth.authOrganizer, async (req, res) =>{
+        try{
+            const res = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInto.id)
+            if (res == 1) res.sendStatus(404)
+            else if (res == 2) res.sendStatus(409)
+            else res.status(200).send(res)
+        }
+        catch(e){
+            res.sendStatus(500)
+        }
+})
+
+
 
 
 
@@ -170,7 +196,7 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
 
 router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,res) => {
     try{
-        eventResult = await eventModel.canceledEvent(req.body,req.params.id, req.params.late, req.authOrganizerInfo.id)
+        eventResult = await eventModel.cancelEvent(req.body,req.params.id, req.params.late, req.authOrganizerInfo.id)
         if(eventResult == null)
         res.sendStatus(200)
         else
@@ -203,11 +229,17 @@ router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,
 })
 
 
-router.get('/organizers/events/getAttendanceInfo/:id', async (req,res) => {
+router.get('/organizers/events/:id/attendanceStatistics', async (req,res) => {
 
+    try{
+        const data = await eventModel.getEventStatistics(req.params.id)
+        res.sendStatus(200)
+    }
+    catch(e){
+        res.sendStatus(500)
+    }
 
-}
-)
+})
 
 router.patch('/ModifyEvent',async (req,res)=>{
 //2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 
@@ -237,9 +269,6 @@ router.get('/UpComingEvents/:id',async (req,res)=>{
 })
 
 router.get('/UnregisterInEvent',async (req,res)=>{
-
-})
-router.post('/RateEvent/:id',async (req,res)=>{
 
 })
 

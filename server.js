@@ -1,5 +1,4 @@
 const express = require('express')
-const Participant = require('./models/Participant')
 const OrganizerRouter = require('./routers/OrganizerRouter')
 const ParticipantRouter = require('./routers/ParticipantsRouter')
 const EventRouter = require('./routers/eventrouter')
