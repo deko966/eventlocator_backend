@@ -120,9 +120,9 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
    
 })
 
-router.get('/followers/:id',auth.authOrganizer,async (req,res)=>{
+router.get('organizers/followers',auth.authOrganizer,async (req,res)=>{
     try{
-    const followers = await OrganizerModel.organizerFollower(req.params.id)
+    const followers = await OrganizerModel.getOrganizerFollowers(req.authOrganizerInfo.id)
         if(followers!=null){
         res.status(202).send(followers)
         }

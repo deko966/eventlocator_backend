@@ -98,13 +98,13 @@ module.exports = {
       return null
     }
     if(emailResult.length>0){
-      result.push("0")
+      result.push(0)
     }
     if(nameResult.length>0){
-      result.push("1")
+      result.push(1)
     }
     if(phoneNumberResult.length>0){
-      result.push("2")
+      result.push(2)
     }
     return result
   
@@ -135,13 +135,15 @@ login: async(credentials)=>{
 
 
 
-organizerFollower:async (organizerData)=>{
-  
-     organizerID = [organizerData] 
-    const result = await makeDBQuery("SELECT participant.FirstName,participant.LastName FROM participant  JOIN participantsfolloworganizer  ON participant.ID = participantsfolloworganizer.participantID   AND participantsFollowOrganizer.organizerID = ?" 
+getOrganizerFollowers:async (organizerID)=>{
+    const result = []
+    const participants = await makeDBQuery("SELECT CONCAT(participant.FirstName,' ',participant.LastName) as fullName FROM participant  JOIN participantsfolloworganizer  ON participant.ID = participantsfolloworganizer.participantID   AND participantsFollowOrganizer.organizerID = ?" 
     ,organizerID)
-    if (result.length==0){
+    if (participants.length==0){
       return null
+    }
+    for(let i =0;i<participants.length;i++){
+      result.push(participants[i].fullName)
     }
     return result
 

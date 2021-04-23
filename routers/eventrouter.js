@@ -60,7 +60,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500)
     }
 })
 
@@ -71,27 +71,25 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
         res.status(202).send(events)
     }
     else{
-        res.sendStatus(404)
+        res.status(404)
     }
   }
   catch(e){
-      res.sendStatus(500)
+      res.status(500)
   }
 })
 
-
-
-
-
-
-
-
-router.get('/organizers/events/feedback/:id',async (req,res)=>{
-    const feedback = await eventModel.getEventsFeedback(req.params.id)
-    if(feedback != null)
-    res.status(200).send(feedback)
-    else{
-        res.status(404).send("no event/feedback")
+router.get('/organizers/events/:id/feedback',async (req,res)=>{
+    try{
+        const feedback = await eventModel.getEventsFeedback(req.params.id)
+        if(feedback != null)
+        res.status(200).send(feedback)
+        else{
+            res.status(404)
+        }
+    }
+    catch(e){
+        res.status(500)
     }
 }),
 

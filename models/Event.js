@@ -354,12 +354,22 @@ module.exports = {
 
    
     getParticipantsOfAnEvent: async (eventID) => {
-      const result = await makeDBQuery("select participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
+      const result = []
+      const participants = await makeDBQuery("select participant.id,participant.firstName,participant.lastName,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
       ,eventID)
-      if(result.length == 0){
+      if(participants.length == 0){
         return null
         }        
       else{
+        for(let i =0; i < participants.length; i++){
+          result.push({
+            id: participants[i].id,
+            firstName: participants[i].firstName,
+            lastName: participants[i].lastName,
+            rating: participants[i].rating,
+            arrivalTime: ""
+          })
+        }
         return result 
       }
     
@@ -384,11 +394,17 @@ module.exports = {
     },
 
 
-    getEventsFeedback:async (eventData) => {
-      eventID=[eventData]
-      const result = await makeDBQuery ("select feedback,rating from  participantsrateevent where participantsrateevent.eventid =?",eventID)
-      if(result == null){
+    getEventsFeedback:async (eventID) => {
+      const result = []
+      const feedback = await makeDBQuery ("select feedback,rating from  participantsrateevent where participantsrateevent.eventid =?",eventID)
+      if(feedback.length == 0){
         return null
+      }
+      for(let i =0; i < feedback.length; i++){
+        result.push({
+          rating: feedback[i].rating,
+          feedback: feedback[i].feedback
+        })
       }
       return result
     },
