@@ -1,4 +1,4 @@
-const sql = require('./db.js')
+const sql = require('../models/db.js')
 
 function makeDBQuery(query, arguments) {
     return new Promise((resolve, reject) => {

@@ -2,9 +2,21 @@ const express = require('express')
 const router = new express.Router()
 
 
-router.post('/AdminLogin',async (req,res)=>{
+router.get('/adminLogin',async (req,res)=>{
+    try{ 
     
-})
+        const token = await AdminModel.login(req.body)   
+        if (token != null)
+           return res.redirect('');
+        else if (token == null)
+                res.sendStatus(404)
+    }
+    
+    catch(e){
+            res.sendStatus(500)
+        }
+}),
+    
 router.post('/AdminLogut',auth,async (req,res)=>{
 
 })

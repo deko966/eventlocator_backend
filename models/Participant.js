@@ -259,7 +259,7 @@ participantRegisterInEvent: async (participantID,eventID) => {
     if (locatedEventData.length > 0 && eventinfo[0].maxParticipants > -1){
       const finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
       const now = Date.now()
-      setTimeout(() => {
+      setTimeout (()  => {
         await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
       }, finishDateTime - now)
     }
