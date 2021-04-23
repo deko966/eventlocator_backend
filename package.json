@@ -1,40 +1,33 @@
 {
   "name": "mysqltest",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "description": "",
+  "main": "debug.js",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
-    "beautify.config": "string|Object.<string,string|number|boolean>",
     "bluebird": "^3.7.2",
     "express": "^4.17.1",
     "faker": "^5.4.0",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.29.1",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
-<<<<<<< HEAD
     "nodemon": "^2.0.7",
     "request": "^2.88.2"
-=======
-    "node-schedule": "^2.0.0",
-    "nodemon": "^2.0.7"
->>>>>>> d0aeaa083ec0c31b790f6f244feb3375d8a6134c
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deko966/eventlocator_backend.git"
+    "url": "git+https://github.com/deko966/eventlocater_dev.git"
   },
+  "author": "",
+  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/deko966/eventlocator_backend/issues"
+    "url": "https://github.com/deko966/eventlocater_dev/issues"
   },
-  "homepage": "https://github.com/deko966/eventlocator_backend#readme",
-  "description": ""
+  "homepage": "https://github.com/deko966/eventlocater_dev#readme"
 }
