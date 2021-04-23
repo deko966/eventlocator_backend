@@ -258,13 +258,6 @@ participantRegisterInEvent: async (participantID,eventID) => {
   if(eventinfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
-    if (locatedEventData.length > 0 && eventinfo[0].maxParticipants > -1){
-      const finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
-      const now = Date.now()
-      setTimeout (()  => {
-        await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
-      }, finishDateTime - now)
-    }
     }
     catch(e){
       return e.message
