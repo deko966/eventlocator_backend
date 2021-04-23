@@ -375,21 +375,23 @@ module.exports = {
     
    
     },
-    getParticipantsOfLimitedEvent: async(eventID) =>{
-      //Rework this
-      const notCheckedIn=""
-      const participants = await makeDBQuery("select participant.id,participant.firstname,participant.lastname,participant.rating from participant join participantsregisterinevent on participantsregisterinevent.participantID = participant.id where participantsregisterinevent.EventID =? "
+    getParticipantsDuringALimitedLocatedSession: async(eventID) =>{
+      const result = []
+      const participants = await makeDBQuery("select participant.id,participant.firstName,participant.lastName,participant.rating, checkinparticipant.arrivalTime FROM participant LEFT OUTER JOIN ON  participant.id = checkinparticipant.participantID AND checkInParticipant.eventID = ?"
       ,eventID)
-      const checkIn = await makeDBQuery ("select participantID,arrivalTime from checkinparticipant",eventID)
-      
+      if (participants.length == 0) return null
       for(i=0;i<participants.length;i++){
-        if(participant[i].id == checkIn[i].id){
-          participants[i].push =checkIn[i].arrivalTime
-        }
-        else{
-          participants[i].push=notCheckedIn
-        }
+        let arrivalTime = ""
+        if (participants[i].arrivalTime) arrivalTime = participants[i].arrivalTime
+        result.push({
+          id: participants[i].id,
+          firstName: participants[i].firstName,
+          lastName: participants[i].lastName,
+          rating: participants[i].rating,
+          arrivalTime: arrivalTime
+        })
       }
+      return result
 
     },
 

@@ -35,6 +35,17 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
 
 })
 
+router.get("/organizers/events/limited/:id/participants", auth.authOrganizer, async (req, res) =>{
+    try{
+        const participants = await eventModel.getParticipantsDuringALimitedLocatedSession(req.params.id)
+        if (participants == null) res.status(404)
+        else res.status(200).send(participants)
+    }
+    catch(e){
+        res.status(500)
+    }
+})
+
 
 router.get('/participants/events/upcoming',auth.authParticipant, async (req,res) =>{
    try{ const events = await eventModel.getUpcomingEvents(req.participantID)
