@@ -13,11 +13,11 @@ router.post('/participants/signup',async (req,res)=>{
     if(participant==undefined)
         res.sendStatus(201)
     if(participant.includes("ER_DUP_ENTRY")){
-        res.sendStatus(409)
+        res.status(409).send(null)
     }
 } 
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send(null)
 
     }
 })
@@ -33,11 +33,11 @@ router.post('/participants/signup/partial',async (req,res)=>{
     }
 
     else{    
-        res.sendStatus(409)
+        res.status(409).send(null)
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send(null)
     }
 })
 
@@ -46,7 +46,7 @@ router.get('/participants/organizers/all',async (req,res) =>{
     try{
         const organizers = await ParticipantModel.getAllOrganizers()
         if(organizers.length==0){
-            res.sendStatus(404)
+            res.status(404).send(null)
         }
         else{
             res.status(200).send(organizers)
