@@ -124,14 +124,14 @@ router.get('organizers/followers',auth.authOrganizer,async (req,res)=>{
     try{
     const followers = await OrganizerModel.getOrganizerFollowers(req.authOrganizerInfo.id)
         if(followers!=null){
-        res.status(202).send(followers)
+            res.status(202).send(followers)
         }
         else{
-            res.sendStatus(404)
+            res.send(404)
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.send(500)
     }
 
  }),

@@ -3,6 +3,7 @@ const router = new express.Router()
 const eventModel = require('../models/Event')
 const auth = require('../middleware/auth')
 const  multer = require('multer');
+const { compareSync } = require('bcryptjs');
 
 const uploads = multer({
     limits: {
@@ -62,12 +63,12 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
 
 router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
    try{
-    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo)
+    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
         if(events != null){
             res.status(200).send(events)
         }
         else{
-            res.status(404).send("event not found")
+            res.status(404)
     }
     }
     catch(e){

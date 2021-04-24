@@ -289,7 +289,7 @@ participantRegisterInEvent: async (participantID,eventID) => {
   },
 
 
-//  need to add number of regisetred organizer to check if possible
+
 participantUnregisterInEvent: async (participantID,eventID) =>{
   registrationIDs = [participantID,eventID]
   try{

@@ -71,7 +71,7 @@ const getOrganizerEventsUtil = async (organizerID) => {
       }
     }
     const rating = await ratingUtils.getEventRating(eventsResult[i].id)
-
+    const numberOfParticipants = await makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", id)
     result.push(
       {
         id: eventsResult[i].id,
@@ -88,7 +88,8 @@ const getOrganizerEventsUtil = async (organizerID) => {
         locatedEventData: locatedEventData,
         canceledEventData: canceledEventData,
         image: "",
-        whatsAppLink: eventsResult[i].whatsAppLink
+        whatsAppLink: eventsResult[i].whatsAppLink,
+        currentNumberOfParticipants: numberOfParticipants[0].currentNumberOfParticipants
       }
   )
   }
@@ -194,7 +195,7 @@ module.exports = {
       if(eventInfo.locatedEventData != undefined){
        const  eventlocation = [result[0].id,eventInfo.locatedEventData.city,eventInfo.locatedEventData.location[0],eventInfo.locatedEventData.location[1]]
        try{ 
-       await makeDBQuery("insert into locatedevent (eventID,city,longtitude,latitude) values (?,?,?,?) ",eventlocation)
+       await makeDBQuery("insert into locatedevent (eventID,city,latitude,longitude) values (?,?,?,?) ",eventlocation)
        }
        catch(e){
          return e.message
@@ -251,8 +252,7 @@ module.exports = {
 },
  
 
-  getOrganizerEvents: async (organizerData) => {
-    organizerID = [organizerData.id]
+  getOrganizerEvents: async (organizerID) => {
     try{
     return await getOrganizerEventsUtil(organizerID)
     }
@@ -313,7 +313,7 @@ module.exports = {
     }
 
     const rating = await ratingUtils.getEventRating(eventResult[0].id)
-
+    const numberOfParticipants = await makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", eventID)
        result.push({
         id: eventResult[0].id,
         name: eventResult[0].name,
@@ -329,7 +329,8 @@ module.exports = {
         locatedEventData: locatedEventData,
         canceledEventData: canceledEventData,
         image: Buffer.from(eventResult[0].picture.buffer).toString('base64'),
-        whatsAppLink: eventResult[0].whatsAppLink
+        whatsAppLink: eventResult[0].whatsAppLink,
+        currentNumberOfParticipants: numberOfParticipants[0].currentNumberOfParticipants
       })
       return result[0]
     
@@ -426,7 +427,6 @@ module.exports = {
         if (tempResult[i].status!=1) continue
         const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? AND eventID IN (SELECT id FROM event WHERE OrganizerID = ?) AND eventID = ?", [currentParticipantID, organizerID, tempResult[i]])
         const isParticipantRegistered = registeredEvents.length > 0
-        const numberOfParticipants = await makeDBQuery("SELECT COUNT(participantID) as currentNumberOfParticipants FROM participantsregisterinevent WHERE eventID = ? ", tempResult[i].id)
         const finishDateTime = Date.parse(tempResult[i].endDate +'T'+tempResult[i].sessions[tempResult[i].sessions.length-1].endTime)
         const now = Date.now()
         let hasParticipantAttended = 0
@@ -482,7 +482,7 @@ module.exports = {
           organizerName: "",
           isParticipantRegistered: isParticipantRegistered,
           hasParticipantAttended: hasParticipantAttended,
-          currentNumberOfParticipants: numberOfParticipants[0].currentNumberOfParticipants
+          currentNumberOfParticipants: tempResult[i].currentNumberOfParticipants
         })
 
       }
