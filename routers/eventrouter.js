@@ -91,7 +91,7 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
   }
 })
 
-router.get('/organizers/events/:id/feedback',async (req,res)=>{
+router.get('/organizers/events/:id/feedback', auth.authOrganizer, async (req,res)=>{
     try{
         const feedback = await eventModel.getEventsFeedback(req.params.id)
         if(feedback != null)
@@ -156,9 +156,9 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
 
 
 
-router.get('/participants/organizer/:id/events', async (req,res) =>{
+router.get('/participants/organizer/:id/events', auth.authParticipant, async (req,res) =>{
   try{  
-    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
+    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.participantID,req.params.id)
     if(events != null)
     res.status(202).send(events)
     else{
@@ -241,7 +241,7 @@ router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,
 })
 
 
-router.get('/organizers/events/:id/attendanceStatistics', async (req,res) => {
+router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, async (req,res) => {
 
     try{
         const data = await eventModel.getEventStatistics(req.params.id)

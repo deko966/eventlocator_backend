@@ -20,7 +20,7 @@ function makeDBQuery(query, arguments) {
 
 const getOrganizerEventsUtil = async (organizerID) => {
   const result = []
-  const eventsResult = await makeDBQuery("SELECT id ,name,description,convert(startDate,Char) as startDate,convert(endDate,char) as endDate,convert(registrationCloseDatetime,char) as registrationCloseDatetime ,maxParticipants, whatsAppLink,status from event where status <> 2 and organizerid = ? "
+  const eventsResult = await makeDBQuery("SELECT id, name, description,convert(startDate,Char) as startDate,convert(endDate,char) as endDate,convert(registrationCloseDatetime,char) as registrationCloseDatetime, maxParticipants, whatsAppLink, status FROM event WHERE status <> 2 and organizerid = ?"
   ,organizerID)
 
   for(i=0; i < eventsResult.length; i++)
@@ -425,7 +425,7 @@ module.exports = {
       const result = []
       for(let i = 0; i < tempResult.length; i++){
         if (tempResult[i].status!=1) continue
-        const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? AND eventID IN (SELECT id FROM event WHERE OrganizerID = ?) AND eventID = ?", [currentParticipantID, organizerID, tempResult[i]])
+        const registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? AND eventID IN (SELECT id FROM event WHERE OrganizerID = ?) AND eventID = ?", [currentParticipantID, organizerID, tempResult[i].id])
         const isParticipantRegistered = registeredEvents.length > 0
         const finishDateTime = Date.parse(tempResult[i].endDate +'T'+tempResult[i].sessions[tempResult[i].sessions.length-1].endTime)
         const now = Date.now()
