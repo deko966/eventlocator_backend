@@ -9,15 +9,15 @@ const { authParticipant } = require('../middleware/auth')
 
 router.post('/participants/signup',async (req,res)=>{
     try{
-    const participant = await ParticipantModel.createParticipant(req.body) 
-    if(participant==undefined)
-        res.sendStatus(201)
-    if(participant.includes("ER_DUP_ENTRY")){
-        res.status(409).send(null)
-    }
-} 
+        const participant = await ParticipantModel.createParticipant(req.body) 
+        if(participant==undefined)
+            res.sendStatus(201)
+        if(participant.includes("ER_DUP_ENTRY")){
+            res.status(409)
+        }
+    } 
     catch(e){
-        res.status(500).send(null)
+        res.status(500)
 
     }
 })
@@ -124,19 +124,18 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
 
 router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
-    await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
-    if(follow == null)
-    res.sendStatus(200)
-    
-    else{
-        if(follow.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
+        const follow = await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
+        if(follow == null)
+            res.sendStatus(200)
         else{
-            if(follow.includes("ER_NO_REFERENCED"))
-                res.sendStatus(406)
+            if(follow.includes("ER_DUP_ENTRY"))
+                res.sendStatus(409)
+            else{
+                if(follow.includes("ER_NO_REFERENCED"))
+                    res.sendStatus(406)
+            }
         }
     }
-}
     catch(e){
         res.sendStatus(500)
     }
@@ -179,10 +178,13 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
         if (registration == undefined) res.send(202)
         else if(registration == -1|| registration.includes("ER_DUP_ENTRY"))
             res.send(409)
-        else{
-            if(registration.includes("ER_NO_REFERENCED"))
+        else if(registration.includes("ER_NO_REFERENCED")){
             res.send(406)
         }
+        else{
+            res.status(500)
+        }
+
     }
     catch(e){
         res.send(500)

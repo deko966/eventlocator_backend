@@ -80,7 +80,7 @@ module.exports = {
         await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(ratingPenatly - 0.2, 0.0) WHERE ID = ?", organizerID)
     },
 
-    applyParticipantRating: async (participantID, eventID, rating, feedback) => {
+    addParticipantRating: async (participantID, eventID, rating, feedback) => {
         await makeDBQuery("INSERT INTO participantsRateEvent VALUES(?,?,?,?)",[eventID, participantID, rating, feedback])
         let organizerID = await makeDBQuery("SELECT organizerID FROM event WHERE id = ?", eventID)
         await checkToSuspendOrganizer(organizerID[0].organizerID)

@@ -153,9 +153,6 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
 
 
 
-
-
-
 router.get('/participants/organizer/:id/events', auth.authParticipant, async (req,res) =>{
   try{  
     const events = await eventModel.getOrganizerEventsForParticipantsApp(req.participantID,req.params.id)
@@ -203,6 +200,25 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
     catch(e){
         res.sendStatus(500)
     }
+})
+
+router.get('/participants/event/:id/rate',auth.authParticipant, async (req,res)=>{
+
+    try{
+        const result = await eventModel.addParticipantRating(req.participantID, req.params.id, req.body)
+        if(result == null)
+        res.sendStatus(200)
+        else
+        if(result.includes("ER_DUP_ENTRY"))
+            res.sendStatus(409)
+        else
+            if(result.includes("ER_NO_REFERENCED"))
+            res.sendStatus(406)
+    }
+    catch(e){
+        res.status(500)
+    }
+
 })
 
 

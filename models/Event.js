@@ -266,7 +266,7 @@ module.exports = {
     const result = []
     const eventResult = await makeDBQuery("SELECT id, name, description, picture,CONVERT(StartDate, char) as startDate, CONVERT(EndDate,char)as endDate, CONVERT(registrationCloseDateTime,char) as registrationCloseDateTime , maxParticipants, status, whatsAppLink, organizerID FROM event where event.ID =?",  
     eventID)
-    let sessions = await makeDBQuery("select id,convert(session.date,char) as date,startTime,endTime,dayOfWeek from session where eventid =? ORDER BY id ASC",eventID)
+    let sessions = await makeDBQuery("select id,convert(session.date,char) as date,startTime,endTime,dayOfWeek from session where eventid = ? ORDER BY id ASC",eventID)
     sessions = JSON.parse(JSON.stringify(sessions))
 
     const categoriesResult = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
@@ -502,7 +502,7 @@ module.exports = {
   getEventByIdForParticipant: async (currentParticipantID, eventID) => {
     const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, event.description, event.picture, CONVERT(event.startDate,char) as startDate, CONVERT(event.endDate,char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer ON event.organizerID = organizer.id and event.status = 1  and event.id = ?", eventID)
     let registeredEvents = await makeDBQuery("SELECT EventID FROM participantsregisterinevent WHERE participantID = ? and eventID = ?", [currentParticipantID,eventID])
-    let sessions = await makeDBQuery("select session.id,convert(session.date,char) as date,session.startTime,session.endTime,session.dayOfWeek from event,session where event.status <> 2 and event.id =?"
+    let sessions = await makeDBQuery("select id, convert(date,char) AS date, startTime, endTime, dayOfWeek FROM session WHERE eventID =?"
     ,eventID)
     sessions = JSON.parse(JSON.stringify(sessions))
 
@@ -735,6 +735,16 @@ module.exports = {
     }
 
     return res
+  },
+
+  addParticipantRating: async (participantID, eventID, feedback) => {
+    try{
+      await ratingUtils.addParticipantRating(participantID, eventID, feedback.rating, feedback.feedback)
+      return null
+    }
+    catch(e){
+      return e.message
+    }
   }
 
 }

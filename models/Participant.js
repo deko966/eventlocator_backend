@@ -129,7 +129,7 @@ followOrganizer:async (organizerID,participantID)=>{
 
   registrationIDs =  [participantID,organizerID]
   try{
-  await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",registrationIDs) 
+    await makeDBQuery("Insert into participantsfolloworganizer(participantID,organizerID) values (?,?)",registrationIDs) 
   }
   catch(e){
     return e.message
@@ -141,7 +141,14 @@ followOrganizer:async (organizerID,participantID)=>{
 unfollowOrganizer:async (organizerID,participantID)=>{
     
     registrationIDs = [organizerID,participantID]
-    await makeDBQuery("delete  from participantsfolloworganizer where organizerID = ? and participantID=? ",registrationIDs)
+    try{
+      await makeDBQuery("delete  from participantsfolloworganizer where organizerID = ? and participantID=? ",registrationIDs)
+      return null
+    }
+    catch(e){
+      return e.message
+    }
+    
         
 },
 
@@ -250,11 +257,11 @@ getParticipantByID:async (participantID) =>{
 participantRegisterInEvent: async (participantID,eventID) => {
   let eventsID = [eventID]
   let registrationIDs = [eventID,participantID]
-  let eventinfo = await makeDBQuery("select maxParticipants, endDate from event where ID = ?",eventsID)
+  let eventInfo = await makeDBQuery("select maxParticipants, endDate from event where ID = ?",eventsID)
   let lastSessionEndTime = await makeDBQuery("SELECT endTime from session WHERE eventID = ? AND id = (SELECT MAX(id) FROM session WHERE eventID = ?)", [eventID, eventID])
   lastSessionEndTime = lastSessionEndTime[0].endTime
   let locatedEventData = await makeDBQuery("SELECT city from locatedevent WHERE eventID = ? ", eventID)
-  if(eventinfo[0].maxParticipants == -1){
+  if(eventInfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
     }
@@ -264,16 +271,15 @@ participantRegisterInEvent: async (participantID,eventID) => {
   }
   else{
     let eventParticipants = await makeDBQuery("select Count(eventID) as total from participantsregisterinevent where eventID =?",eventID)
-    if(eventParticipants[0].total < eventinfo[0].maxParticipants){
+    if(eventParticipants[0].total < eventInfo[0].maxParticipants){
       try{
       await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
-      if (locatedEventData.length > 0 && eventinfo[0].maxParticipants > -1){
+      if (locatedEventData.length > 0 && eventInfo[0].maxParticipants > -1){
         let finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
         finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
         schedule.scheduleJob(finishDateTime, async () => {
           await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
         })
-        console.log("here3")
       }
       return undefined
       }
