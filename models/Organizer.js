@@ -27,7 +27,6 @@ module.exports = {
     createOrganizer: async (organizer,images, type) => {
       hashed = await bcrypt.hashSync(organizer.password, 8)
       emailInput = [organizer.email]
-      console.log(images)
       generalInput = [organizer.name,organizer.email,hashed, organizer.about,
           organizer.phoneNumber,organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,
@@ -137,7 +136,7 @@ login: async(credentials)=>{
 
 getOrganizerFollowers:async (organizerID)=>{
     const result = []
-    const participants = await makeDBQuery("SELECT CONCAT(participant.FirstName,' ',participant.LastName) as fullName FROM participant  JOIN participantsfolloworganizer  ON participant.ID = participantsfolloworganizer.participantID   AND participantsFollowOrganizer.organizerID = ?" 
+    const participants = await makeDBQuery("SELECT CONCAT(participant.FirstName,' ',participant.LastName) as fullName FROM participant  JOIN participantsfolloworganizer  ON participant.ID = participantsfolloworganizer.participantID AND participantsFollowOrganizer.organizerID = ?" 
     ,organizerID)
     if (participants.length==0){
       return null

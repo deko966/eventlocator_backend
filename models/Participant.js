@@ -7,6 +7,9 @@ const auth = require('../middleware/auth');
 const ratingUtils = require('../utils/ratingUtils');
 const schedule = require('node-schedule')
 const moment = require('moment')
+let tokens = require('../utils/tokens')
+
+const emailUtils = require('../utils/emailUtils')
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -254,7 +257,7 @@ getParticipantByID:async (participantID) =>{
   return result[0]
 } ,  
 
-participantRegisterInEvent: async (participantID,eventID) => {
+participantRegisterInEvent: async (participantID,eventID, token) => {
   let eventsID = [eventID]
   let registrationIDs = [eventID,participantID]
   let eventInfo = await makeDBQuery("select maxParticipants, endDate from event where ID = ?",eventsID)
@@ -264,6 +267,8 @@ participantRegisterInEvent: async (participantID,eventID) => {
   if(eventInfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
+    tokens.addToken(token)
+    emailUtils.sendEmail("aalawneh19@gmail.com", "Welcome", "You registered in an event, thank you for registering")
     }
     catch(e){
       return e.message
@@ -281,6 +286,8 @@ participantRegisterInEvent: async (participantID,eventID) => {
           await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
         })
       }
+      tokens.addToken(token)
+      emailUtils.sendOneEmail(["AHM20170105@std.psut.edu.jo"], "I see you", "Ay yo why don't you check your whatsapp")
       return undefined
       }
       catch(e)
@@ -296,10 +303,12 @@ participantRegisterInEvent: async (participantID,eventID) => {
 
 
 
-participantUnregisterInEvent: async (participantID,eventID) =>{
+participantUnregisterInEvent: async (participantID,eventID,token) =>{
   registrationIDs = [participantID,eventID]
   try{
   await makeDBQuery("delete from  participantsregisterinevent where participantID = ? and eventID = ?",registrationIDs)
+  tokens.removeToken(token)
+  return null
   }
   catch(e){
     return e.message

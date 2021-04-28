@@ -48,7 +48,6 @@ router.post('/organizers/login',async (req,res)=>{
         }
     }
     catch(e){
-        console.log(e)
         res.sendStatus(500)
     }
 
@@ -104,7 +103,6 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
     try{
         const organizer =  JSON.parse(req.body.organizer)
         organizerResult= await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
-        console.log(organizerResult)
         if(organizerResult == undefined){
             res.sendStatus(201)
         }
@@ -120,7 +118,7 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
    
 })
 
-router.get('organizers/followers',auth.authOrganizer,async (req,res)=>{
+router.get('/organizers/followers',auth.authOrganizer,async (req,res)=>{
     try{
     const followers = await OrganizerModel.getOrganizerFollowers(req.authOrganizerInfo.id)
         if(followers!=null){

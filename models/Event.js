@@ -2,7 +2,10 @@ const sql = require('./db.js');
 const ratingUtils = require('../utils/ratingUtils')
 const schedule = require('node-schedule')
 const moment = require('moment')
-
+const admin = require('../utils/firebaseAdmin')
+const tokens = require('../utils/tokens');
+const { response } = require('express');
+const emailUtils = require('../utils/emailUtils.js');
 const updateRatingMap = new Map()
 
 function makeDBQuery(query, arguments) {
@@ -249,6 +252,8 @@ module.exports = {
   })
 
   updateRatingMap[result[0].id] = job
+
+  return result[0].id
 },
  
 
@@ -340,7 +345,16 @@ module.exports = {
     
     cancelEvent: async (canceledEventData,eventID, late, organizerID) => {
       cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
-     
+      const eventName = await makeDBQuery("SELECT name FROM event WHERE id = ?", eventID)
+      const messageContent = "The event " + eventName[0].name +" has been canceled"
+      if (tokens.getTokens().length == 0) return null
+      const message = {
+        data: {title: "Update", message: messageContent, eventID: eventID.toString()},
+        tokens: tokens.getTokens()
+      }
+      admin.messaging().sendMulticast(message).then((response) => console.log(response))
+      return null
+      /*
       try{
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
       if (late){
@@ -350,7 +364,7 @@ module.exports = {
      }
      catch(e){
        return e.message
-     }
+     } */
     },
 
    
@@ -745,6 +759,19 @@ module.exports = {
     catch(e){
       return e.message
     }
+  },
+
+  emailParticipantsOfAnEvent: async (eventID, emailData) => {
+    const participants = await makeDBQuery("SELECT participant.email FROM participant JOIN participantsregisterinevent ON participant.id = participantsregisterinevent.participantID AND participantsregisterinevent.eventID = ?", eventID)
+    const eventData = await makeDBQuery("SELECT event.name AS eventName, organizer.name AS organizerName FROM event JOIN organizer ON event.organizerID = organizer.id and eventID = ?", eventID)
+    if (participants.length == 0) return 404
+    const emailList = []
+    for(let i = 0; i < participants.length; i++){
+      emailList.push(participants[i].email)
+    }
+    let preMessage = "The following email is sent by" + eventData[0].organizerName +", who is organizing the event: " + eventData[0].eventName +"\n"
+    preMessage += "You recieved this email because you are currently registered in this event.\n----------------------------------------------\n"
+    emailUtils.sendMultipleEmails(emailList, emailData[0], preMessage + emailData[1])
   }
 
 }

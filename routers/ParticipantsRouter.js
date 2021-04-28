@@ -174,7 +174,7 @@ router.get('/participant/information', auth.authParticipant, async(req,res) =>{
 
 router.post('/participants/event/:id/register', auth.authParticipant, async(req,res)=>{
     try{
-        const registration = await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
+        const registration = await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id, req.body[0])
         if (registration == undefined) res.send(202)
         else if(registration == -1|| registration.includes("ER_DUP_ENTRY"))
             res.send(409)
@@ -192,9 +192,8 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
   })
 
   router.post('/participants/event/:id/unregister', auth.authParticipant, async(req,res)=>{
-    
     try{
-        unregister = await ParticipantModel.participantUnregisterInEvent(req.participantID,req.params.id)
+        unregister = await ParticipantModel.participantUnregisterInEvent(req.participantID,req.params.id, req.body[0])
        if(unregister == null)
         res.send(202)
     
@@ -202,9 +201,11 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
             if(unregister.includes("ER_NO_REFERENCED"))
             res.send(406)
         
-        else{
-            if(unregister.includes("ER_DUP_ENTRY"))
+        else if(unregister.includes("ER_DUP_ENTRY")){
             res.send(409)
+        }
+        else{
+            res.send(500)
         }
     }
     catch(e){     

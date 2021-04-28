@@ -4,6 +4,7 @@ const eventModel = require('../models/Event')
 const auth = require('../middleware/auth')
 const  multer = require('multer');
 const { compareSync } = require('bcryptjs');
+const e = require('express');
 
 const uploads = multer({
     limits: {
@@ -19,8 +20,8 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
     try{
     const eventData = JSON.parse(req.body.event)
     eventResult = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
-    if(eventResult==undefined)
-    res.sendStatus(201)
+    if(!isNaN(eventResult))
+        res.sendStatus(201)
     else{
         if(eventResult.includes("ER_DUP_ENTRY"))
             res.sendStatus(409)
@@ -235,7 +236,8 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
             res.sendStatus(406)
     }
     catch(e){  
-        res.status(500).send(e)
+        console.log(e)
+        res.status(500)
 
     }
 })
@@ -269,36 +271,21 @@ router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, as
 
 })
 
-router.patch('/ModifyEvent',async (req,res)=>{
-//2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 
-// applies penalty for participants who did not attend it, and removes penalty
-//  for those who attends and already have a penalty. Sends notification 
-//  if event is confirmed and times or location change)
-})
-router.get('/EventParticipants/:id',async (req,res)=>{
-
-})
-router.get('/L_L_E_Participant/:id/session/:Sid',async (req,res)=>{
-
-})
-router.get('/OneParticipant',async (req,res)=>{
-
-})
-router.post('/CheckIn/:id/session/:Sid',async (req,res)=>{
-
-})
-router.post('/SendEmail/:id',async (req,res)=>{
-
+router.post('/organizers/events/:id/emailParticipants', auth.authOrganizer, async (req, res) => {
+    try{
+        const result = await eventModel.emailParticipantsOfAnEvent(req.params.id, req.body)
+        if (result == 404){
+            res.status(404)
+        }
+        else{
+            res.status(200)
+        }
+    }
+    catch(e){
+        res.status(500)
+    }
 })
 
-
-router.get('/UpComingEvents/:id',async (req,res)=>{
-
-})
-
-router.get('/UnregisterInEvent',async (req,res)=>{
-
-})
 
 
 module.exports = router

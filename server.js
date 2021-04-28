@@ -4,6 +4,7 @@ const ParticipantRouter = require('./routers/ParticipantsRouter')
 const EventRouter = require('./routers/eventrouter')
 //const AdminRouter = require('./models/AdminRouter')
 const app = express()
+require('./utils/firebaseInit')
 
 app.use(express.json())
 //app.use(AdminRouter)

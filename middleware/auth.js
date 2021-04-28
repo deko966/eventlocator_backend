@@ -53,7 +53,6 @@ authParticipant:(req,res,next)=>{
     jwt.verify(token, config.secret,(err, decoded)=> {
     if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
     req.participantID=decoded.id
-
     next()
       });
 },
