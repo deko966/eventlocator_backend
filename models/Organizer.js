@@ -214,6 +214,65 @@ getOrganizerType:(organizerAuthInfo) =>{
 return organizerAuthInfo.type
 },
 
+updateOrganizerEmail: async(organizerInfo, data) => {
+  try{
+    const password = await makeDBQuery("SELECT password FROM Organizer WHERE id = ?", organizerInfo.id)
+    const isMatch = await bcrypt.compare(data[1], password[0].password)
+    if (!isMatch) return 403
+    const email = await makeDBQuery("SELECT email FROM organizer WHERE id <> ? AND email = ?",[organizerInfo.id,data[0]])
+    if (email.length>0) return 409
+    const sameEmail = await makeDBQuery("SELECT email FROM organizer WHERE id = ? AND email = ?", [organizerInfo.id,data[0]])
+    if (sameEmail.length == 1)return 406
+    await makeDBQuery("UPDATE organizer SET email = ? WHERE id = ?", [data[0],organizerInfo.id])
+    const newToken = auth.createOrganizerToken({id:organizerInfo.id, email: data[0], type: organizerInfo.type, phoneNumber: organizerInfo.phoneNumber })
+    return {success:true, token:newToken}
+  }
+  catch(e){
+    return e.message
+  }
+},
+
+updateOrganizerPassword: async(organizerID, data) => {
+  try{
+    const password = makeDBQuery("SELECT password FROM organizer WHERE id = ?", organizerID)
+    const isMatch = await bcrypt.compare(data[0],password[0].password)
+    if (!isMatch) return 403
+    const isNewMatch = await bcrypt.compare(data[1], password[0].password)
+    if (isNewMatch) return 406
+    const hashedPassword = bcrypt.hashSync(data[1], 8)
+    await makeDBQuery("UPDATE organizer set password = ? WHERE id = ?", [hashedPassword, organizerID])
+    return null
+
+  }
+  catch(e){
+    return e.message
+  }
+},
+
+editOrganizerProfile: async(organizerInfo, organizer, image) =>{
+  try{
+    const phoneExists = await makeDBQuery("SELECT phoneNumber FROM organizer WHERE id <> ? AND phoneNumber = ?", [organizerInfo.id, organizer.phoneNumber])
+    if (phoneExists.length>0) return 409
+    const input = [organizer.about, organizer.phoneNumber, 
+      organizer.socialMediaAccounts[0].name, organizer.socialMediaAccounts[0].url,
+      organizer.socialMediaAccounts[1].name, organizer.socialMediaAccounts[1].url,
+      organizer.socialMediaAccounts[2].name, organizer.socialMediaAccounts[2].url,
+      organizer.socialMediaAccounts[3].name, organizer.socialMediaAccounts[3].url, organizerInfo.id]
+    await makeDBQuery("UPDATE organizer SET description = ?, phoneNumber = ?, facebookName = ?, facebookLink = ?, youtubeName = ?, youtubeLink = ?, isntagramName = ?, instagramLink = ?, twitterName = ?, twitterLink = ? WHERE id = ?", input)
+
+    if (organizerInfo.type == 0){
+      await makeDBQuery("UPDATE organization SET logo = ? WHERE organizerID = ?", [image,organizerInfo.id])
+    }
+    else if (organizerInfo.type == 1){
+      await makeDBQuery("UPDATE individual2 SET profilePicture = ?, linkedInName = ?, linkedInLink = ? WHERE organizerID = ?", [image, organizer.socialMediaAccounts[4].name, organizer.socialMediaAccounts[4].url,organizerInfo.id])
+    }
+    const newToken = auth.createOrganizerToken({id:organizerInfo.id, type:organizerInfo.type, email: organizerInfo.email, phoneNumber: organizer.phoneNumber})
+    return {success:true, token: newToken}
+  }
+  catch(e){
+    return e.message
+  }
+}
  
 
 }

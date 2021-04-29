@@ -33,7 +33,7 @@ authOrganizer:(req,res,next)=>{
             return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
         }
         
-        req.authOrganizerInfo= {id:decoded.id,type:decoded.Type}
+        req.authOrganizerInfo= {id:decoded.id,type:decoded.Type, email: decoded.email, phoneNumber: decoded.phoneNumber}
         next()
       });
 },
@@ -41,7 +41,6 @@ authOrganizer:(req,res,next)=>{
 createParticipantToken:(participant)=>{
     const token = jwt.sign({id:participant.id.toString(),
     email:participant.email.toString()},config.secret)
-  
     return token
 },
 authParticipant:(req,res,next)=>{

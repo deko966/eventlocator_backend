@@ -132,7 +132,46 @@ router.get('/organizers/followers',auth.authOrganizer,async (req,res)=>{
         res.send(500)
     }
 
- }),
+ })
+
+ router.patch('/organizers/updateEmail', auth.authOrganizer, async(req, res) => {
+    try{
+      const result = await OrganizerModel.updateOrganizerEmail(req.authOrganizerInfo, req.body)
+      if (result.success) res.status(200).send(result.token)
+      else if (result == 403) res.status(403)
+      else if (result == 406) res.status(406)
+      else if (result == 409) res.status(409)
+      else res.status(500)
+    }
+    catch(e){
+        res.status(500)
+    }
+})
+
+router.patch('/organizers/changePassword', auth.authOrganizer, async(req,res) => {
+    try{
+      const result = await OrganizerModel.changeOrganizerPassword(req.authOrganizerInfo.id, req.body)
+      if (result == null) res.status(200)
+      else if (result == 403) res.status(403)
+      else if (result == 406) res.status(406)
+      else res.status(500)
+    }
+    catch(e){
+        res.status(500)
+    }
+})
+
+router.patch('/organizers/editProfile', auth.authOrganizer,uploads.single('image'), async(req,res)=>{
+    try{
+        const result = await OrganizerModel.editOrganizerProfile(req.authOrganizerInfo, req.body, req.file)
+        if (result.success) res.status(200).send(result.token)
+        else if (result == 409)res.status(409)
+        else res.status(500)
+    }
+    catch(e){
+        res.status(500)
+    }
+})
 
 
 

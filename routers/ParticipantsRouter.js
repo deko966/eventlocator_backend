@@ -214,6 +214,45 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
   })  
 
 
+  router.patch('/participants/updateEmail', auth.authParticipant, async(req, res) => {
+      try{
+        const result = await ParticipantModel.updateParticipantEmail(req.participantID, req.body)
+        if (result.success) res.status(200).send(result.token)
+        else if (result == 403) res.status(403)
+        else if (result == 406) res.status(406)
+        else if (result == 409) res.status(409)
+        else res.status(500)
+      }
+      catch(e){
+          res.status(500)
+      }
+  })
+
+  router.patch('/participants/changePassword', auth.authParticipant, async(req,res) => {
+      try{
+        const result = await ParticipantModel.changeParticipantPassword(req.participantID, req.body)
+        if (result == null) res.status(200)
+        else if (result == 403) res.status(403)
+        else if (result == 406) res.status(406)
+        else res.status(500)
+      }
+      catch(e){
+          res.status(500)
+      }
+  })
+
+  router.patch('/participants/editCityAndCategories', auth.authParticipant, async(req,res) => {
+      try{
+        const result = await ParticipantModel.editParticipantCityAndCategories(req.participantID, req.body)
+        if (result == null) res.status(200)
+        else res.status(500)
+      }
+      catch(e){
+        res.status(500)
+      }
+  })
+
+
 
 // router.patch('/ModifyParticipantProfile',auth,async (req,res)=>{
 

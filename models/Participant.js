@@ -7,9 +7,11 @@ const auth = require('../middleware/auth');
 const ratingUtils = require('../utils/ratingUtils');
 const schedule = require('node-schedule')
 const moment = require('moment')
+const auth = require('../middleware/auth')
 let tokens = require('../utils/tokens')
 
-const emailUtils = require('../utils/emailUtils')
+const emailUtils = require('../utils/emailUtils');
+const { is } = require('bluebird');
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -370,6 +372,59 @@ getAllOrganizers: async ()=>{
     })
     }
     return result 
+},
+
+updateParticipantEmail: async(participantID, data) =>{
+  try{
+    const password = await makeDBQuery("SELECT password FROM participant WHERE id = ?", participantID)
+    const isMatch = await bcrypt.compare(data[1], password[0].password)
+    if (!isMatch) return 403
+    const email = await makeDBQuery("SELECT email FROM Participant WHERE id <> ? AND email = ?",[participantID,data[0]])
+    if (email.length>0) return 409
+    const sameEmail = await makeDBQuery("SELECT email FROM participant WHERE id = ? AND email = ?", [participantID,data[0]])
+    if (sameEmail.length == 1)return 406
+    await makeDBQuery("UPDATE participant SET email = ? WHERE id = ?", [data[0],participantID])
+    const newToken = auth.createParticipantToken({id:participantID, email: data[0]})
+    return {success:true, token:newToken}
+  }
+  catch(e){
+    return e.message
+  }
+
+},
+
+changeParticipantPassword: async (participantID, data) => {
+  try{
+    const password = makeDBQuery("SELECT password FROM participant WHERE id = ?", participantID)
+    const isMatch = await bcrypt.compare(data[0],password[0].password)
+    if (!isMatch) return 403
+    const isNewMatch = await bcrypt.compare(data[1], password[0].password)
+    if (isNewMatch) return 406
+    const hashedPassword = bcrypt.hashSync(data[1], 8)
+    await makeDBQuery("UPDATE participant set password = ? WHERE id = ?", [hashedPassword, participantID])
+    return null
+
+  }
+  catch(e){
+    return e.message
+  }
+},
+
+editParticipantCityAndCategories: async(participantID, participant) => {
+  try{
+    await makeDBQuery("UPDATE participant SET city = ? WHERE id = ?", [participant.city, participantID])
+    await makeDBQuery("DELETE FROM participantpreferredeventcategories WHERE ParticipantID = ?", participantID)
+    const categoriesToInsert = []
+    numberOfCategories = participant.preferredEventCategories.length
+    for(let i=0;i<numberOfCategories;i++){
+      categoriesToInsert.push([participantID,participant.preferredEventCategories[i]])
+    }
+    result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
+    return null
+  }
+  catch(e){
+    return e.message
+  }
 }
 }
 
