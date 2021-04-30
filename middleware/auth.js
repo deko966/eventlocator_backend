@@ -9,7 +9,7 @@ const config = require('../config/config');
 authAdmin:(req,res,next)=>{
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret, (err, decoded) =>{
-        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        if (err) return res.send(401);
         else
         next()
       });
@@ -23,14 +23,14 @@ createOrganizerToken: (organizer)=>{
 
 authOrganizer:(req,res,next)=>{
     if(!req.headers.authorization)  {
-        res.sendStatus(401)
+        res.send(401)
         return -1
     }
 
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret, (err, decoded)=> {
         if (err){ 
-            return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+            return res.send(401);
         }
         
         req.authOrganizerInfo= {id:decoded.id,type:decoded.Type, email: decoded.email, phoneNumber: decoded.phoneNumber}
@@ -45,12 +45,12 @@ createParticipantToken:(participant)=>{
 },
 authParticipant:(req,res,next)=>{
     if(!req.headers.authorization)  
-    {   res.sendStatus(401)
+    {   res.send(401)
         return -1
     }
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret,(err, decoded)=> {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+    if (err) return res.send(401)
     req.participantID=decoded.id
     next()
       });

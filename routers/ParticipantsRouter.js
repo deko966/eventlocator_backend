@@ -3,7 +3,6 @@ const router =  express.Router()
 const connection = require('../models/db')
 const ParticipantModel = require('../models/Participant')
 const auth = require('../middleware/auth')
-const { authParticipant } = require('../middleware/auth')
 //use the req and the create variables that can be stored in the req 
 
 
@@ -63,6 +62,7 @@ router.post('/participants/login',async (req,res)=>{
   
     try{ 
         const token = await ParticipantModel.login(req.body)
+        if (token == 1) res.send(403)
         if (token != null)
             res.status(202).send(token)
         else
@@ -218,54 +218,38 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
       try{
         const result = await ParticipantModel.updateParticipantEmail(req.participantID, req.body)
         if (result.success) res.status(200).send(result.token)
-        else if (result == 403) res.status(403)
-        else if (result == 406) res.status(406)
-        else if (result == 409) res.status(409)
-        else res.status(500)
+        else if (result == 403) res.send(403)
+        else if (result == 406) res.send(406)
+        else if (result == 409) res.send(409)
+        else res.send(500)
       }
       catch(e){
-          res.status(500)
+          res.send(500)
       }
   })
 
   router.patch('/participants/changePassword', auth.authParticipant, async(req,res) => {
       try{
         const result = await ParticipantModel.changeParticipantPassword(req.participantID, req.body)
-        if (result == null) res.status(200)
-        else if (result == 403) res.status(403)
-        else if (result == 406) res.status(406)
-        else res.status(500)
+        if (result == null) res.send(200)
+        else if (result == 403) res.send(403)
+        else if (result == 406) res.send(406)
+        else res.send(500)
       }
       catch(e){
-          res.status(500)
+          res.send(500)
       }
   })
 
   router.patch('/participants/editCityAndCategories', auth.authParticipant, async(req,res) => {
       try{
         const result = await ParticipantModel.editParticipantCityAndCategories(req.participantID, req.body)
-        if (result == null) res.status(200)
-        else res.status(500)
+        if (result == null) res.send(200)
+        else res.send(500)
       }
       catch(e){
-        res.status(500)
+        res.send(500)
       }
   })
-
-
-
-// router.patch('/ModifyParticipantProfile',auth,async (req,res)=>{
-
-// })
-// router.get('/ParticipantInfo',auth,async (req,res)=>{
-// 
-// })
-// router.get('/OrganizersInfo',auth,async (req,res)=>{
-
-// })
-
-
-
-
 
 module.exports = router

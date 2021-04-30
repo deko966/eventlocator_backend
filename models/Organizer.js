@@ -210,8 +210,8 @@ getOrganizerInfo: async (organizerAuthInfo) => {
 },
 
 
-getOrganizerType:(organizerAuthInfo) =>{
-return organizerAuthInfo.type
+getOrganizerType: (organizerAuthInfo) =>{
+  return organizerAuthInfo.type
 },
 
 updateOrganizerEmail: async(organizerInfo, data) => {
@@ -232,9 +232,9 @@ updateOrganizerEmail: async(organizerInfo, data) => {
   }
 },
 
-updateOrganizerPassword: async(organizerID, data) => {
+changeOrganizerPassword: async(organizerID, data) => {
   try{
-    const password = makeDBQuery("SELECT password FROM organizer WHERE id = ?", organizerID)
+    const password = await makeDBQuery("SELECT password FROM organizer WHERE id = ?", organizerID)
     const isMatch = await bcrypt.compare(data[0],password[0].password)
     if (!isMatch) return 403
     const isNewMatch = await bcrypt.compare(data[1], password[0].password)
@@ -245,31 +245,36 @@ updateOrganizerPassword: async(organizerID, data) => {
 
   }
   catch(e){
+    console.log(e)
     return e.message
   }
 },
 
-editOrganizerProfile: async(organizerInfo, organizer, image) =>{
+editOrganizerProfile: async(organizerInfo, organizer, image, flag) =>{
   try{
     const phoneExists = await makeDBQuery("SELECT phoneNumber FROM organizer WHERE id <> ? AND phoneNumber = ?", [organizerInfo.id, organizer.phoneNumber])
     if (phoneExists.length>0) return 409
     const input = [organizer.about, organizer.phoneNumber, 
-      organizer.socialMediaAccounts[0].name, organizer.socialMediaAccounts[0].url,
-      organizer.socialMediaAccounts[1].name, organizer.socialMediaAccounts[1].url,
-      organizer.socialMediaAccounts[2].name, organizer.socialMediaAccounts[2].url,
-      organizer.socialMediaAccounts[3].name, organizer.socialMediaAccounts[3].url, organizerInfo.id]
-    await makeDBQuery("UPDATE organizer SET description = ?, phoneNumber = ?, facebookName = ?, facebookLink = ?, youtubeName = ?, youtubeLink = ?, isntagramName = ?, instagramLink = ?, twitterName = ?, twitterLink = ? WHERE id = ?", input)
+      organizer.socialMediaAccounts[0].accountName, organizer.socialMediaAccounts[0].url,
+      organizer.socialMediaAccounts[1].accountName, organizer.socialMediaAccounts[1].url,
+      organizer.socialMediaAccounts[2].accountName, organizer.socialMediaAccounts[2].url,
+      organizer.socialMediaAccounts[3].accountName, organizer.socialMediaAccounts[3].url, organizerInfo.id]
+    await makeDBQuery("UPDATE organizer SET description = ?, phoneNumber = ?, facebookName = ?, facebookLink = ?, youtubeName = ?, youtubeLink = ?, instagramName = ?, instagramLink = ?, twitterName = ?, twitterLink = ? WHERE id = ?", input)
 
-    if (organizerInfo.type == 0){
+    if (organizerInfo.type == 0 && image!=undefined){
       await makeDBQuery("UPDATE organization SET logo = ? WHERE organizerID = ?", [image,organizerInfo.id])
     }
     else if (organizerInfo.type == 1){
-      await makeDBQuery("UPDATE individual2 SET profilePicture = ?, linkedInName = ?, linkedInLink = ? WHERE organizerID = ?", [image, organizer.socialMediaAccounts[4].name, organizer.socialMediaAccounts[4].url,organizerInfo.id])
+      await makeDBQuery("UPDATE individual2 SET linkedInName = ?, linkedInLink = ? WHERE organizerID = ?", [organizer.socialMediaAccounts[4].accountName, organizer.socialMediaAccounts[4].url,organizerInfo.id])
+      if (flag != 1){
+        await makeDBQuery("UPDATE individual2 SET ProfilePicture = ? WHERE organizerID = ?",[image, organizerInfo.id])
+      }
     }
     const newToken = auth.createOrganizerToken({id:organizerInfo.id, type:organizerInfo.type, email: organizerInfo.email, phoneNumber: organizer.phoneNumber})
     return {success:true, token: newToken}
   }
   catch(e){
+    console.log(e)
     return e.message
   }
 }

@@ -54,11 +54,10 @@ router.post('/organizers/login',async (req,res)=>{
 }),
 
 router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
-const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
-
- try{
-     if (type == undefined)
-        res.status(404).send("user not found")
+    try{
+        const type = OrganizerModel.getOrganizerType(req.authOrganizerInfo)
+        if (type == undefined)
+            res.send(404)
     else{
         res.status(202).send(type)
     }
@@ -86,16 +85,6 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
 }),
 
 
-
-router.patch('/modifyOrganizerProfile',async (req,res)=>{
-
- })
- //this might be divided into 3 statments 
-// router.get('/OrganizerInfo',(req,res)=>{
-//     connection.query('SELECT * FROM `Organizer`',  (error, results, fields)=> {
-//         res.send(results)  
-//     });
-//       })
 
 
 
@@ -138,38 +127,43 @@ router.get('/organizers/followers',auth.authOrganizer,async (req,res)=>{
     try{
       const result = await OrganizerModel.updateOrganizerEmail(req.authOrganizerInfo, req.body)
       if (result.success) res.status(200).send(result.token)
-      else if (result == 403) res.status(403)
-      else if (result == 406) res.status(406)
-      else if (result == 409) res.status(409)
-      else res.status(500)
+      else if (result == 403) res.send(403)
+      else if (result == 406) res.send(406)
+      else if (result == 409) res.send(409)
+      else res.send(500)
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 })
 
 router.patch('/organizers/changePassword', auth.authOrganizer, async(req,res) => {
     try{
       const result = await OrganizerModel.changeOrganizerPassword(req.authOrganizerInfo.id, req.body)
-      if (result == null) res.status(200)
-      else if (result == 403) res.status(403)
-      else if (result == 406) res.status(406)
-      else res.status(500)
+      if (result == null) res.send(200)
+      else if (result == 403) res.send(403)
+      else if (result == 406) res.send(406)
+      else res.send(500)
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 })
 
 router.patch('/organizers/editProfile', auth.authOrganizer,uploads.single('image'), async(req,res)=>{
     try{
-        const result = await OrganizerModel.editOrganizerProfile(req.authOrganizerInfo, req.body, req.file)
+        const organizer =  JSON.parse(req.body.organizer)
+        let image = undefined
+        if (req.file) image = req.file.buffer
+        console.log(organizer)
+        const result = await OrganizerModel.editOrganizerProfile(req.authOrganizerInfo, organizer, image, req.body.flag)
         if (result.success) res.status(200).send(result.token)
-        else if (result == 409)res.status(409)
-        else res.status(500)
+        else if (result == 409)res.send(409)
+        else res.send(500)
     }
     catch(e){
-        res.status(500)
+        console.log(e)
+        res.send(500)
     }
 })
 

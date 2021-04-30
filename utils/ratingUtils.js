@@ -72,12 +72,12 @@ module.exports = {
     },
 
     applyPenaltyToAnOrganizer: async (organizerID) => {
-        await makeDBQuery("UPDATE organizer SET ratingPenalty = ratingPenatly + 0.4 WHERE organizerID = ?", organizerID)
+        await makeDBQuery("UPDATE organizer SET ratingPenalty = ((ratingPenatly*1000) + (0.4*1000)) WHERE organizerID = ?", organizerID)
         checkToSuspendOrganizer(organizerID)
     },
 
     removePenatlyFromAnOrganizer: async (organizerID) => {
-        await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(ratingPenatly - 0.2, 0.0) WHERE ID = ?", organizerID)
+        await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(((ratingPenatly*1000) - (0.2*1000))/1000, 0.0) WHERE ID = ?", organizerID)
     },
 
     addParticipantRating: async (participantID, eventID, rating, feedback) => {
@@ -93,10 +93,10 @@ module.exports = {
         else{
             const hasAttended = await makeDBQuery("SELECT * FROM checkinparticipant WHERE participantID = ? and eventID = ?", [participantID, eventID])
             if (hasAttended.length > 0){
-                await makeDBQuery("UPDATE participant SET rating = LEAST(5.0, rating + 0.2) WHERE id = ?", participantID)
+                await makeDBQuery("UPDATE participant SET rating = LEAST(5.0, ((rating*1000) + (0.2*1000))/1000) WHERE id = ?", participantID)
             }
             else{
-                await makeDBQuery("UPDATE participant SET rating = rating - 0.4 WHERE id = ?", participantID)
+                await makeDBQuery("UPDATE participant SET rating = ((rating * 1000) - (0.4 * 1000))/1000 WHERE id = ?", participantID)
                 const currentRating = await makeDBQuery("SELECT rating FROM participant WHERE id = ?", participantID)
                 if (currentRating[0].rating < 2.5){
                     await makeDBQuery("UPDATE participant SET accountStatus = 1 WHERE id = ?", participantID)

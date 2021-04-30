@@ -7,11 +7,9 @@ const auth = require('../middleware/auth');
 const ratingUtils = require('../utils/ratingUtils');
 const schedule = require('node-schedule')
 const moment = require('moment')
-const auth = require('../middleware/auth')
 let tokens = require('../utils/tokens')
-
 const emailUtils = require('../utils/emailUtils');
-const { is } = require('bluebird');
+
 
 function makeDBQuery(query, arguments) {
   return new Promise((resolve, reject) => {
@@ -112,8 +110,10 @@ partialSignup: async (email) =>{
 //need to add handlefor status depending on what the status is return proper response
 login:async (credentials)=>{ 
 
-    participantInfo =  [credentials[0]] 
-    const result = await makeDBQuery("Select id,firstName,lastName,email, password,city  from participant where Email =?", participantInfo )
+    const result = await makeDBQuery("Select id,firstName,lastName,email, password,city  from participant where Email =?", credentials[0])
+    const status = await makeDBQuery("SELECT accountStatus FROM participant WHERE email = ?", credentials[0])
+
+    if (status.length == 1 && status[0].accountStatus == 1) return 1
 
     if(result.length == 0){
       return null
@@ -260,9 +260,8 @@ getParticipantByID:async (participantID) =>{
 } ,  
 
 participantRegisterInEvent: async (participantID,eventID, token) => {
-  let eventsID = [eventID]
   let registrationIDs = [eventID,participantID]
-  let eventInfo = await makeDBQuery("select maxParticipants, endDate from event where ID = ?",eventsID)
+  let eventInfo = await makeDBQuery("select maxParticipants, CONVERT(EndDate,char)as endDate from event where ID = ?",eventID)
   let lastSessionEndTime = await makeDBQuery("SELECT endTime from session WHERE eventID = ? AND id = (SELECT MAX(id) FROM session WHERE eventID = ?)", [eventID, eventID])
   lastSessionEndTime = lastSessionEndTime[0].endTime
   let locatedEventData = await makeDBQuery("SELECT city from locatedevent WHERE eventID = ? ", eventID)
@@ -284,12 +283,14 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
       if (locatedEventData.length > 0 && eventInfo[0].maxParticipants > -1){
         let finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
         finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
+        console.log(finishDateTime)
         schedule.scheduleJob(finishDateTime, async () => {
+          console.log("")
           await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
         })
       }
       tokens.addToken(token)
-      emailUtils.sendOneEmail(["AHM20170105@std.psut.edu.jo"], "I see you", "Ay yo why don't you check your whatsapp")
+      //emailUtils.sendOneEmail(["AHM20170105@std.psut.edu.jo"], "I see you", "Ay yo why don't you check your whatsapp")
       return undefined
       }
       catch(e)
@@ -395,7 +396,7 @@ updateParticipantEmail: async(participantID, data) =>{
 
 changeParticipantPassword: async (participantID, data) => {
   try{
-    const password = makeDBQuery("SELECT password FROM participant WHERE id = ?", participantID)
+    const password = await makeDBQuery("SELECT password FROM participant WHERE id = ?", participantID)
     const isMatch = await bcrypt.compare(data[0],password[0].password)
     if (!isMatch) return 403
     const isNewMatch = await bcrypt.compare(data[1], password[0].password)
