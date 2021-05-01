@@ -71,16 +71,19 @@ router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
 
 router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
     try{
-        const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)   
-        if(organizer != null){
+        const organizer = await OrganizerModel.getOrganizerInfo(req.authOrganizerInfo)
+        if (organizer.suspended){
+            res.send(403)
+        }   
+        else if(organizer != null){
             res.status(202).send(organizer)    
         }
         else{
-            res.sendStatus(404)
+            res.send(404)
         }
     }
     catch(e){
-        res.sendStatus(500)
+        res.send(500)
     }
 }),
 

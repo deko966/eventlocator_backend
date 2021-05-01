@@ -155,13 +155,6 @@ unfollowOrganizer:async (organizerID,participantID)=>{
     }
     
         
-},
-
-
-getOrganizerByName:async (organizerName)=>{
-     
-    input = [organizerName]
-    await makeDBQuery("Select Name,Email,Description,PhoneNumber,FacebookName,FacebookLink,InstagramName,InstagramLink,TwitterName,TwitterLink,YouTubeName,YouTubeLink from organizer where Name = ?", input)    
 }, 
 
  getOrganizerByID:async (organizerID,participantID) =>{
@@ -240,9 +233,13 @@ getParticipantByID:async (participantID) =>{
   const result = []
   participantsID = [participantID] 
   const participant = await makeDBQuery("SELECT id, firstName, lastName, email,city, rating FROM participant where  id =?",participantsID)
+  const isSuspended = await makeDBQuery("SELECT accountStatus FROM participant WHERE id = ?", participantID)
+  if (isSuspended[0].accountStatus == 1){
+    return {suspended: true}
+  }
   const categoriesResult  = await makeDBQuery("select category from  participantpreferredeventcategories where participantID= ?",participantsID)
   const categories = []
-
+  
   for(k = 0; k < categoriesResult.length; k++)
   categories.push(categoriesResult[k].category)
 
@@ -324,7 +321,7 @@ participantUnregisterInEvent: async (participantID,eventID,token) =>{
 getOrganizersFollowedByParticipant: async (participantID) =>{
   
   const result=[]
-  const organizers = await makeDBQuery("select id, name from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID and participantsfolloworganizer.ParticipantID = ?" ,participantID)
+  const organizers = await makeDBQuery("select id, name from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID and participantsfolloworganizer.ParticipantID = ? AND organizer.accountStatus = 1" ,participantID)
   for(let i=0;i<organizers.length;i++){
   organizerID = [organizers[i].id]
   const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)
@@ -351,7 +348,7 @@ getOrganizersFollowedByParticipant: async (participantID) =>{
 
 getAllOrganizers: async ()=>{
   let result = []
-  const organizers = await makeDBQuery("SELECT id, name FROM organizer WHERE 1")
+  const organizers = await makeDBQuery("SELECT id, name FROM organizer WHERE accountStatus = 1")
   for(let i=0;i<organizers.length;i++){
     organizerID = [organizers[i].id]
     const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)

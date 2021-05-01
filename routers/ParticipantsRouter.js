@@ -75,16 +75,6 @@ router.post('/participants/login',async (req,res)=>{
 }),
 
 
-router.get('/organizerByName/:name',auth.authParticipant ,async (req,res)=>{
-    const participant = await ParticipantModule.getOrganizer(req.params.name)
-    if(participant.err)
-        res.status(500).send(participant.err)
-    else{
-       res.status(200).send(participant)
-    }
-})  
-
-
 router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req,res)=>{
     try{
     const follow = await ParticipantModel.followOrganizer(req.params.id,req.participantID)
@@ -158,12 +148,13 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
 
 router.get('/participant/information', auth.authParticipant, async(req,res) =>{
    try{
-    const participant = await ParticipantModel.getParticipantByID(req.participantID)
-    if(participant!=undefined)
-      res.status(202).send(participant)
-      else{
-          res.sendStatus(404)
-      }
+        const participant = await ParticipantModel.getParticipantByID(req.participantID)
+        if (participant.suspended){
+            res.send(403)
+        }
+        else if(participant!=undefined)
+            res.status(202).send(participant)
+        else res.send(404)
     }
     catch(e){
         res.sendStatus(500)

@@ -25,14 +25,12 @@ const getOrganizerEventsUtil = async (organizerID) => {
   const result = []
   const eventsResult = await makeDBQuery("SELECT id, name, description,convert(startDate,Char) as startDate,convert(endDate,char) as endDate,convert(registrationCloseDatetime,char) as registrationCloseDatetime, maxParticipants, whatsAppLink, status FROM event WHERE status <> 2 and organizerid = ?"
   ,organizerID)
-
   for(i=0; i < eventsResult.length; i++)
   {
     const id = eventsResult[i].id
    let sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where eventID =? ORDER BY id ASC",id)
     sessions = JSON.parse(JSON.stringify(sessions))
-
-   const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", id)
+   const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", id)
   
     if (eventsResult[i].maxParticipants > 0 && locatedEventDataResult.length >0){
       let limitedLocatedSessionData = await makeDBQuery("SELECT sessionID, checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", id)
@@ -59,7 +57,7 @@ const getOrganizerEventsUtil = async (organizerID) => {
     let locations = []
     if (locatedEventDataResult.length>0){
       locations.push(locatedEventDataResult[0].latitude)
-      locations.push(locatedEventDataResult[0].longtitude)
+      locations.push(locatedEventDataResult[0].longitude)
       locatedEventData = {
         city: locatedEventDataResult[0].city,
         location: locations
@@ -109,7 +107,7 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
     let sessions = await makeDBQuery("select id,convert(date,char) as date,startTime,endTime,dayOfWeek from session where eventID =? ORDER BY id ASC",eventID)
   sessions = JSON.parse(JSON.stringify(sessions))
 
- const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+ const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
   if (eventResult[i].maxParticipants > 0 && locatedEventDataResult.length >0){
     let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
     for(j =0; j< sessions.length; j++){
@@ -134,7 +132,7 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
   let locations = []
   if (locatedEventDataResult.length>0){
     locations.push(locatedEventDataResult[0].latitude)
-    locations.push(locatedEventDataResult[0].longtitude)
+    locations.push(locatedEventDataResult[0].longitude)
     locatedEventData = {
       city: locatedEventDataResult[0].city,
       location: locations
@@ -178,91 +176,96 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
 return result
 }
 
-
-module.exports = {
-  //sessions will have an array of objects
-  //locatedEventData
-  createEvent: async ( eventInfo ,authOrganizerInfo,image) => {
-      const eventgeneralDetails = [ eventInfo.name, eventInfo.description, eventInfo.startDate, 
-      eventInfo.endDate, eventInfo.registrationCloseDateTime,eventInfo.maxParticipants,
-      eventInfo.whatsAppLink,eventInfo.status,authOrganizerInfo.id,image.buffer] 
-      try{
-      await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticipants, whatsappLink, status,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
-      ,eventgeneralDetails)
-      }
-      catch(e){
-        return e.message
-      }
-      organizerID =[authOrganizerInfo.id]
-      const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =? order by event.id DESC",organizerID)
-      if(eventInfo.locatedEventData != undefined){
-       const  eventlocation = [result[0].id,eventInfo.locatedEventData.city,eventInfo.locatedEventData.location[0],eventInfo.locatedEventData.location[1]]
-       try{ 
-       await makeDBQuery("insert into locatedevent (eventID,city,latitude,longitude) values (?,?,?,?) ",eventlocation)
-       }
-       catch(e){
-         return e.message
-       }
-      }
-
-      if(eventInfo.sessions!= undefined){
-        numberOfSessions = eventInfo.sessions.length;
-        for(i= 0; i<numberOfSessions;i++){
-        const sessionData = [result[0].id,eventInfo.sessions[i].id,eventInfo.sessions[i].date,
-        eventInfo.sessions[i].startTime,eventInfo.sessions[i].endTime,eventInfo.sessions[i].dayOfWeek]
-      try{
-        await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
-        }
-      catch(e){
-        return e.message
-      }
-      }
-    }     
-    const eventID = result[0].id
-    numberOfCategories = eventInfo.categories.length
-   
-    for(i = 0; i<numberOfCategories; i++){
-
-    eventCategoriesData = [eventID, eventInfo.categories[i]]
+const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
+  const eventgeneralDetails = [ eventInfo.name, eventInfo.description, eventInfo.startDate, 
+    eventInfo.endDate, eventInfo.registrationCloseDateTime,eventInfo.maxParticipants,
+    eventInfo.whatsAppLink,eventInfo.status,authOrganizerInfo.id,image.buffer] 
     try{
-    await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
+    await makeDBQuery("INSERT INTO event(name,description,startDate, endDate, registrationCloseDateTime,maxParticipants, whatsappLink, status,organizerID,picture) VALUES  (?,?,?,?,?,?,?,?,?,?)" 
+    ,eventgeneralDetails)
     }
     catch(e){
       return e.message
     }
-  }
+    organizerID =[authOrganizerInfo.id]
+    const result = await makeDBQuery("select event.id from event join organizer on event.organizerID = organizer.id where event.organizerid =? order by event.id DESC",organizerID)
+    if(eventInfo.locatedEventData != undefined){
+     const  eventlocation = [result[0].id,eventInfo.locatedEventData.city,eventInfo.locatedEventData.location[0],eventInfo.locatedEventData.location[1]]
+     try{ 
+     await makeDBQuery("insert into locatedevent (eventID,city,latitude,longitude) values (?,?,?,?) ",eventlocation)
+     }
+     catch(e){
+       return e.message
+     }
+    }
 
-    if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
-
-      for(i=0;i<numberOfSessions;i++){
-        const limitedLocatedSessionData =[eventID,eventInfo.sessions[i].id,eventInfo.sessions[i].checkInTime]
-       try{
-        await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
-       }
-       catch(e){
-         return e.message
-       }
+    if(eventInfo.sessions!= undefined){
+      numberOfSessions = eventInfo.sessions.length;
+      for(i= 0; i<numberOfSessions;i++){
+      const sessionData = [result[0].id,eventInfo.sessions[i].id,eventInfo.sessions[i].date,
+      eventInfo.sessions[i].startTime,eventInfo.sessions[i].endTime,eventInfo.sessions[i].dayOfWeek]
+    try{
+      await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
       }
+    catch(e){
+      return e.message
+    }
+    }
+  }     
+  const eventID = result[0].id
+  numberOfCategories = eventInfo.categories.length
+ 
+  for(i = 0; i<numberOfCategories; i++){
+
+  eventCategoriesData = [eventID, eventInfo.categories[i]]
+  try{
+  await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
   }
+  catch(e){
+    console.log(e)
+    return e.message
+  }
+}
 
-  let finishDateTime = Date.parse(eventInfo.endDate +'T'+eventInfo.sessions[eventInfo.sessions.length-1].endTime)
-  finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
-  let job = schedule.scheduleJob(finishDateTime, async () => {
-    await ratingUtils.removePenatlyFromAnOrganizer(organizerID)
-  })
+  if(eventInfo.maxParticipants!=-1 && eventInfo.locatedEventData !=undefined){
 
-  updateRatingMap[result[0].id] = job
+    for(i=0;i<numberOfSessions;i++){
+      const limitedLocatedSessionData =[eventID,eventInfo.sessions[i].id,eventInfo.sessions[i].checkInTime]
+     try{
+      await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
+     }
+     catch(e){
+      console.log(e)
+       return e.message
+     }
+    }
+}
 
-  return result[0].id
+let finishDateTime = Date.parse(eventInfo.endDate +'T'+eventInfo.sessions[eventInfo.sessions.length-1].endTime)
+finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
+let job = schedule.scheduleJob(finishDateTime, async () => {
+  await ratingUtils.removePenatlyFromAnOrganizer(organizerID)
+})
+
+updateRatingMap[result[0].id] = job
+
+return result[0].id
+}
+
+
+module.exports = {
+  createEvent: async ( eventInfo ,authOrganizerInfo,image) => {
+      return await createEventUtil(eventInfo, authOrganizerInfo, image)
 },
  
 
   getOrganizerEvents: async (organizerID) => {
     try{
-    return await getOrganizerEventsUtil(organizerID)
+      return await getOrganizerEventsUtil(organizerID)
     }
     catch(e){
-     return e.message
+      console.log(e)
+      return {failure: true, message: e.message}
     }
   },
 
@@ -279,7 +282,7 @@ module.exports = {
     for(let k = 0; k < categoriesResult.length; k++)
     categories.push(categoriesResult[k].category)
  
-    const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+    const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
     if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
       let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
       for(j =0; j< sessions.length; j++){
@@ -298,7 +301,7 @@ module.exports = {
     let locations = []
     if (locatedEventDataResult.length>0){
       locations.push(locatedEventDataResult[0].latitude)
-      locations.push(locatedEventDataResult[0].longtitude)
+      locations.push(locatedEventDataResult[0].longitude)
       locatedEventData = {
         city: locatedEventDataResult[0].city,
         location: locations
@@ -354,13 +357,13 @@ module.exports = {
       }
       admin.messaging().sendMulticast(message).then((response) => console.log(response))
       return null
+      //CANCEL SCHEDULE
       /*
       try{
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
       if (late){
         await ratingUtils.applyPenaltyToAnOrganizer(organizerID)
       }
-      clearTimeout(updateRatingMap[eventID])
      }
      catch(e){
        return e.message
@@ -425,14 +428,6 @@ module.exports = {
       }
       return result
     },
-    
-    
-
-// ParticipantRegisterEvent:(event) =>{
-//     eventID = event.id
-//     await makeDBQuery("insert participant.FirstName,participant.LastName FROM participant  JOIN participantregisterinevent  ON participant.ID = participantregisterinevent.participantID   AND participantregisterinevent.eventID = ?"
-//     ,eventID);
-//     },
 
     getOrganizerEventsForParticipantsApp: async (currentParticipantID,organizerID) => {
       const tempResult = await getOrganizerEventsUtil(organizerID)
@@ -525,7 +520,7 @@ module.exports = {
     for(k = 0; k < categoriesResult.length; k++)
     categories.push(categoriesResult[k].category)
  
-    const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+    const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
     
     if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
       let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
@@ -546,7 +541,7 @@ module.exports = {
     let locations = []
     if (locatedEventDataResult.length>0){
       locations.push(locatedEventDataResult[0].latitude)
-      locations.push(locatedEventDataResult[0].longtitude)
+      locations.push(locatedEventDataResult[0].longitude)
       locatedEventData = {
         city: locatedEventDataResult[0].city,
         location: locations
@@ -633,7 +628,7 @@ module.exports = {
       for(k = 0; k < categoriesResult.length; k++)
       categories.push(categoriesResult[k].category)
    
-      const locatedEventDataResult = await makeDBQuery("SELECT city, longtitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+      const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
       
       if (eventResult[i].maxParticipants > 0 && locatedEventDataResult.length >0){
         let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
@@ -653,7 +648,7 @@ module.exports = {
       let locations = []
       if (locatedEventDataResult.length>0){
         locations.push(locatedEventDataResult[0].latitude)
-        locations.push(locatedEventDataResult[0].longtitude)
+        locations.push(locatedEventDataResult[0].longitude)
         locatedEventData = {
           city: locatedEventDataResult[0].city,
           location: locations
@@ -772,6 +767,30 @@ module.exports = {
     let preMessage = "The following email is sent by" + eventData[0].organizerName +", who is organizing the event: " + eventData[0].eventName +"\n"
     preMessage += "You recieved this email because you are currently registered in this event.\n----------------------------------------------\n"
     emailUtils.sendMultipleEmails(emailList, emailData[0], preMessage + emailData[1])
+  },
+
+  editPendingEvent: async (currentEventID, newEvent, organizerID, image) => {
+    if(updateRatingMap[currentEventID])updateRatingMap[currentEventID].cancel()
+    try{
+      if (image == undefined){
+        const currentImg = await makeDBQuery("SELECT picture FROM event WHERE id = ?", currentEventID)
+        image = {buffer:currentImg[0].picture}
+      }
+      await makeDBQuery("DELETE FROM event WHERE id = ?", currentEventID)
+      const result = await createEventUtil(newEvent, {id: organizerID}, image)
+      if(!isNaN(result))
+        return {code:201, id: result}
+      else{
+        if(result.includes("ER_DUP_ENTRY"))
+            return {code:409}
+        else if(result.includes("ER_NO_REFERENCED"))
+            return {code:406}
+        else return {code:500}
+      }
+    }
+    catch(e){
+      return e.message
+    }
   }
 
 }

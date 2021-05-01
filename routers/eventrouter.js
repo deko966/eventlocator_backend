@@ -20,19 +20,20 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
     try{
     const eventData = JSON.parse(req.body.event)
     eventResult = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
+    console.log(eventResult)
     if(!isNaN(eventResult))
-        res.sendStatus(201)
+        res.status(201).send(eventResult.toString())
     else{
         if(eventResult.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
-        else{
-            if(eventResult.includes("ER_NO_REFERENCED"))
-                res.sendStatus(406)
-        }
+            res.send(409)
+        else if(eventResult.includes("ER_NO_REFERENCED"))
+                res.send(406)
+        else res.send(500)
     }
     }
     catch(e){
-        res.sendStatus(500)
+        console.log(e)
+        res.send(500)
     }
 
 })
@@ -64,13 +65,14 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
 
 router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
    try{
-    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
-        if(events != null){
-            res.status(200).send(events)
+        const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
+        if(events.failure){
+            res.status(500)
         }
-        else{
+        else if (events.length ==0){
             res.status(404)
-    }
+        }
+        else res.status(200).send(events)
     }
     catch(e){
         res.status(500)
@@ -283,6 +285,22 @@ router.post('/organizers/events/:id/emailParticipants', auth.authOrganizer, asyn
     }
     catch(e){
         res.status(500)
+    }
+})
+
+router.patch('/organizers/events/:id/editPending', auth.authOrganizer, uploads.single('image'), async (req,res) => {
+    try{
+        const event = JSON.parse(req.body.event)
+        let image = undefined
+        if (req.file) image = req.file.buffer
+        const result = await eventModel.editPendingEvent(req.params.id, event, req.authOrganizerInfo.id, image)
+        if (result.code && result.id)
+            res.status(result.code).send(result.id.toString())
+        else if(result.code) res.send(result.code)
+        else res.send(500)
+    }
+    catch(e){
+        res.send(500)
     }
 })
 

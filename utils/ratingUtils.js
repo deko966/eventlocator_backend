@@ -59,6 +59,7 @@ function makeDBQuery(query, arguments) {
       const rating = await getOrganizerRatingUtil(organizerID)
       if (rating < 3.0){
           await makeDBQuery("UPDATE organizer SET accountStatus = 3 WHERE id = ?", organizerID)
+          await makeDBQuery("DELETE FROM event WHERE organizerID = ?", organizerID)
       }
   }
 
@@ -100,6 +101,9 @@ module.exports = {
                 const currentRating = await makeDBQuery("SELECT rating FROM participant WHERE id = ?", participantID)
                 if (currentRating[0].rating < 2.5){
                     await makeDBQuery("UPDATE participant SET accountStatus = 1 WHERE id = ?", participantID)
+                    await makeDBQuery("DELETE FROM participantsregisterinevent WHERE participantID = ?", participantID)
+                    await makeDBQuery("DELETE FROM participantsrateevent WHERE participantID = ?", participantID)
+                    await makeDBQuery("DELETE FROM participantsfolloworganizer WHERE participantID = ?", participantID)
                 }
             }
         }
