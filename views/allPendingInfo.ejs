@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/user.css">
+    <title>Requests</title>
+</head>
+<body>
+  <div id="header">
+    <h1 style= "margin-left: 10px;" ><a href= "/pending/all">Event Locator Admin</a></h1>
+    <h3><a href = "/admin/logout">Logout</h3></a>
+  </div>
+  <div id="content"></div>
+    <br/>
+
+  <p style="margin-left:10px">below are the organizers and events ready for handeling </p>
+  <p id = "organizerTitle">Organizers:</p>
+  <br>
+  <div id ="organizers">
+    <% organizer.forEach(function(organizer) { %>
+      <li>
+        <br>
+        <br>
+        <label for="">Organizer Name:</label>
+        <br>
+        <br>  
+        <strong><a href="/organizers/edit/<%= organizer.id %>"><%= organizer.name %></a></strong>
+        <br>
+        <br>
+          <label for="">Organizer Email:</label>
+          <br>
+          <br> 
+          <strong><%= organizer.email %></strong>
+          <br>
+          <br>
+          <label for="">Organizer phonenumber:</label> 
+          <strong><%= organizer.phoneNumber %></strong>
+          <br>
+          <br>
+          <label for="">Organizer Type:</label>
+         
+          <strong><%= organizer.type %></strong>
+        <br>
+        <br>
+        </li>
+    <% }); %>
+  </div>
+  <div id = "eventTitle">Events:</div>
+  <div id = "events">
+    <% event.forEach(function(event) { %>
+        <br>
+        <br>
+        <label for="">Event Name:</label>
+        <br>  
+        <br>
+        <strong><a href="/events/edit/<%= event.id %>"><%= event.name %></a></strong>
+        <br>
+        <br>
+          <label for="">Event Startdate:</label> 
+          <br>
+          <br>
+          <strong><%= event.startDate %></strong>
+          <br>
+          <br>
+          <label for="">Event Enddate:</label>
+          <br>
+          <br> 
+          <strong><%= event.endDate %></strong>
+          <br>
+          <br> 
+        
+    <% }); %>
+  </div>
+
+  <script>
+    
+  </script>
+</body>
+</html>

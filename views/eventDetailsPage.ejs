@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/details.css">
+    <title>Details</title>    
+</head>
+<body>
+    <div id="header">
+      <h1 style= "margin-left: 10px;" ><a href= "/pending/all">Event Locator Admin</a></h1>
+        <h3><a href = "/admin/logout">Logout</h3></a>
+
+      </div>
+      <div id="content"></div>
+        <br/>
+      <p id = detailstext>Application below:</p>
+     <div id = detailbox>
+        <% event.forEach(function(event) { %>
+          
+          <br>
+          <br>
+          <label for="">event ID:</label>
+          <strong><%= event.id%> </strong>
+          <br>
+          <br>
+          <label for="">event Name:</label>
+          <br>  
+          <br>
+          <strong><%= event.name%> </strong>
+          <br>
+          <br>
+
+
+          <label for="">event Logo:</label>
+          <br>
+          <br> 
+          <strong><%= event.logo %></strong>
+          <br>
+          <br>
+
+            <label for="">event description:</label> 
+            <br>
+            <br>
+            <strong><%= event.description %></strong>
+            <br>
+            <br>
+
+
+
+            <label for="">event startDate:</label>
+            <br>
+            <br> 
+            <strong><%= event.startDate %></strong>
+            <br>
+            <br> 
+
+
+            <label for="">event endDate :</label>
+            <br>
+            <br> 
+            <strong><%= event.endDate %></strong>
+            <br>
+            <br> 
+            <label for="">registrationCloseDateTime:</label>
+            <br>
+            <br> 
+            <strong><%= event.registrationCloseDateTime %></strong>
+            <br>
+            <br> 
+
+            <label for="">maxParticipants:</label>
+            <br>
+            <br> 
+            <strong><%= event.maxParticipants %></strong>
+            <br>
+            <br> 
+            <label for="">WhatsappLink:</label>
+            <br>
+            <br>
+            <strong><%= event.WhatsappLink %></strong>
+            <br>
+            <br> 
+
+            <label for="">OrganizerID:</label>
+            <br>
+            <br> 
+          <strong><%= event.OrganizerID %></strong>
+            <br>
+            <br> 
+
+            <br>
+            <br> 
+          
+        <% }); %>
+     </div>   
+    <div id= buttons> 
+     <button data-ref ="<% event.organizerID %> " >Accept </button>
+     <button>Reject</button>
+    </div>
+    
+</body>
+</html>

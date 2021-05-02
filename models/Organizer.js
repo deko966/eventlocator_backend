@@ -27,7 +27,7 @@ module.exports = {
     createOrganizer: async (organizer,images, type) => {
       hashed = await bcrypt.hashSync(organizer.password, 8)
       emailInput = [organizer.email]
-      console.log(images)
+      
       generalInput = [organizer.name,organizer.email,hashed, organizer.about,
           organizer.phoneNumber,organizer.socialMediaAccounts[0].accountName,
           organizer.socialMediaAccounts[0].url, organizer.socialMediaAccounts[1].accountName,

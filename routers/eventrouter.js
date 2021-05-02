@@ -19,18 +19,18 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
     const eventData = JSON.parse(req.body.event)
     eventResult = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
     if(eventResult==undefined)
-    res.sendStatus(201)
+    res.status(201).send()
     else{
         if(eventResult.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
+            res.status(409).send()
         else{
             if(eventResult.includes("ER_NO_REFERENCED"))
-                res.sendStatus(406)
+                res.status(406).send()
         }
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 
 })
@@ -52,11 +52,11 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
     if(events != null)
     res.status(202).send(events)
     else{
-        res.sendStatus(404)
+        res.status(404).send()
     }
 }
     catch(e){
-    res.sendStatus(500)
+    res.status(500).send()
 }
 })
 
@@ -127,10 +127,10 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
     
         try{
             await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID)
-            res.sendStatus(200)
+            res.status(200).send()
         }
         catch(e){
-            res.sendStatus(500)
+            res.status(500).send()
         }
 
 })
@@ -139,12 +139,12 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
     auth.authOrganizer, async (req, res) =>{
         try{
             const res = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInto.id)
-            if (res == 1) res.sendStatus(404)
-            else if (res == 2) res.sendStatus(409)
+            if (res == 1) res.status(404).send()
+            else if (res == 2) res.status(409).send()
             else res.status(200).send(res)
         }
         catch(e){
-            res.sendStatus(500)
+            res.status(500).send()
         }
 })
 
@@ -161,11 +161,11 @@ router.get('/participants/organizer/:id/events', async (req,res) =>{
     if(events != null)
     res.status(202).send(events)
     else{
-        res.sendStatus(404)
+        res.status(404).send()
     }
 }
 catch(e){
-    res.sendStatus(500)
+    res.status(500).send()
 }
 
 })
@@ -178,11 +178,11 @@ router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticip
     res.status(202).send(events)
     else{
 
-        res.sendStatus(404)
+        res.status(404).send()
     }
 }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 })
 
@@ -196,11 +196,11 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
         res.status(202).send(event)
     }
     else{
-        res.sendStatus(404)
+        res.status(404).send()
     }
 }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 })
 
@@ -209,16 +209,16 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
     try{
         eventResult = await eventModel.cancelEvent(req.body,req.params.id, req.params.late, req.authOrganizerInfo.id)
         if(eventResult == null)
-        res.sendStatus(200)
+        res.status(200).send()
         else
         if(eventResult.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
+            res.status(409).send()
         else
             if(eventResult.includes("ER_NO_REFERENCED"))
-            res.sendStatus(406)
+            res.status(406).send()
     }
     catch(e){  
-        res.status(500).send(e)
+        res.status(500).send()
 
     }
 })
@@ -244,10 +244,10 @@ router.get('/organizers/events/:id/attendanceStatistics', async (req,res) => {
 
     try{
         const data = await eventModel.getEventStatistics(req.params.id)
-        res.sendStatus(200)
+        res.status(200).send()
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 
 })

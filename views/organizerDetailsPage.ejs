@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/details.css">
+    <title>Details</title>    
+</head>
+<body>
+    <div id="header">
+        <h1>EventLocator</h1>
+        <h3>Logout</h3>
+      </div>
+      <div id="content"></div>
+        <br/>
+      <strong><p id = detailstext>Application below:</p></strong>
+     <div id = detailbox>
+        <% organizer.forEach(function(organizer) { %>
+          
+            <br>
+            <br>
+            <label for="">Organizer ID:</label>
+            <div id= organizerID> <strong><%= organizer.id%> </strong></div>
+            <br>
+            <br>
+
+
+            <label for="">Organizer Name:</label>
+            <br>  
+            <br>
+            <strong><%= organizer.name%> </strong>
+            <br>
+            <br>
+
+
+              <label for="">organizer email:</label> 
+              <br>
+              <br>
+              <strong><%= organizer.email %></strong>
+              <br>
+              <br>
+
+
+              <label for="">organizer description:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.description %></strong>
+              <br>
+              <br> 
+
+
+              <label for="">organizer phoneNumber :</label>
+              <br>
+              <br> 
+              <strong><%= organizer.phoneNumber %></strong>
+              <br>
+              <br> 
+
+
+              <label for="">proofImage:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.proofImage %></strong>
+              <br>
+              <br> 
+
+              <label for="">facebookName:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.facebookName %></strong>
+              <br>
+              <br> 
+
+              <label for="">facebookLink:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.facebookLink %></strong>
+              <br>
+              <br> 
+              <label for="">instagramLink:</label>
+              <br>
+              <br>
+              <strong><%= organizer.instagramLink %></strong>
+              <br>
+              <br> 
+
+              <label for="">twitterName:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.twitterName %></strong>
+              <br>
+              <br> 
+
+              <br>
+              <br> 
+              <label for="">twitterLink:,</label>
+              <br>
+              <br> 
+              <strong><%= organizer.twitterLink %></strong>
+              <br>
+              <br> 
+
+              <br>
+              <br> 
+              <label for="">youTubeName:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.youTubeName %></strong>
+              <br>
+              <br> 
+
+              <br>
+              <br> 
+              <label for="">youTubeLink:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.youTubeLink %></strong>
+              <br>
+              <br> 
+
+              
+              <br> 
+              <br> 
+              <label for="">type:</label>
+              <strong><%= organizer.type %></strong>
+              <br>
+              <br>
+
+        <% }); %>
+     </div>   
+    <div id= buttons> 
+     <button onclick="sendAnswer()" >Accept </button>
+     <button>Reject</button>
+    </div>
+    <script>
+function sendAnswer() {
+        fetch('/account/response', {
+          method: 'POST',
+          body: new URLSearchParams({
+            organizerID = document.getElementById('organizerID').value,
+          
+          })
+        })
+        .then(req => req.text())
+      }
+    </script>
+</body>
+</html>

@@ -30,10 +30,10 @@ router.post('/organizers/login',async (req,res)=>{
     if (token != null)
         res.status(202).send(token)
     else if (token == null)
-            res.sendStatus(404)
+            res.status(404).send()
 }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 }),
 
@@ -48,8 +48,8 @@ router.post('/organizers/login',async (req,res)=>{
         }
     }
     catch(e){
-        console.log(e)
-        res.sendStatus(500)
+      
+        res.status(500).send()
     }
 
 }),
@@ -65,7 +65,7 @@ const type = await OrganizerModel.getOrganizerType(req.authOrganizerInfo)
     }
  }
  catch(e){
-     res.sendStatus(500)
+     res.status(500).send()
  }
 }),
 
@@ -78,11 +78,11 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
             res.status(202).send(organizer)    
         }
         else{
-            res.sendStatus(404)
+            res.status(404).send()
         }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 }),
 
@@ -106,16 +106,16 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
         organizerResult= await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
         console.log(organizerResult)
         if(organizerResult == undefined){
-            res.sendStatus(201)
+            res.status(201).send()
         }
         else{
         if(organizerResult.includes("ER_DUP_ENTRY")){
-            res.sendStatus(409)
+            res.status(409).send()
         } 
         }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }    
    
 })
@@ -127,11 +127,11 @@ router.get('organizers/followers',auth.authOrganizer,async (req,res)=>{
         res.status(202).send(followers)
         }
         else{
-            res.sendStatus(404)
+            res.status(404).send()
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 
  }),

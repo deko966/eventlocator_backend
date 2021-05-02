@@ -11,13 +11,13 @@ router.post('/participants/signup',async (req,res)=>{
     try{
     const participant = await ParticipantModel.createParticipant(req.body) 
     if(participant==undefined)
-        res.sendStatus(201)
+        res.status(201).send()
     if(participant.includes("ER_DUP_ENTRY")){
-        res.status(409).send(null)
+        res.status(409).send()
     }
 } 
     catch(e){
-        res.status(500).send(null)
+        res.status(500).send()
 
     }
 })
@@ -28,16 +28,16 @@ router.post('/participants/signup/partial',async (req,res)=>{
     try{
     const participant = await ParticipantModel.partialSignup(req.body)
       
-    if(participant== undefined){
-        res.sendStatus(200)
+    if(participant== null){
+        res.status(200).send()
     }
 
     else{    
-        res.status(409).send(null)
+        res.status(409).send()
     }
     }
     catch(e){
-        res.status(500).send(null)
+        res.status(500).send()
     }
 })
 
@@ -46,14 +46,14 @@ router.get('/participants/organizers/all',async (req,res) =>{
     try{
         const organizers = await ParticipantModel.getAllOrganizers()
         if(organizers.length==0){
-            res.status(404).send(null)
+            res.status(404).send()
         }
         else{
             res.status(200).send(organizers)
         }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
     
 })
@@ -67,10 +67,10 @@ router.post('/participants/login',async (req,res)=>{
             res.status(202).send(token)
         else
         if (token == null)
-            res.sendStatus(404)
+            res.status(404).send()
 }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 }),
 
@@ -89,19 +89,19 @@ router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req
     try{
     const follow = await ParticipantModel.followOrganizer(req.params.id,req.participantID)
    if(follow == null)
-    res.sendStatus(200)
+    res.status(200).send()
     
     else{
         if(follow.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
+            res.status(409).send()
         else{
             if(follow.includes("ER_NO_REFERENCED"))
-                res.sendStatus(406)
+                res.status(406).send()
         }
     }
 }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 
 })
@@ -113,12 +113,12 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
          res.status(202).send(organizers)
      }
      else{
-         res.sendStatus(404)
+         res.status(404).send()
      }
     }
      catch(e){
         
-         res.status(500).send(e)
+         res.status(500).send()
      }
  })
  
@@ -127,19 +127,19 @@ router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (r
     try{
     await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
     if(follow == null)
-    res.sendStatus(200)
+    res.status(200).send()
     
     else{
         if(follow.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
+            res.status(409).send()
         else{
             if(follow.includes("ER_NO_REFERENCED"))
-                res.sendStatus(406)
+                res.status(406).send()
         }
     }
 }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 
 })
@@ -150,11 +150,11 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
     if(organizer!=undefined)
     res.status(202).send(organizer)
       else{
-          res.sendStatus(404)
+          res.status(404).send()
       }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
 })
 
@@ -164,11 +164,11 @@ router.get('/participant/information', auth.authParticipant, async(req,res) =>{
     if(participant!=undefined)
       res.status(202).send(participant)
       else{
-          res.sendStatus(404)
+          res.status(404).send()
       }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
     
 
@@ -179,14 +179,14 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
     const registration = await ParticipantModel.participantRegisterInEvent(req.participantID,req.params.id)
     if (registration == undefined) res.sendStatus(202)
     else if(registration == -1|| registration.includes("ER_DUP_ENTRY"))
-        res.sendStatus(409)
+        res.status(409).send()
     else{
         if(registration.includes("ER_NO_REFERENCED"))
-        res.sendStatus(406)
+        res.status(406).send()
     }
     }
     catch(e){
-        res.sendStatus(500)
+        res.status(500).send()
     }
   })
 
@@ -195,19 +195,19 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
     try{
         unregister = await ParticipantModel.participantUnregisterInEvent(req.participantID,req.params.id)
        if(unregister == null)
-        res.sendStatus(202)
+        res.status(202).send()
     
     else
         if(unregister.includes("ER_NO_REFERENCED"))
-        res.sendStatus(406)
+        res.status(406).send()
     
     else{
         if(unregister.includes("ER_DUP_ENTRY"))
-        res.sendStatus(409)
+        res.status(409).send()
     }
 }
     catch(e){     
-         res.sendStatus(500)
+         res.status(500).send()
      }
   })  
 

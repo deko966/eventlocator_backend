@@ -2,18 +2,21 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
- module.exports = {
-    createAdminToken:(admin)=>{
-    const token = jwt.sign({id:admin.ID.toString(),password:admin.Password.toString()},config.secret)
-},
-authAdmin:(req,res,next)=>{
-    const token = req.header('Authorization').replace('Bearer ', '')
-    jwt.verify(token, config.secret, (err, decoded) =>{
-        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        else
-        next()
-      });
-},
+
+
+module.exports = {
+    createAdminToken:(admin,res,req) => {
+            const token = jwt.sign({
+                id:admin.loginID,
+                password:admin.password,
+            },
+            config.adminSecret
+        )
+    
+        return token  
+    },
+  
+
 createOrganizerToken: (organizer)=>{
     const token =  jwt.sign({id: organizer.id.toString(), email: organizer.email.toString(),
     phoneNumber: organizer.phoneNumber.toString(),Type:organizer.type.toString() } ,config.secret)
@@ -26,7 +29,6 @@ authOrganizer:(req,res,next)=>{
         res.sendStatus(401)
         return -1
     }
-
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret, (err, decoded)=> {
         if (err){ 
@@ -44,20 +46,33 @@ createParticipantToken:(participant)=>{
   
     return token
 },
-authParticipant:(req,res,next)=>{
-    if(!req.headers.authorization)  
-    {   res.sendStatus(401)
+authParticipant:(req,res,next) => {
+    if(!req.headers.authorization){   
+        res.sendStatus(401)
         return -1
     }
     const token = req.header('Authorization').replace('Bearer ', '')
     jwt.verify(token, config.secret,(err, decoded)=> {
-    if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-    req.participantID=decoded.id
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        req.participantID=decoded.id
 
-    next()
-      });
+        next()
+    });
 },
+authAdmin:(req,res,next) => {
+    if(!req.cookies.Authorization){   
+        res.sendStatus(401)
+        return -1
+    }
+    
+    const token = req.cookies.Authorization.replace('Bearer ', '')
+    jwt.verify(token, config.adminSecret,(err, decoded)=> {
+        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        req.participantID=decoded.id
 
+        next()
+    });
+},
 
 
 

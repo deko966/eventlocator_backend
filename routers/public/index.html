@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <div class="header">
+      <h1 style= "margin-left: 10px;" ><a href= "index.html">Event Locator Admin</a></h1>
+    </div>
+    <div id="content"></div>
+      <br/>
+      <form action="/login" method="post">
+
+    <div class="login-box">
+      <h1>Login</h1>
+      <div class="textbox">
+        <i class="user"></i>
+        <input type="text" id="username" placeholder="LoginID" required>
+      </div>
+
+      <div class="textbox">
+        <i class="lock"></i>
+        <input type="password" id = "password" placeholder="Password" required>
+      </div>
+
+      <button class="btn" type="button" onclick="login()">Login</button>
+    </form>
+    </div>
+    <script>
+      function login() {
+        fetch('/admin/login', {
+          method: 'POST',
+          body: new URLSearchParams({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+          })
+        })
+        .then(req => req.text())
+        .then(res => {
+          window.location = '/pending/all';
+        });
+      }
+    </script>
+  </body>
+</html>

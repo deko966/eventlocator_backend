@@ -1,0 +1,98 @@
+body{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background-color:white;
+    background-size: cover;
+}
+#heading{
+    color: black;
+    float: auto;
+
+}
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }
+
+#organizers{
+  height:500px;
+  width:40%;
+  overflow:auto;
+  margin-left: 10px;
+  background-color:white;
+  scrollbar-base-color:gold;
+  font-family:sans-serif;
+  padding:10px;
+  border:  2px solid #49599a;
+  border-width: 3px;
+  left:0;
+}
+    #title{
+    margin-left: 10px;
+}
+    #header {
+    background:#49599a;
+    color: black;
+    text-align: left;
+    padding: 10px 0;
+  }
+  #content {
+    height: 100%;
+    background: #1E1E1E;
+    padding-top: 20px;
+    text-align: center;
+  }
+
+  #events{
+    height:500px;
+    width:40%;
+    overflow:auto;
+   
+    background-color:white;
+    color:black;
+    scrollbar-base-color:gold;
+    font-family:sans-serif;
+    padding:10px;
+    border: 15px solid #49599a ;
+    border-width: 3px;
+    float: right;
+    margin-top: -38.8%;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  
+}
+#eventTitle{
+    float:right;
+    margin-right: 39%;
+    margin-top: -42%;
+
+}
+#organizerTitle{
+    margin-left: 10px;
+}
+a:link{
+  color:black
+}
+a:visited{
+  color:black
+}
+h3{
+  text-align: right;
+  margin-right:3%;
+}
