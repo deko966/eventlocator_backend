@@ -205,7 +205,7 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
     }
 })
 
-router.get('/participants/event/:id/rate',auth.authParticipant, async (req,res)=>{
+router.post('/participants/event/:id/rate',auth.authParticipant, async (req,res)=>{
 
     try{
         const result = await eventModel.addParticipantRating(req.participantID, req.params.id, req.body)
