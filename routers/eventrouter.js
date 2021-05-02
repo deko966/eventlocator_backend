@@ -3,6 +3,8 @@ const router = new express.Router()
 const eventModel = require('../models/Event')
 const auth = require('../middleware/auth')
 const  multer = require('multer');
+const { compareSync } = require('bcryptjs');
+const e = require('express');
 
 const uploads = multer({
     limits: {
@@ -18,19 +20,20 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
     try{
     const eventData = JSON.parse(req.body.event)
     eventResult = await eventModel.createEvent(eventData,req.authOrganizerInfo,req.file)
-    if(eventResult==undefined)
-    res.status(201).send()
+   
+    if(!isNaN(eventResult))
+        res.status(201).send(eventResult.toString())
     else{
         if(eventResult.includes("ER_DUP_ENTRY"))
-            res.status(409).send()
-        else{
-            if(eventResult.includes("ER_NO_REFERENCED"))
-                res.status(406).send()
-        }
+            res.send(409)
+        else if(eventResult.includes("ER_NO_REFERENCED"))
+                res.send(406)
+        else res.send(500)
     }
     }
     catch(e){
-        res.status(500).send()
+        console.log(e)
+        res.send(500)
     }
 
 })
@@ -62,13 +65,14 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
 
 router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
    try{
-    const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo)
-        if(events != null){
-            res.status(200).send(events)
+        const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
+        if(events.failure){
+            res.status(500)
         }
-        else{
-            res.status(404).send("event not found")
-    }
+        else if (events.length ==0){
+            res.status(404)
+        }
+        else res.status(200).send(events)
     }
     catch(e){
         res.status(500)
@@ -90,7 +94,7 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
   }
 })
 
-router.get('/organizers/events/:id/feedback',async (req,res)=>{
+router.get('/organizers/events/:id/feedback', auth.authOrganizer, async (req,res)=>{
     try{
         const feedback = await eventModel.getEventsFeedback(req.params.id)
         if(feedback != null)
@@ -152,12 +156,9 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
 
 
 
-
-
-
-router.get('/participants/organizer/:id/events', async (req,res) =>{
+router.get('/participants/organizer/:id/events', auth.authParticipant, async (req,res) =>{
   try{  
-    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.body.id)
+    const events = await eventModel.getOrganizerEventsForParticipantsApp(req.participantID,req.params.id)
     if(events != null)
     res.status(202).send(events)
     else{
@@ -204,6 +205,25 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
     }
 })
 
+router.get('/participants/event/:id/rate',auth.authParticipant, async (req,res)=>{
+
+    try{
+        const result = await eventModel.addParticipantRating(req.participantID, req.params.id, req.body)
+        if(result == null)
+        res.sendStatus(200)
+        else
+        if(result.includes("ER_DUP_ENTRY"))
+            res.sendStatus(409)
+        else
+            if(result.includes("ER_NO_REFERENCED"))
+            res.sendStatus(406)
+    }
+    catch(e){
+        res.status(500)
+    }
+
+})
+
 
 router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,res) => {
     try{
@@ -218,7 +238,8 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
             res.status(406).send()
     }
     catch(e){  
-        res.status(500).send()
+       
+        res.status(500)
 
     }
 })
@@ -240,7 +261,7 @@ router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,
 })
 
 
-router.get('/organizers/events/:id/attendanceStatistics', async (req,res) => {
+router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, async (req,res) => {
 
     try{
         const data = await eventModel.getEventStatistics(req.params.id)
@@ -252,36 +273,37 @@ router.get('/organizers/events/:id/attendanceStatistics', async (req,res) => {
 
 })
 
-router.patch('/ModifyEvent',async (req,res)=>{
-//2-	PATCH: modify event, takes an Event object (all checks relating to status changes and organizer’s rating penalty are here, 
-// applies penalty for participants who did not attend it, and removes penalty
-//  for those who attends and already have a penalty. Sends notification 
-//  if event is confirmed and times or location change)
-})
-router.get('/EventParticipants/:id',async (req,res)=>{
-
-})
-router.get('/L_L_E_Participant/:id/session/:Sid',async (req,res)=>{
-
-})
-router.get('/OneParticipant',async (req,res)=>{
-
-})
-router.post('/CheckIn/:id/session/:Sid',async (req,res)=>{
-
-})
-router.post('/SendEmail/:id',async (req,res)=>{
-
+router.post('/organizers/events/:id/emailParticipants', auth.authOrganizer, async (req, res) => {
+    try{
+        const result = await eventModel.emailParticipantsOfAnEvent(req.params.id, req.body)
+        if (result == 404){
+            res.status(404)
+        }
+        else{
+            res.status(200)
+        }
+    }
+    catch(e){
+        res.status(500)
+    }
 })
 
-
-router.get('/UpComingEvents/:id',async (req,res)=>{
-
+router.patch('/organizers/events/:id/editPending', auth.authOrganizer, uploads.single('image'), async (req,res) => {
+    try{
+        const event = JSON.parse(req.body.event)
+        let image = undefined
+        if (req.file) image = req.file.buffer
+        const result = await eventModel.editPendingEvent(req.params.id, event, req.authOrganizerInfo.id, image)
+        if (result.code && result.id)
+            res.status(result.code).send(result.id.toString())
+        else if(result.code) res.send(result.code)
+        else res.send(500)
+    }
+    catch(e){
+        res.send(500)
+    }
 })
 
-router.get('/UnregisterInEvent',async (req,res)=>{
-
-})
 
 
 module.exports = router
