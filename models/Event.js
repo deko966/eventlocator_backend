@@ -791,6 +791,56 @@ module.exports = {
     catch(e){
       return e.message
     }
+  },
+
+  editConfirmedEvent: async (eventID, updatedEvent, organizerID) =>{
+    try{
+      await makeDBQuery("DELETE FROM session WHERE eventID = ?", eventID)
+      await makeDBQuery("DELETE FROM locatedevent WHERE eventID = ?", eventID)
+
+      await makeDBQuery("UPDATE event SET startDate = ?, endDate = ?, registrationCloseDateTime = ? WHERE id  = ?", [updatedEvent.startDate, updatedEvent.endDate, updatedEvent.registrationCloseDateTime, eventID])
+
+      if(updatedEvent.locatedEventData != undefined){
+        const  eventlocation = [eventID,updatedEvent.locatedEventData.location[0],updatedEvent.locatedEventData.location[1]]
+        await makeDBQuery("insert into locatedevent (eventID,latitude,longitude) values (?,?,?) ",eventlocation)
+      }
+
+      for(let i= 0; i<updatedEvent.sessions.length;i++){
+        const sessionData = [eventID,updatedEvent.sessions[i].id,updatedEvent.sessions[i].date,
+        updatedEvent.sessions[i].startTime,updatedEvent.sessions[i].endTime,updatedEvent.sessions[i].dayOfWeek]
+        await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
+      }
+
+      if (updatedEvent.sessions[0].checkInTime!=""){
+        for(let i=0;i<updatedEvent.sessions.length;i++){
+          const limitedLocatedSessionData =[eventID,updatedEvent.sessions[i].id,updatedEvent.sessions[i].checkInTime]
+          await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
+        }
+      }
+      if (updateRatingMap[eventID])
+        updateRatingMap[eventID].cancel
+
+      let finishDateTime = Date.parse(updatedEvent.endDate +'T'+updatedEvent.sessions[updatedEvent.sessions.length-1].endTime)
+      finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
+      let job = schedule.scheduleJob(finishDateTime, async () => {
+        await ratingUtils.removePenatlyFromAnOrganizer(organizerID)
+      })
+      updateRatingMap[eventID] = job
+
+      const eventName = await makeDBQuery("SELECT name FROM event WHERE id = ?", eventID)
+      const messageContent = "The event " + eventName[0].name +" has been modified, tap this notification to view the changes"
+      if (tokens.getTokens().length == 0) return null
+      const message = {
+        data: {title: "Update", message: messageContent, eventID: eventID.toString()},
+        tokens: tokens.getTokens()
+      }
+      admin.messaging().sendMulticast(message).then((response) => console.log(response))
+      return null
+    }
+    catch(e){
+      console.log(e)
+      return e.message
+    }
   }
 
 }
