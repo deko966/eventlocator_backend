@@ -259,14 +259,34 @@ getParticipantByID:async (participantID) =>{
 participantRegisterInEvent: async (participantID,eventID, token) => {
   let registrationIDs = [eventID,participantID]
   let eventInfo = await makeDBQuery("select maxParticipants, CONVERT(EndDate,char)as endDate from event where ID = ?",eventID)
+  const currentEventSessions = await makeDBQuery("SELECT id,convert(date,char) as date, startTime, endTime FROM session WHERE eventID = ?", eventID)
+  const allEvents = await makeDBQuery("SELECT eventID FROM participantsRegisterInEvent WHERE participantID = ? AND eventID NOT IN (SELECT eventID FROM canceledEvent)", participantID)
   let lastSessionEndTime = await makeDBQuery("SELECT endTime from session WHERE eventID = ? AND id = (SELECT MAX(id) FROM session WHERE eventID = ?)", [eventID, eventID])
   lastSessionEndTime = lastSessionEndTime[0].endTime
   let locatedEventData = await makeDBQuery("SELECT city from locatedevent WHERE eventID = ? ", eventID)
+
+  for(let i = 0; i < allEvents.length; i++){
+    const sessions  = await makeDBQuery("SELECT id,convert(date,char) as date, startTime, endTime FROM session WHERE eventID = ?", allEvents[i].eventID)
+    for(let j = 0; j < sessions.length; j++){
+      for(let k = 0; k < currentEventSessions.length; k++){
+        let currentSessionStartTime = Date.parse(currentEventSessions[k].date+'T'+currentEventSessions[k].startTime)
+        let currentSessionEndTime = Date.parse(currentEventSessions[k].date+'T'+currentEventSessions[k].endTime)
+        
+        let sessionStartTime = Date.parse(sessions[j].date+'T'+sessions[j].startTime)
+        let sessionEndTime = Date.parse(sessions[j].date+'T'+sessions[j].endTime)
+        if (Date.parse(currentEventSessions[k].date) == Date.parse(sessions[j].date)){
+          if (!(currentSessionEndTime < sessionStartTime && currentSessionStartTime > sessionEndTime)){
+            return {conflict: true}
+          }
+        }
+      }
+    }
+  }
   if(eventInfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
     tokens.addToken(token)
-    emailUtils.sendEmail("aalawneh19@gmail.com", "Welcome", "You registered in an event, thank you for registering")
+    //emailUtils.sendEmail("aalawneh19@gmail.com", "Welcome", "You registered in an event, thank you for registering")
     }
     catch(e){
       return e.message
