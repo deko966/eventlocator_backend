@@ -356,18 +356,18 @@ module.exports = {
         tokens: tokens.getTokens()
       }
       admin.messaging().sendMulticast(message).then((response) => console.log(response))
-      return null
-      //CANCEL SCHEDULE
-      /*
       try{
       await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
       if (late){
         await ratingUtils.applyPenaltyToAnOrganizer(organizerID)
       }
+      if (updateRatingMap[eventID])
+        updateRatingMap[eventID].cancel()
+      return null
      }
      catch(e){
        return e.message
-     } */
+     }
     },
 
    
