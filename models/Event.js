@@ -357,7 +357,7 @@ module.exports = {
       }
       admin.messaging().sendMulticast(message).then((response) => console.log(response))
       try{
-      await makeDBQuery("insert into canceledevent (eventid,canceldatetime,cancelationreason) values(?,?,?)",cancelData)
+      await makeDBQuery("insert into canceledevent (eventid,cancellationdatetime,cancellationreason) values(?,?,?)",cancelData)
       if (late){
         await ratingUtils.applyPenaltyToAnOrganizer(organizerID)
       }
