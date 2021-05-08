@@ -9,7 +9,7 @@ const emailUtils = require('../utils/emailUtils.js');
 const updateRatingMap = new Map()
 
 function makeDBQuery(query, arguments) {
-  return new Promise((resolve, reject) => {
+  return Promise((resolve, reject) => {
       sql.query(query, arguments, (err, result) => {
               if (err) {
                   return reject(err);

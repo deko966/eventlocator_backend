@@ -26,11 +26,14 @@
       </div>
 
       <button class="btn" type="button" onclick="login()">Login</button>
+    
     </form>
     </div>
     <script>
+     
       function login() {
-        fetch('/admin/login', {
+        fetch('/admin/login',
+         {
           method: 'POST',
           body: new URLSearchParams({
             username: document.getElementById('username').value,
@@ -40,8 +43,10 @@
         .then(req => req.text())
         .then(res => {
           window.location = '/pending/all';
-        });
-      }
+        })
+        
+        };
     </script>
+   
   </body>
 </html>

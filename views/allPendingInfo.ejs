@@ -20,9 +20,8 @@
   <br>
   <div id ="organizers">
     <% organizer.forEach(function(organizer) { %>
-      <li>
-        <br>
-        <br>
+      
+       <div id = organizerInfo>
         <label for="">Organizer Name:</label>
         <br>
         <br>  
@@ -44,14 +43,13 @@
           <strong><%= organizer.type %></strong>
         <br>
         <br>
-        </li>
+      </div>
     <% }); %>
   </div>
   <div id = "eventTitle">Events:</div>
   <div id = "events">
     <% event.forEach(function(event) { %>
-        <br>
-        <br>
+        <div id = eventInfo>
         <label for="">Event Name:</label>
         <br>  
         <br>
@@ -70,6 +68,7 @@
           <strong><%= event.endDate %></strong>
           <br>
           <br> 
+        </div>
         
     <% }); %>
   </div>

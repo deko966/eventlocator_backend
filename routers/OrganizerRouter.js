@@ -30,10 +30,10 @@ router.post('/organizers/login',async (req,res)=>{
     if (token != null)
         res.status(202).send(token)
     else if (token == null)
-            res.status(404).send()
+            res.send(404)
 }
     catch(e){
-        res.status(500).send()
+        res.send(500)
     }
 }),
 
@@ -49,7 +49,7 @@ router.post('/organizers/login',async (req,res)=>{
     }
     catch(e){
       
-        res.status(500).send()
+        res.send(500)
     }
 
 }),
@@ -64,7 +64,7 @@ router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
     }
  }
  catch(e){
-     res.status(500).send()
+     res.send(500)
  }
 }),
 
@@ -101,12 +101,12 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
         }
         else{
         if(organizerResult.includes("ER_DUP_ENTRY")){
-            res.status(409).send()
+            res.send(409)
         } 
         }
     }
     catch(e){
-        res.status(500).send()
+        res.send(500)
     }    
    
 })

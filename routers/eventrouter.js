@@ -45,7 +45,7 @@ router.get("/organizers/events/limited/:id/participants", auth.authOrganizer, as
         else res.status(200).send(participants)
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 })
 
@@ -55,11 +55,11 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
     if(events != null)
     res.status(202).send(events)
     else{
-        res.status(404).send()
+        res.send(404)
     }
 }
     catch(e){
-    res.status(500).send()
+    res.send(500)
 }
 })
 
@@ -67,15 +67,15 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
    try{
         const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
         if(events.failure){
-            res.status(500)
+            res.send(500)
         }
         else if (events.length ==0){
-            res.status(404)
+            res.send(404)
         }
         else res.status(200).send(events)
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 })
 
@@ -86,11 +86,11 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
         res.status(202).send(events)
     }
     else{
-        res.status(404)
+        res.send(404)
     }
   }
   catch(e){
-      res.status(500)
+      res.send(500)
   }
 })
 
@@ -100,11 +100,11 @@ router.get('/organizers/events/:id/feedback', auth.authOrganizer, async (req,res
         if(feedback != null)
         res.status(200).send(feedback)
         else{
-            res.status(404)
+            res.send(404)
         }
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 }),
 
@@ -115,7 +115,7 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
    try{
     const event = await eventModel.getEventByID(req.params.id)
     if (event==null){
-        res.status(404)
+        res.send(404)
     }
     else {
         res.status(200).send(event)
@@ -131,10 +131,10 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
     
         try{
             await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID)
-            res.status(200).send()
+            res.send(200)
         }
         catch(e){
-            res.status(500).send()
+            res.send(500)
         }
 
 })
@@ -143,12 +143,12 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
     auth.authOrganizer, async (req, res) =>{
         try{
             const res = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInto.id)
-            if (res == 1) res.status(404).send()
-            else if (res == 2) res.status(409).send()
+            if (res == 1) res.send(404)
+            else if (res == 2) res.send(409)
             else res.status(200).send(res)
         }
         catch(e){
-            res.status(500).send()
+            res.send(500)
         }
 })
 
@@ -162,11 +162,11 @@ router.get('/participants/organizer/:id/events', auth.authParticipant, async (re
     if(events != null)
     res.status(202).send(events)
     else{
-        res.status(404).send()
+        res.send(404)
     }
 }
 catch(e){
-    res.status(500).send()
+    res.send(500)
 }
 
 })
@@ -179,11 +179,11 @@ router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticip
     res.status(202).send(events)
     else{
 
-        res.status(404).send()
+        res.send(404)
     }
 }
     catch(e){
-        res.status(500).send()
+        res.send(500)
     }
 })
 
@@ -197,11 +197,11 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
         res.status(202).send(event)
     }
     else{
-        res.status(404).send()
+        res.send(404)
     }
 }
     catch(e){
-        res.status(500).send()
+        res.send(500)
     }
 })
 
@@ -210,16 +210,16 @@ router.get('/participants/event/:id/rate',auth.authParticipant, async (req,res)=
     try{
         const result = await eventModel.addParticipantRating(req.participantID, req.params.id, req.body)
         if(result == null)
-        res.sendStatus(200)
+        res.send(200)
         else
         if(result.includes("ER_DUP_ENTRY"))
-            res.sendStatus(409)
+            res.send(409)
         else
             if(result.includes("ER_NO_REFERENCED"))
-            res.sendStatus(406)
+            res.send(406)
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 
 })
@@ -229,17 +229,17 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
     try{
         eventResult = await eventModel.cancelEvent(req.body,req.params.id, req.params.late, req.authOrganizerInfo.id)
         if(eventResult == null)
-        res.status(200).send()
+        res.send(200)
         else
         if(eventResult.includes("ER_DUP_ENTRY"))
-            res.status(409).send()
+            res.send(409)
         else
             if(eventResult.includes("ER_NO_REFERENCED"))
-            res.status(406).send()
+            res.send(406)
     }
     catch(e){  
        
-        res.status(500)
+        res.send(500)
 
     }
 })
@@ -252,7 +252,7 @@ router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,
     res.status(200).send(participants)
     }
     else{
-        res.status(404)
+        res.send(404)
     }
     }
     catch(e){
@@ -265,10 +265,10 @@ router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, as
 
     try{
         const data = await eventModel.getEventStatistics(req.params.id)
-        res.status(200).send()
+        res.send(200)
     }
     catch(e){
-        res.status(500).send()
+        res.send(500)
     }
 
 })
@@ -277,14 +277,14 @@ router.post('/organizers/events/:id/emailParticipants', auth.authOrganizer, asyn
     try{
         const result = await eventModel.emailParticipantsOfAnEvent(req.params.id, req.body)
         if (result == 404){
-            res.status(404)
+            res.send(404)
         }
         else{
-            res.status(200)
+            res.send(200)
         }
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 })
 

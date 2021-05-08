@@ -22,7 +22,7 @@
           <br>
           <br>
           <label for="">event ID:</label>
-          <strong><%= event.id%> </strong>
+          <strong><%= event.ID%> </strong>
           <br>
           <br>
           <label for="">event Name:</label>
@@ -36,10 +36,39 @@
           <label for="">event Logo:</label>
           <br>
           <br> 
-          <strong><%= event.logo %></strong>
+          <img src="data:image/jpeg;base64,<%- event.logo  %>"/>
           <br>
           <br>
+          <label for="">OrganizerID:</label>
+            <br>
+            <br> 
+          <strong><%= event.organizerID %></strong>
+          <br>
+          <br> 
 
+          <% organizer.forEach(function(organizer) { %>
+            <label for="">Organizer name:</label>
+            <br>
+            <br> 
+          <strong><%= organizer.name %></strong>
+            <br>
+            <br> 
+
+            <label for="">Organizer email:</label>
+            <br>
+            <br> 
+          <strong><%= organizer.email %></strong>
+            <br>
+            <br> 
+
+            <label for="">Organizer phone number:</label>
+            <br>
+            <br> 
+          <strong><%= organizer.phoneNumber %></strong>
+            <br>
+            <br> 
+
+              <% }); %> 
             <label for="">event description:</label> 
             <br>
             <br>
@@ -70,35 +99,114 @@
             <br>
             <br> 
 
+
             <label for="">maxParticipants:</label>
             <br>
             <br> 
             <strong><%= event.maxParticipants %></strong>
             <br>
             <br> 
+
+            <% session.forEach(function(session) { %>
+              <label for="">Session ID:</label>
+              <br>
+              <br> 
+            <strong><%= session.id %></strong>
+              <br>
+              <br> 
+  
+              <label for=""> Session date:</label>
+              <br>
+              <br> 
+            <strong><%= session.date %></strong>
+              <br>
+              <br> 
+              <label for=""> Session start time:</label>
+              <br>
+              <br> 
+             
+            <strong><%= session.startTime %></strong>
+              <br>
+              <br> 
+
+              <label for=""> Session  end time:</label>
+              <br>
+              <br> 
+             
+            <strong><%= session.endTime %></strong>
+              <br>
+              <br> 
+
+              <label for=""> day of week:</label>
+              <br>
+              <br> 
+             
+            <strong><%= session.dayOfWeek %></strong>
+              <br>
+              <br> 
+
+              <% }); %> 
+              <% categories.forEach(function(categories) { %>
+              <label for=""> Event category:</label>
+              <br>
+              <br> 
+             
+              <strong><%= categories %></strong>
+              <br>
+              <br> 
+                <% }); %> 
+
+                
+                <%if(locatedevent.length>0){  %> 
+                <% locatedevent.forEach(function(locatedevent) { %>
+                  <label for=""> city:</label>
+                  <br>
+                  <br> 
+                 
+                  <strong><%= locatedevent.city %></strong>
+                  <br>
+                  <br> 
+                  <label for=""> longitude:</label>
+                  <br>
+                  <br> 
+                 
+                  <strong><%= locatedevent.longitude %></strong>
+                  <br>
+                  <br> 
+
+                  <label for=""> latitude:</label>
+                  <br>
+                  <br> 
+                 
+                  <strong><%= locatedevent.latitude %></strong>
+                  <br>
+                  <br> 
+
+                    <% }); %> 
+                
+                <% }else {} %> 
+            <% if(event.whatsappLink == ''){ %>
+              <% } else{ %>  
             <label for="">WhatsappLink:</label>
             <br>
             <br>
-            <strong><%= event.WhatsappLink %></strong>
+            <strong><%= event.whatsappLink %></strong>
             <br>
             <br> 
-
-            <label for="">OrganizerID:</label>
-            <br>
-            <br> 
-          <strong><%= event.OrganizerID %></strong>
-            <br>
-            <br> 
-
+            <% } %> 
+            
+     
+            
             <br>
             <br> 
           
-        <% }); %>
+   
      </div>   
-    <div id= buttons> 
-     <button data-ref ="<% event.organizerID %> " >Accept </button>
-     <button>Reject</button>
+    <div class= buttons> 
+      <button class="btn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/0'">Accept</button>
+      <button class="btn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/1'">Reject</button>
     </div>
+    <% }); %>
     
 </body>
 </html>

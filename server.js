@@ -5,18 +5,21 @@ const ParticipantRouter = require('./routers/ParticipantsRouter')
 const EventRouter = require('./routers/eventrouter')
 const AdminRouter = require('./routers/AdminRouter')
 const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
+
+var cookieParser = require('cookie-parser');
+
 require('./utils/firebaseInit')
 const app = express()
+
+
 app.set('view engine', 'ejs');
-
-
+app.use(cookieParser());
 
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname+'/routers/public')))
 app.use(express.json())
-//app.use(AdminRouter)
+app.use(AdminRouter)
 app.use(EventRouter)
 app.use(OrganizerRouter)
 app.use(ParticipantRouter)

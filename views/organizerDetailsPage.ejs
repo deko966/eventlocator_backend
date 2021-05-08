@@ -10,23 +10,23 @@
 <body>
     <div id="header">
         <h1>EventLocator</h1>
-        <h3>Logout</h3>
+        <h3><a href = "/admin/logout">Logout</h3></a>
       </div>
       <div id="content"></div>
         <br/>
       <strong><p id = detailstext>Application below:</p></strong>
      <div id = detailbox>
         <% organizer.forEach(function(organizer) { %>
-          
+          <div id= allInfo>
             <br>
             <br>
             <label for="">Organizer ID:</label>
-            <div id= organizerID> <strong><%= organizer.id%> </strong></div>
+            <strong><%= organizer.id%> </strong>
             <br>
             <br>
 
 
-            <label for="">Organizer Name:</label>
+            <label for="">Organizer name:</label>
             <br>  
             <br>
             <strong><%= organizer.name%> </strong>
@@ -34,15 +34,40 @@
             <br>
 
 
-              <label for="">organizer email:</label> 
+              <label for="">Organizer email:</label> 
               <br>
               <br>
               <strong><%= organizer.email %></strong>
               <br>
               <br>
+              <%if (organizer.type == 0){%>
+                <label for="">logo:</label> 
+                <br>
+                <br>
+                <img src="data:image/jpeg;base64,<%- organizer.logo  %>"/>
+                <br>
+                <br>
+
+                <% } else{ %> 
+                  <%if (organizer.profilePicture == undefined){%>
+                  <label for=""> profile picture:</label> 
+                <br>
+                <br>
+                  <strong>No profile picture available</strong>
+                <br>
+                <br>
+              <% }else {%>
+                <label for="">Organization logo:</label> 
+                <br>
+                <br>
+                <img src="data:image/jpeg;base64,<%- organizer.profilePicture  %>"/>
+                <br>
+                <br>
+                <% }} %>
 
 
-              <label for="">organizer description:</label>
+
+              <label for="">Organizer description:</label>
               <br>
               <br> 
               <strong><%= organizer.description %></strong>
@@ -50,7 +75,7 @@
               <br> 
 
 
-              <label for="">organizer phoneNumber :</label>
+              <label for="">Organizer phonenumber :</label>
               <br>
               <br> 
               <strong><%= organizer.phoneNumber %></strong>
@@ -58,92 +83,110 @@
               <br> 
 
 
-              <label for="">proofImage:</label>
+              <label for="">Proof image:</label>
               <br>
               <br> 
-              <strong><%= organizer.proofImage %></strong>
+              <img src="data:image/jpeg;base64,<%- organizer.proofImage  %>"/>
               <br>
-              <br> 
+              <br>
 
-              <label for="">facebookName:</label>
+              <% if( organizer.facebookName == ''){%>
+              <%} else {%>
+              <label for="">Facebook name:</label>
               <br>
               <br> 
               <strong><%= organizer.facebookName %></strong>
               <br>
               <br> 
+               <%}%>
 
-              <label for="">facebookLink:</label>
+               <% if( organizer.facebookLink == ''){%>
+                  <%} else {%>
+              <label for="">Facebook link:</label>
               <br>
               <br> 
               <strong><%= organizer.facebookLink %></strong>
               <br>
-              <br> 
-              <label for="">instagramLink:</label>
               <br>
-              <br>
-              <strong><%= organizer.instagramLink %></strong>
-              <br>
-              <br> 
+              <%}%>
 
-              <label for="">twitterName:</label>
+              <% if( organizer.InstagramName == ''){%>
+                <%} else {%>
+              <label for="">Instagram name:</label>
+              <br>
+              <br>
+              <strong><%= organizer.instagramName %></strong>
+              <br>
+              <br> 
+              <%}%>
+
+              <% if( organizer.instagramLink == ''){%>
+                <%} else {%>
+            <label for=""> Instagram link:</label>
+            <br>
+            <br> 
+            <strong><%= organizer.instagramLink %></strong>
+            <br>
+            <br>
+            <%}%>
+
+              <% if( organizer.twitterName == ''){%>
+                <%} else {%>
+              <label for="">Twitter name:</label>
               <br>
               <br> 
               <strong><%= organizer.twitterName %></strong>
               <br>
               <br> 
+              <%}%>
 
-              <br>
-              <br> 
-              <label for="">twitterLink:,</label>
+              <% if( organizer.twitterLink == ''){%>
+                <%} else {%>
+              <label for="">Twitter link:</label>
               <br>
               <br> 
               <strong><%= organizer.twitterLink %></strong>
               <br>
               <br> 
+              <% } %> 
 
-              <br>
-              <br> 
-              <label for="">youTubeName:</label>
+
+              <% if( organizer.youTubeName == ''){%>
+                <%} else {%>
+              <label for="">Youtube name:</label>
               <br>
               <br> 
               <strong><%= organizer.youTubeName %></strong>
               <br>
               <br> 
-
+              <% } %> 
               <br>
               <br> 
-              <label for="">youTubeLink:</label>
+
+              <% if( organizer.youTubeLink == ''){%>
+                <%} else {%>
+              <label for="">youTube link:</label>
               <br>
               <br> 
               <strong><%= organizer.youTubeLink %></strong>
               <br>
               <br> 
-
+              <% } %> 
               
               <br> 
               <br> 
-              <label for="">type:</label>
+              <label for=""> Organizer type:</label>
               <strong><%= organizer.type %></strong>
               <br>
               <br>
 
-        <% }); %>
+            </div>
      </div>   
-    <div id= buttons> 
-     <button onclick="sendAnswer()" >Accept </button>
-     <button>Reject</button>
+    
+      <button class="btn" type="button" onclick="window.location.href='/account/<%= organizer.id %>/0'">Accept</button>
+      <button class="btn" type="button" onclick="window.location.href='/account/<%= organizer.id %>/1'">Reject</button>
+     <% }); %>
     </div>
-    <script>
-function sendAnswer() {
-        fetch('/account/response', {
-          method: 'POST',
-          body: new URLSearchParams({
-            organizerID = document.getElementById('organizerID').value,
-          
-          })
-        })
-        .then(req => req.text())
-      }
-    </script>
+
 </body>
 </html>

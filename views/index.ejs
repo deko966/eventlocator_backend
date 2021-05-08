@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <title></title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="../routers/public/style.css">
   </head>
   <body>
     <div class="header">
-      <h1 style= "margin-left: 10px;" ><a href= "index.html">Event Locator Admin</a></h1>
+      <h1 style= "margin-left: 10px;" ><a href= "index">Event Locator Admin</a></h1>
     </div>
     <div id="content"></div>
       <br/>
@@ -25,10 +25,22 @@
         <input type="password" id = "password" placeholder="Password" required>
       </div>
 
-      <button class="btn" type="button" onclick="login()">Login</button>
+      <button class="btn" id="myBtn" type="button"  onkeydown="handleEnter(event)" onclick="login()">Login</button>
     </form>
     </div>
-    <script>
+    <script type="text/javascript">
+              
+
+
+
+      function handleEnter(e) {
+        if(e.keyCode == 13){
+          event.preventDefault()
+          document.getElementById("myBtn").click();
+  }
+}
+
+
       function login() {
         fetch('/admin/login', {
           method: 'POST',

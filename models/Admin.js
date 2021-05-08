@@ -2,7 +2,8 @@ const sql = require('./db.js')
 const bcrypt =require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
-const auth = require('../middleware/auth')
+const auth = require('../middleware/auth');
+const { date } = require('faker');
 
 
 function makeDBQuery(query, arguments) {
@@ -34,7 +35,7 @@ module.exports = {
         adminResult = await makeDBQuery("select loginID,password from admin where loginID = ?",adminID)
        
         if(adminResult.length == 0){
-            return null
+            return -1
         }
         const isMatch = await bcrypt.compare(credentials.password,adminResult[0].password)
        
@@ -48,25 +49,119 @@ module.exports = {
         
         accountStatus = 0;
         eventStatus = 0;
-        Oresult = await makeDBQuery("select id,name, email,phoneNumber,type from organizer where accountStatus = ?",accountStatus)
-        Eresult = await makeDBQuery("select id, name,startDate,endDate from event where status =?",eventStatus )
-        const result = [Oresult,Eresult]
+        organizerResult = await makeDBQuery("select id,name, email,phoneNumber,type from organizer where accountStatus = ?",accountStatus)
+        eventResult = await makeDBQuery("select id, name,startDate,endDate from event where status =?",eventStatus )
+        const result = [organizerResult,eventResult]
         return result;
     },
      getPendingOrganizerInfo: async(organizerID)=>{
         pendingOrganizerID = organizerID
         const result = await makeDBQuery("SELECT id, name, email, description, proofImage, phoneNumber, facebookName, facebookLink, instagramName, instagramLink, twitterName, twitterLink, youTubeName, youTubeLink, type FROM organizer WHERE id =?",pendingOrganizerID)
-        const img = result[0].proofImage.toString('base64')
-        result[0].proofImage=img
+
+        const proofImg = result[0].proofImage.toString('base64')
+        result[0].proofImage=proofImg
+      
+
+        if(result[0].type == 0){
+            const logoResult = await makeDBQuery("select logo from organization where organizerid =?",pendingOrganizerID) 
+            const logo = logoResult[0].logo.toString('base64')
+            result[0].logo=logo 
+        }
+        else{
+            const profilePictureResult = await makeDBQuery("select profilePicture from individual2 where organizerid=?",pendingOrganizerID) 
+           if(profilePictureResult[0].profilePicture==undefined)
+           {
+            return result
+           }
+           else{
+            const profilePicture = profilePictureResult[0].profilePicture.toString('base64')
+            result[0].profilePicture = profilePicture
+           }
+        }
+
         return result
         
      },
 
     getPendingEventInfo: async(eventID) =>{
-        pendingEventID = eventID
-        const result = await makeDBQuery("select ID, name, description, picture as logo, startDate, endDate, registrationCloseDateTime, maxParticipants, WhatsappLink, OrganizerID from event where id =?",pendingEventID)
-        const img = result[0].logo.toString('base64')
-        result[0].logo = img
-        return result
+        let result = []
+        const pendingEventID = eventID
+        const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a/%d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a/%d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
+        let organizerID = eventResult[0].organizerID
+     
+     
+        const organizerResult= await makeDBQuery("select name ,email, phoneNumber from organizer where id =? ",organizerID)
+        const img = eventResult[0].logo.toString('base64')
+        eventResult[0].logo = img
+        let sessions = await makeDBQuery("select id,DATE_FORMAT(session.date,'%d/%m/%Y') as date,startTime,endTime,dayOfWeek from session where eventid = ? ORDER BY id ASC",eventID)
+
+
+        const categoriesResult = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
+        const categories = []
+        for(let k = 0; k < categoriesResult.length; k++)
+        categories.push(categoriesResult[k].category)
+    
+ 
+        const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+       
+        if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
+        let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
+        for(j =0; j< sessions.length; j++){
+            sessions[j].checkInTime = limitedLocatedSessionData[j].checkInTime
+        }
+        }
+        else{
+        for(j =0; j< sessions.length; j++){
+            sessions[j].checkInTime = ""
+      }
     }
+        if(eventResult[0].maxParticipants =-1){
+            eventResult[0].maxParticipants="No limit"
+        }
+
+
+        result = [eventResult,organizerResult,sessions,categories,locatedEventDataResult]
+        return result
+    },
+
+
+    setResponseOrganizer:async(organizerID,adminID,response)=>{
+        let status = 0
+        if(response == 0)
+         status = parseInt(response)+1
+        else{
+            status = parseInt(response) +2
+        }
+        const today = new Date();
+
+        const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        
+        const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        
+        const  dateTime = date+'T'+time;
+        const acceptedinfo=[status,response,dateTime,adminID,organizerID]
+        await makeDBQuery("update organizer set accountstatus=? ,response = ? ,responseDateTime = ?, adminid=? where id =? ",acceptedinfo)
+    },
+    
+    setResponseEvent:async(eventId,adminID,response)=>{
+        let status = 0
+        console.log(response)
+        if(response == 0){
+         status = parseInt(response)+1
+        }
+        else{
+            status = parseInt(response) + 2
+        }
+        const today = new Date();
+
+        const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        
+        const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        
+        const  dateTime = date+'T'+time;
+        const acceptedinfo=[status,response,dateTime,adminID,eventId]
+        await makeDBQuery("update event set status=?,response = ? ,responseDateTime = ?, adminid=? where id =? ",acceptedinfo)
+  
+    },
+
 }

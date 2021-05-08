@@ -65,9 +65,8 @@ authAdmin:(req,res,next) => {
     
     const token = req.cookies.Authorization.replace('Bearer ', '')
     jwt.verify(token, config.adminSecret,(err, decoded)=> {
-        if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
-        req.participantID=decoded.id
-
+        if (err) return res.send(401)
+        req.adminID=decoded.id
         next()
     });
 },
