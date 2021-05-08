@@ -258,15 +258,43 @@ getParticipantByID:async (participantID) =>{
 
 participantRegisterInEvent: async (participantID,eventID, token) => {
   let registrationIDs = [eventID,participantID]
-  let eventInfo = await makeDBQuery("select maxParticipants, CONVERT(EndDate,char)as endDate from event where ID = ?",eventID)
+  let eventInfo = await makeDBQuery("select name, maxParticipants, whatsAppLink, CONVERT(EndDate,char)as endDate from event where ID = ?",eventID)
+  const currentEventSessions = await makeDBQuery("SELECT id,convert(date,char) as date, startTime, endTime FROM session WHERE eventID = ?", eventID)
+  const allEvents = await makeDBQuery("SELECT eventID FROM participantsRegisterInEvent WHERE participantID = ? AND eventID NOT IN (SELECT eventID FROM canceledEvent)", participantID)
   let lastSessionEndTime = await makeDBQuery("SELECT endTime from session WHERE eventID = ? AND id = (SELECT MAX(id) FROM session WHERE eventID = ?)", [eventID, eventID])
   lastSessionEndTime = lastSessionEndTime[0].endTime
   let locatedEventData = await makeDBQuery("SELECT city from locatedevent WHERE eventID = ? ", eventID)
+  const participantEmail = await makeDBQuery("SELECT email FROM participant WHERE id = ?", participantID)
+
+  for(let i = 0; i < allEvents.length; i++){
+    const sessions  = await makeDBQuery("SELECT id,convert(date,char) as date, startTime, endTime FROM session WHERE eventID = ?", allEvents[i].eventID)
+    for(let j = 0; j < sessions.length; j++){
+      for(let k = 0; k < currentEventSessions.length; k++){
+        let currentSessionStartTime = Date.parse(currentEventSessions[k].date+'T'+currentEventSessions[k].startTime)
+        let currentSessionEndTime = Date.parse(currentEventSessions[k].date+'T'+currentEventSessions[k].endTime)
+        
+        let sessionStartTime = Date.parse(sessions[j].date+'T'+sessions[j].startTime)
+        let sessionEndTime = Date.parse(sessions[j].date+'T'+sessions[j].endTime)
+        if (Date.parse(currentEventSessions[k].date) == Date.parse(sessions[j].date)){
+          if (!(currentSessionEndTime < sessionStartTime && currentSessionStartTime > sessionEndTime)){
+            return {conflict: true}
+          }
+        }
+      }
+    }
+  }
   if(eventInfo[0].maxParticipants == -1){
     try{
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
     tokens.addToken(token)
-    emailUtils.sendEmail("aalawneh19@gmail.com", "Welcome", "You registered in an event, thank you for registering")
+    let emailText = "Dear participant,\nYou successfully registered for the event " + eventInfo[0].name + ".\n" +"We hope that you enjoy your time during the event.\n"
+    if (eventInfo[0].whatsAppLink != ""){
+      emailText += "The organizer of this events recommends that you join this whatsapp group to stay updated about the event:\n"
+      emailText += eventInfo[0].whatsAppLink
+    }
+    emailText+="\n\nKind Regards.\nEvent Locator team."
+    
+    emailUtils.sendEmail(participantEmail[0].email, "Successful registration in an event", emailText)
     }
     catch(e){
       return e.message
@@ -287,7 +315,13 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
         })
       }
       tokens.addToken(token)
-      //emailUtils.sendOneEmail(["AHM20170105@std.psut.edu.jo"], "I see you", "Ay yo why don't you check your whatsapp")
+      let emailText = "Dear participant,\nYou successfully registered for the event " + eventInfo[0].name + ".\n" +"We hope that you enjoy your time during the event.\n"
+      if (eventInfo[0].whatsAppLink != ""){
+        emailText += "The organizer of this events recommends that you join this whatsapp group to stay updated about the event:\n"
+        emailText += eventInfo[0].whatsAppLink
+      }
+      emailText+="\n\nKind Regards.\nEvent Locator team."
+      emailUtils.sendEmail(participantEmail[0].email, "Successful registration in an event", emailText)
       return undefined
       }
       catch(e)

@@ -205,7 +205,7 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
     }
 })
 
-router.get('/participants/event/:id/rate',auth.authParticipant, async (req,res)=>{
+router.post('/participants/event/:id/rate',auth.authParticipant, async (req,res)=>{
 
     try{
         const result = await eventModel.addParticipantRating(req.participantID, req.params.id, req.body)
@@ -302,6 +302,20 @@ router.patch('/organizers/events/:id/editPending', auth.authOrganizer, uploads.s
     catch(e){
         res.send(500)
     }
+})
+
+router.patch('/organizers/events/:id/editConfirmed', auth.authOrganizer, async (req,res) => {
+    try{
+        const result = await eventModel.editConfirmedEvent(req.params.id, req.body, req.authOrganizerInfo.id)
+        if (result == null) res.send(201)
+        else res.send(500)
+
+    }
+    catch(e){
+        res.send(500)
+    }
+
+
 })
 
 

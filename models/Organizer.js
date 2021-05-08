@@ -155,7 +155,6 @@ getOrganizerInfo: async (organizerAuthInfo) => {
      const result = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.ParticipantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on participantsfolloworganizer.OrganizerID = Organizer.ID where organizer.id =?"
        ,organizerID)
       const isSuspended = await makeDBQuery("SELECT accountStatus FROM organizer WHERE id = ?", organizerID)
-      console.log(isSuspended)
       if(isSuspended[0].accountStatus == 3){
         return {suspended: true}
       }
