@@ -54,9 +54,7 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
    try{ const events = await eventModel.getUpcomingEvents(req.participantID)
     if(events != null)
     res.status(202).send(events)
-    else{
-        res.send(404)
-    }
+    else res.send(404)
 }
     catch(e){
     res.send(500)
@@ -85,9 +83,7 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
     if(events != null){
         res.status(202).send(events)
     }
-    else{
-        res.send(404)
-    }
+    else if(events == null)res.send(404)
   }
   catch(e){
       res.send(500)

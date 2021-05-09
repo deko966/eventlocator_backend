@@ -24,38 +24,6 @@ function makeDBQuery(query, arguments) {
   })
 }
 
-// function getOrganizerUtil(participantID){
-
-// const organizers = await makeDBQuery("select id, name, rating from participantsfolloworganizer join organizer on organizer.id =participantsfolloworganizer.organizerID and participantsfolloworganizer.ParticipantID = ?" ,participantID)
-//   for(let i=0;i<organizers.length;i++){
-//   organizerID = [organizers[i].id]
-//   const tempResult = await makeDBQuery("select Count(participantID) as followers from participantsfolloworganizer where organizerID = ?",organizerID)
-//   let noOfFollowers = 0
-//     if(tempResult[0].followers!= undefined)
-//       noOfFollowers=tempResult[0].followers
-
-//   result.push({
-//       id:organizers[i].id, 
-//       name: organizers[i].name,
-//       email: "",
-//       about: "",
-//       rating: organizers[i].rating,
-//       socialMediaAccounts: "",
-//       upcomingEvents: "",
-//       previousEvents:"",
-//       canceledEvents:"",
-//       image: "",
-//       numberOfFollowers: noOfFollowers,
-//       isFollowedByCurrentParticipant: true,
-      
-//   })
-//   }
-//   return result 
-// },
-
-
-
-
 module.exports = {
 
   createParticipant: async( participant ) => {

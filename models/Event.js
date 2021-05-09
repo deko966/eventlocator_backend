@@ -264,7 +264,6 @@ module.exports = {
       return await getOrganizerEventsUtil(organizerID)
     }
     catch(e){
-      console.log(e)
       return {failure: true, message: e.message}
     }
   },

@@ -3,7 +3,7 @@ const router =  express.Router()
 const connection = require('../models/db')
 const ParticipantModel = require('../models/Participant')
 const auth = require('../middleware/auth')
-//use the req and the create variables that can be stored in the req 
+
 
 
 router.post('/participants/signup',async (req,res)=>{
@@ -11,13 +11,42 @@ router.post('/participants/signup',async (req,res)=>{
         const participant = await ParticipantModel.createParticipant(req.body) 
         if(participant==undefined)
             res.sendStatus(201)
-        if(participant.includes("ER_DUP_ENTRY")){
-            res.status(409)
-        }
+        else
+            if(participant.includes("ER_DUP_ENTRY")){
+                res.status(409)
+            
+            }
+            else{
+                res.status(500)
+            }
     } 
     catch(e){
         res.status(500)
 
+    }
+})
+
+
+router.post('/participants/signup/partial',async (req,res)=>{
+    
+    try{
+    const participant = await ParticipantModel.partialSignup(req.body)
+      
+    if(participant== null){
+        res.status(200).send()
+    }
+
+    else  
+        if(participant.includes("ER_DUP_ENTRY"))
+            res.status(409)  
+            
+    
+    else
+        res.status(500)
+    
+}
+    catch(e){
+        res.status(500)
     }
 })
 
@@ -33,7 +62,7 @@ router.get('/participants/organizers/all', auth.authParticipant, async (req,res)
         }
     }
     catch(e){
-        res.status(500).send()
+        res.status(500)
     }
     
 })
@@ -60,19 +89,22 @@ router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req
     try{
     const follow = await ParticipantModel.followOrganizer(req.params.id,req.participantID)
    if(follow == null)
-    res.status(200).send()
+    res.status(200)
     
     else{
         if(follow.includes("ER_DUP_ENTRY"))
-            res.status(409).send()
+            res.status(409)
         else{
             if(follow.includes("ER_NO_REFERENCED"))
-                res.status(406).send()
+                res.status(406)
+        else{
+            res.status(500)
+        }
         }
     }
 }
     catch(e){
-        res.status(500).send()
+        res.status(500)
     }
 
 })
@@ -97,13 +129,16 @@ router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (r
     try{
         const follow = await ParticipantModel.unfollowOrganizer(req.params.id,req.participantID)
         if(follow == null)
-            res.sendStatus(200)
+            res.status(200)
         else{
             if(follow.includes("ER_DUP_ENTRY"))
-                res.sendStatus(409)
+                res.status(409)
             else{
                 if(follow.includes("ER_NO_REFERENCED"))
-                    res.sendStatus(406)
+                    res.status(406)
+                    else{
+                        res.status(500)
+                    }
             }
         }
     }
@@ -119,11 +154,11 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
     if(organizer!=undefined)
     res.status(202).send(organizer)
       else{
-          res.status(404).send()
+          res.status(404)
       }
     }
     catch(e){
-        res.status(500).send()
+        res.status(500)
     }
 })
 
@@ -162,7 +197,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
     catch(e){
         res.send(500)
     }
-})
+  })
 
   router.post('/participants/event/:id/unregister', auth.authParticipant, async(req,res)=>{
     try{

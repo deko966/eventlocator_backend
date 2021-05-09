@@ -17,17 +17,14 @@ const uploads = multer({
 
 })
    
-//first picture is the proof second is profile
-//image stored in the req.files[0].Buffer
 
 
 router.post('/organizers/login',async (req,res)=>{
    try{ 
         const token = await OrganizerModel.login(req.body)
-        if (token != null)
-            res.status(202).send(token)
-        else if (token == null)
-                res.send(404)
+        if (token != null) res.status(202).send(token)
+        else if (token == null) res.send(404)
+        else res.send(500)
     }
     catch(e){
         res.send(500)
@@ -100,6 +97,7 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
         if(organizerResult.includes("ER_DUP_ENTRY")){
             res.send(409)
         } 
+        else{res.send(500)}
         }
     }
     catch(e){
@@ -163,7 +161,7 @@ router.patch('/organizers/editProfile', auth.authOrganizer,uploads.single('image
         else res.send(500)
     }
     catch(e){
-        console.log(e)
+       
         res.send(500)
     }
 })
