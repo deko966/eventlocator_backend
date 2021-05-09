@@ -22,25 +22,6 @@ router.post('/participants/signup',async (req,res)=>{
 })
 
 
-router.post('/participants/signup/partial',async (req,res)=>{
-    
-    try{
-    const participant = await ParticipantModel.partialSignup(req.body)
-      
-    if(participant== null){
-        res.status(200).send()
-    }
-
-    else{    
-        res.status(409).send()
-    }
-    }
-    catch(e){
-        res.status(500).send()
-    }
-})
-
-
 router.get('/participants/organizers/all', auth.authParticipant, async (req,res) =>{
     try{
         const organizers = await ParticipantModel.getAllOrganizers()
@@ -181,7 +162,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
     catch(e){
         res.send(500)
     }
-  })
+})
 
   router.post('/participants/event/:id/unregister', auth.authParticipant, async(req,res)=>{
     try{

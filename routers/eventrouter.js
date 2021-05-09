@@ -128,7 +128,6 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
 
 router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID/confirm', 
     auth.authOrganizer, async (req, res) =>{
-    
         try{
             await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID)
             res.send(200)
@@ -136,7 +135,6 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
         catch(e){
             res.send(500)
         }
-
 })
 
 router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID', 
@@ -151,7 +149,6 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
             res.send(500)
         }
 })
-
 
 
 
@@ -174,14 +171,14 @@ catch(e){
 
 router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticipant, async (req,res) =>{
     try{
-    const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
-    if(events != null)
-    res.status(202).send(events)
-    else{
+        const events = await eventModel.getUpcomingEventsByFollowedOrganizers(req.participantID)
+        if(events != null)
+        res.status(202).send(events)
+        else{
 
-        res.send(404)
+            res.send(404)
+        }
     }
-}
     catch(e){
         res.send(500)
     }
@@ -211,12 +208,11 @@ router.post('/participants/event/:id/rate',auth.authParticipant, async (req,res)
         const result = await eventModel.addParticipantRating(req.participantID, req.params.id, req.body)
         if(result == null)
         res.send(200)
-        else
-        if(result.includes("ER_DUP_ENTRY"))
+        else if(result.includes("ER_DUP_ENTRY"))
             res.send(409)
-        else
-            if(result.includes("ER_NO_REFERENCED"))
+        else if(result.includes("ER_NO_REFERENCED"))
             res.send(406)
+        else res.send(500)
     }
     catch(e){
         res.send(500)
@@ -230,30 +226,27 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
         eventResult = await eventModel.cancelEvent(req.body,req.params.id, req.params.late, req.authOrganizerInfo.id)
         if(eventResult == null)
         res.send(200)
-        else
-        if(eventResult.includes("ER_DUP_ENTRY"))
+        else if(eventResult.includes("ER_DUP_ENTRY"))
             res.send(409)
-        else
-            if(eventResult.includes("ER_NO_REFERENCED"))
+        else if(eventResult.includes("ER_NO_REFERENCED"))
             res.send(406)
+        else res.send(500)
     }
     catch(e){  
-       
         res.send(500)
-
     }
 })
 
 
 router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,res) =>{
     try{
-    const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
-    if(participants!=null){
-    res.status(200).send(participants)
-    }
-    else{
-        res.send(404)
-    }
+        const participants =await eventModel.getParticipantsOfAnEvent(req.params.id)
+        if(participants!=null){
+        res.status(200).send(participants)
+        }
+        else{
+            res.send(404)
+        }
     }
     catch(e){
         res.send(500)
@@ -265,7 +258,7 @@ router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, as
 
     try{
         const data = await eventModel.getEventStatistics(req.params.id)
-        res.send(200)
+        res.status(200).send(data)
     }
     catch(e){
         res.send(500)

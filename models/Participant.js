@@ -59,7 +59,6 @@ function makeDBQuery(query, arguments) {
 module.exports = {
 
   createParticipant: async( participant ) => {
-  
    try{ 
      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
    }
@@ -87,23 +86,12 @@ module.exports = {
         categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
       }
       try{
-        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert )
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
       }
       catch(e){
         return e.message
       }
   },
-
-
-
-
-partialSignup: async (email) =>{
-  emailInput =[email]
-  
-  result = await makeDBQuery("select email from participant where email =?",emailInput)
-  
-  return result[0]
-},
 
 
 
