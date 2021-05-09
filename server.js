@@ -23,7 +23,7 @@ app.use(AdminRouter)
 app.use(EventRouter)
 app.use(OrganizerRouter)
 app.use(ParticipantRouter)
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 3000
 
 
 
