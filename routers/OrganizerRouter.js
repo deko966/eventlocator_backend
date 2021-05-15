@@ -78,6 +78,7 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 }),
