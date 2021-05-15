@@ -8,7 +8,6 @@ const emailUtils = require('../utils/emailUtils');
 
 
 router.post('/signup/admin',async (req,res)=>{
-    
     await AdminModel.signup(req.body)   
 }),
 

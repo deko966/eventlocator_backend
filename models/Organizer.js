@@ -53,13 +53,11 @@ module.exports = {
         }
   
       if (type == 1) {
-        try{  
+        
           await makeDBQuery("INSERT INTO organizer (Name,Email,Password,Description,PhoneNumber,FacebookName,FacebookLink,YouTubeName,YouTubeLink,InstagramName,InstagramLink,TwitterName,TwitterLink,Type,proofImage) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
           ,generalInput);
-        }
-        catch(e){
-          return e.message
-        }
+        
+       
           if(images[1]==undefined){
            checkedImage=images[1]=null
           }
@@ -150,7 +148,7 @@ getOrganizerFollowers:async (organizerID)=>{
 
 getOrganizerInfo: async (organizerAuthInfo) => {
     organizerID = [organizerAuthInfo.id]
-    //join first with the organizer type then with the followers table
+ 
     if (organizerAuthInfo.type == 0){
      const result = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.ParticipantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on participantsfolloworganizer.OrganizerID = Organizer.ID where organizer.id =?"
        ,organizerID)

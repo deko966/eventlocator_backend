@@ -91,7 +91,7 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
         const organizer =  JSON.parse(req.body.organizer)
         organizerResult= await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
         if(organizerResult == undefined){
-            res.status(201).send()
+            res.send(201)
         }
         else{
         if(organizerResult.includes("ER_DUP_ENTRY")){
