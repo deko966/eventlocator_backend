@@ -26,7 +26,7 @@ module.exports = {
       
         hashed = await bcrypt.hashSync(credential.password, 8)
         credentials =[credential.loginID,hashed]
-        await makeDBQuery("insert into admin ( loginID,password) values (?,?)",credentials)
+        await makeDBQuery("insert into admin (loginID,password) values (?,?)",credentials)
 
     },
     login: async(credentials)=>{

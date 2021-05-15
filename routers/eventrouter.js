@@ -62,7 +62,7 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
 })
 
 router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
-   try{
+    try{
         const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
         if(events.failure){
             res.send(500)
@@ -71,7 +71,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
             res.send(404)
         }
         else res.status(200).send(events)
-    }
+   }
     catch(e){
         res.send(500)
     }
