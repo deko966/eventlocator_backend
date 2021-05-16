@@ -27,12 +27,11 @@ function makeDBQuery(query, arguments) {
 module.exports = {
 
   createParticipant: async( participant ) => {
-   try{ 
+   
      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
-   }
-   catch(e){
-     return e.message
-   }
+     if (emailCheck.length == 0) return {exists: true}
+
+
       hashed = bcrypt.hashSync(participant.password, 8)
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
       try{

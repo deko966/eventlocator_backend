@@ -36,10 +36,11 @@ router.post('/participants/signup/partial',async (req,res)=>{
         res.status(200).send()
     }
 
-    else  
-        if(participant.includes("ER_DUP_ENTRY"))
-            res.status(409)  
-            
+    else
+        if (participant.exists){
+            res.status(409)
+        
+        }
     
     else
         res.status(500)
