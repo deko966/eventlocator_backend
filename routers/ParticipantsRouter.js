@@ -10,15 +10,13 @@ router.post('/participants/signup',async (req,res)=>{
     try{
         const participant = await ParticipantModel.createParticipant(req.body) 
         if(participant==undefined)
-            res.sendStatus(201)
-        else
-            if(participant.includes("ER_DUP_ENTRY")){
-                res.status(409)
-            
-            }
-            else{
-                res.status(500)
-            }
+            res.send(201)
+        else if(participant.exists){
+            res.status(409)
+        }
+        else {
+            res.status(500)
+        }
     } 
     catch(e){
         res.status(500)
