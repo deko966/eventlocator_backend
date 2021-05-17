@@ -9,6 +9,7 @@ const schedule = require('node-schedule')
 const moment = require('moment')
 let tokens = require('../utils/tokens')
 const emailUtils = require('../utils/emailUtils');
+const { sendOneEmail } = require('../utils/emailUtils');
 
 
 function makeDBQuery(query, arguments) {
@@ -27,7 +28,7 @@ function makeDBQuery(query, arguments) {
 module.exports = {
 
   createParticipant: async( participant ) => {
-   
+    console.log(participant)
      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
      if (emailCheck.length == 0) return {exists: true}
 
@@ -36,6 +37,7 @@ module.exports = {
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
       try{
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
+      console.log("Here3")
       }
       catch(e){
         return e.message
@@ -43,6 +45,7 @@ module.exports = {
       const email = [participant.email] 
       try{
       participantID = await makeDBQuery("select id from participant where email = ?",email)
+      console.log("Here4")
       }
       catch(e){
         return e.message
@@ -54,6 +57,7 @@ module.exports = {
       }
       try{
         result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
+        console.log("Here5")
       }
       catch(e){
         return e.message
