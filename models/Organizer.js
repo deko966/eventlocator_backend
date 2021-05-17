@@ -156,6 +156,7 @@ getOrganizerInfo: async (organizerAuthInfo) => {
       if(isSuspended[0].accountStatus == 3){
         return {suspended: true}
       }
+      
       if(result.length == 0) {
         return null
       }
