@@ -151,12 +151,12 @@ getOrganizerInfo: async (organizerAuthInfo) => {
     //join first with the organizer type then with the followers table
     if (organizerAuthInfo.type == 0){
      const result = await makeDBQuery("select organizer.id,IFNULL((SELECT COUNT(*) FROM participantsfolloworganizer WHERE organizerID = ?),0) as followers,organization.logo as image , name, email, description, phoneNumber, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID WHERE organizer.id =?"
-       ,organizerID)
+       ,[organizerID, organizerID])
       const isSuspended = await makeDBQuery("SELECT accountStatus FROM organizer WHERE id = ?", organizerID)
       if(isSuspended[0].accountStatus == 3){
         return {suspended: true}
       }
-      
+
       if(result.length == 0) {
         return null
       }
