@@ -160,7 +160,7 @@ unfollowOrganizer:async (organizerID,participantID)=>{
       
       else{
         let pic = ""
-        if (individualResult[0].profilePicture != null) pic = Buffer.from(result[0].profilePicture.buffer).toString('base64')
+        if (individualResult[0].profilePicture != null) pic = Buffer.from(individualResult[0].profilePicture.buffer).toString('base64')
         result.push({
           id:individualResult[0].id,
           name: individualResult[0].name,
