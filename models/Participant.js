@@ -124,8 +124,8 @@ unfollowOrganizer:async (organizerID,participantID)=>{
   
     
     if(type[0].type == 0){
-      const organizationResult = await makeDBQuery("select organizer.id,IFNULL(count( participantsfolloworganizer.participantID),0) as followers,organization.logo as image , name, email, description, phoneNumber, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID join participantsfolloworganizer on participantsfolloworganizer.OrganizerID=organizer.id where organizer.id =?"
-      ,organizerID)
+      const organizationResult = await makeDBQuery("select organizer.id,IFNULL((SELECT COUNT(*) FROM participantsfolloworganizer WHERE organizerID = ?),0) as followers,organization.logo as image , name, email, description, phoneNumber, facebookName,facebookLink,youTubeName,youTubeLink,instagramName,instagramLink,twitterName,twitterLink FROM organizer JOIN organization ON organizer.id=organization.OrganizerID where organizer.id =?"
+      ,[organizerID, organizerID])
     
      const rating = await ratingUtils.getOrganizerRating(organizerID)
       if( organizationResult == undefined ){
@@ -145,15 +145,15 @@ unfollowOrganizer:async (organizerID,participantID)=>{
             {accountName:organizationResult[0].twitterName,url:organizationResult[0].twitterLink}
           ],
           numberOfFollowers:organizationResult[0].followers,
-          image:Buffer.from(organizationResult[0].image.buffer).toString('base64'),
+          image:Buffer.from(organizationResult[0].image).toString('base64'),
           isFollowedByCurrentParticipant:followed
         })
         return result[0]
       }
 }
       if (type[0].type == 1 ){
-        const individualResult = await makeDBQuery("SELECT IFNULL(count( participantsfolloworganizer.participantID),0) as followers,individual2.profilePicture ,organizer.id, name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink, linkedInName, linkedInLink FROM organizer JOIN individual2 ON organizer.id=individual2.OrganizerID join participantsfolloworganizer on individual2.OrganizerID = participantsfolloworganizer.OrganizerID where organizer.id =?"
-        ,organizerID)
+        const individualResult = await makeDBQuery("SELECT IFNULL((SELECT COUNT(*) FROM participantsfolloworganizer WHERE organizerID = ?),0) as followers,individual2.profilePicture ,organizer.id, name, email, description, phoneNumber, rating, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink, linkedInName, linkedInLink FROM organizer JOIN individual2 ON organizer.id=individual2.OrganizerID where organizer.id =?"
+        ,[organizerID,organizerID])
 
     if (individualResult == undefined)
         return null
