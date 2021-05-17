@@ -132,6 +132,7 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
       }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
