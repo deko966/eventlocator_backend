@@ -29,7 +29,7 @@ module.exports = {
 
   createParticipant: async( participant ) => {
      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
-     if (emailCheck.length == 0) return {exists: true}
+     if (emailCheck.length != 0) return {exists: true}
 
 
       hashed = bcrypt.hashSync(participant.password, 8)
@@ -38,13 +38,11 @@ module.exports = {
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
       }
       catch(e){
-        console.log(e.message)
         return e.message
       }
       const email = [participant.email] 
       try{
       participantID = await makeDBQuery("select id from participant where email = ?",email)
-      console.log("Here4")
       }
       catch(e){
         return e.message
@@ -56,7 +54,6 @@ module.exports = {
       }
       try{
         result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
-        console.log("Here5")
       }
       catch(e){
         return e.message
