@@ -145,7 +145,7 @@ unfollowOrganizer:async (organizerID,participantID)=>{
             {accountName:organizationResult[0].twitterName,url:organizationResult[0].twitterLink}
           ],
           numberOfFollowers:organizationResult[0].followers,
-          image:Buffer.from(organizationResult[0].image).toString('base64'),
+          image:Buffer.from(organizationResult[0].image.buffer).toString('base64'),
           isFollowedByCurrentParticipant:followed
         })
         return result[0]
