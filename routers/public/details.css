@@ -72,9 +72,10 @@
     text-align: center;
     border-radius: 10px;
   }
-  #img{
+  .img{
     width: 200px;
     height: 250px;
     object-fit:cover ;
+    border-radius: 4px;
 
   }
