@@ -73,9 +73,8 @@
     border-radius: 10px;
   }
   .img{
-    max-width: 200px;
-    max-height: 250px;
-    min-width: 250px;
-    min-height: 250px;
+    width: 200px;
+    height: 250px;
+    object-fit:cover ;
 
   }
