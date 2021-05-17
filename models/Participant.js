@@ -28,7 +28,6 @@ function makeDBQuery(query, arguments) {
 module.exports = {
 
   createParticipant: async( participant ) => {
-    console.log(participant)
      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
      if (emailCheck.length == 0) return {exists: true}
 
@@ -37,9 +36,9 @@ module.exports = {
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
       try{
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
-      console.log("Here3")
       }
       catch(e){
+        console.log(e.message)
         return e.message
       }
       const email = [participant.email] 

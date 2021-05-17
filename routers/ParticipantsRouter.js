@@ -10,7 +10,7 @@ router.post('/participants/signup',async (req,res)=>{
     console.log("Here1")
     try{
         const participant = await ParticipantModel.createParticipant(req.body)
-        console.log("HERE2")
+        console.log(participant)
         if(participant==undefined)
             res.send(201)
         else if(participant.exists){
