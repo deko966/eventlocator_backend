@@ -154,9 +154,9 @@ unfollowOrganizer:async (organizerID,participantID)=>{
       if (type[0].type == 1 ){
         const individualResult = await makeDBQuery("SELECT IFNULL((SELECT COUNT(*) FROM participantsfolloworganizer WHERE organizerID = ?),0) as followers,individual2.profilePicture ,organizer.id, name, email, description, phoneNumber, facebookName,facebookLink,instagramName,instagramLink,twitterName,twitterLink,youTubeName,youTubeLink, linkedInName, linkedInLink FROM organizer JOIN individual2 ON organizer.id=individual2.OrganizerID where organizer.id =?"
         ,[organizerID,organizerID])
-
-    if (individualResult == undefined)
-        return null
+        const rating = await ratingUtils.getOrganizerRating(organizerID)
+        if (individualResult == undefined)
+          return null
       
       else{
         let pic = ""
