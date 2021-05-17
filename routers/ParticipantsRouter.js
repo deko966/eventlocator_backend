@@ -8,7 +8,7 @@ const auth = require('../middleware/auth')
 
 router.post('/participants/signup',async (req,res)=>{
     try{
-        const participant = await ParticipantModel.createParticipant(req.body) 
+        const participant = await ParticipantModel.createParticipant(req.body)
         if(participant==undefined)
             res.send(201)
         else if(participant.exists){
@@ -23,8 +23,6 @@ router.post('/participants/signup',async (req,res)=>{
 
     }
 })
-
-
 
 
 router.get('/participants/organizers/all', auth.authParticipant, async (req,res) =>{
@@ -65,7 +63,7 @@ router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req
     try{
     const follow = await ParticipantModel.followOrganizer(req.params.id,req.participantID)
    if(follow == null)
-    res.status(200)
+    res.send(200)
     
     else{
         if(follow.includes("ER_DUP_ENTRY"))
@@ -130,11 +128,11 @@ router.get('/participants/organizer/:id', auth.authParticipant, async(req,res)=>
     if(organizer!=undefined)
     res.status(202).send(organizer)
       else{
-          res.status(404)
+          res.send(404)
       }
     }
     catch(e){
-        res.status(500)
+        res.send(500)
     }
 })
 
@@ -166,7 +164,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
             res.send(406)
         }
         else{
-            res.status(500)
+            res.send(500)
         }
 
     }

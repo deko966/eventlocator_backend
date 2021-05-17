@@ -9,6 +9,7 @@ const schedule = require('node-schedule')
 const moment = require('moment')
 let tokens = require('../utils/tokens')
 const emailUtils = require('../utils/emailUtils');
+const { sendOneEmail } = require('../utils/emailUtils');
 
 
 function makeDBQuery(query, arguments) {
@@ -27,9 +28,8 @@ function makeDBQuery(query, arguments) {
 module.exports = {
 
   createParticipant: async( participant ) => {
-   
      emailCheck = await makeDBQuery("select email from participant where email =?",participant.email)
-     if (emailCheck.length == 0) return {exists: true}
+     if (emailCheck.length != 0) return {exists: true}
 
 
       hashed = bcrypt.hashSync(participant.password, 8)
