@@ -45,6 +45,7 @@ router.get("/organizers/events/limited/:id/participants", auth.authOrganizer, as
         else res.status(200).send(participants)
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -57,6 +58,7 @@ router.get('/participants/events/upcoming',auth.authParticipant, async (req,res)
     else res.send(404)
 }
     catch(e){
+    console.log(e)
     res.send(500)
 }
 })
@@ -73,6 +75,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
         else res.status(200).send(events)
    }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -86,6 +89,7 @@ router.get('/participants/events',auth.authParticipant, async (req,res) =>{
     else if(events == null)res.send(404)
   }
   catch(e){
+    console.log(e)
       res.send(500)
   }
 })
@@ -100,6 +104,7 @@ router.get('/organizers/events/:id/feedback', auth.authOrganizer, async (req,res
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 }),
@@ -118,6 +123,7 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
     }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -129,6 +135,7 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
             res.send(200)
         }
         catch(e){
+            console.log(e)
             res.send(500)
         }
 })
@@ -142,6 +149,7 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
             else res.status(200).send(res)
         }
         catch(e){
+            console.log(e)
             res.send(500)
         }
 })
@@ -159,6 +167,7 @@ router.get('/participants/organizer/:id/events', auth.authParticipant, async (re
     }
 }
 catch(e){
+    console.log(e)
     res.send(500)
 }
 
@@ -176,6 +185,7 @@ router.get('/participants/events/upcomingByFollowedOrganizers',auth.authParticip
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -194,6 +204,7 @@ router.get('/participants/event/:id',auth.authParticipant, async (req,res)=>{
     }
 }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -211,6 +222,7 @@ router.post('/participants/event/:id/rate',auth.authParticipant, async (req,res)
         else res.send(500)
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 
@@ -229,6 +241,7 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
         else res.send(500)
     }
     catch(e){  
+        console.log(e)
         res.send(500)
     }
 })
@@ -245,6 +258,7 @@ router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -257,6 +271,7 @@ router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, as
         res.status(200).send(data)
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 
@@ -273,6 +288,7 @@ router.post('/organizers/events/:id/emailParticipants', auth.authOrganizer, asyn
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -289,6 +305,7 @@ router.patch('/organizers/events/:id/editPending', auth.authOrganizer, uploads.s
         else res.send(500)
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -301,6 +318,7 @@ router.patch('/organizers/events/:id/editConfirmed', auth.authOrganizer, async (
 
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 

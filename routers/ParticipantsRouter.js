@@ -19,6 +19,7 @@ router.post('/participants/signup',async (req,res)=>{
         }
     } 
     catch(e){
+        console.log(e)
         res.send(500)
 
     }
@@ -36,6 +37,7 @@ router.get('/participants/organizers/all', auth.authParticipant, async (req,res)
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
     
@@ -54,6 +56,7 @@ router.post('/participants/login',async (req,res)=>{
             res.send(404)
 }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 }),
@@ -78,6 +81,7 @@ router.post('/participants/follow/organizer/:id',auth.authParticipant,async (req
     }
 }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 
@@ -94,6 +98,7 @@ router.get('/participants/organizers/followed', auth.authParticipant, async(req,
      }
     }
      catch(e){
+        console.log(e)
          res.status(500).send(e)
      }
  })
@@ -117,6 +122,7 @@ router.post('/participants/unfollow/organizer/:id',auth.authParticipant,async (r
         }
     }
     catch(e){
+        console.log(e)
         res.status(500).send()
     }
 
@@ -148,7 +154,8 @@ router.get('/participant/information', auth.authParticipant, async(req,res) =>{
         else res.send(404)
     }
     catch(e){
-        res.status(500).send()
+        console.log(e)
+        res.send(500)
     }
     
 
@@ -170,6 +177,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
 
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
   })
@@ -191,7 +199,8 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
             res.send(500)
         }
     }
-    catch(e){     
+    catch(e){  
+        console.log(e)   
          res.send(500)
      }
   })  
@@ -207,6 +216,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
         else res.send(500)
       }
       catch(e){
+        console.log(e)
           res.send(500)
       }
   })
@@ -220,6 +230,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
         else res.send(500)
       }
       catch(e){
+        console.log(e)
           res.send(500)
       }
   })
@@ -231,6 +242,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
         else res.send(500)
       }
       catch(e){
+        console.log(e)
         res.send(500)
       }
   })

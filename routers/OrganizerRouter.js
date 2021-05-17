@@ -27,6 +27,8 @@ router.post('/organizers/login',async (req,res)=>{
         else res.send(500)
     }
     catch(e){
+
+        console.log(e)
         res.send(500)
     }
 }),
@@ -42,7 +44,7 @@ router.post('/organizers/login',async (req,res)=>{
         }
     }
     catch(e){
-      
+        console.log(e)
         res.send(500)
     }
 
@@ -58,6 +60,7 @@ router.get('/organizers/profile/type',auth.authOrganizer ,async (req,res) =>{
     }
  }
  catch(e){
+     console.log(e)
      res.send(500)
  }
 }),
@@ -102,6 +105,7 @@ router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=
         }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }    
    
@@ -118,6 +122,7 @@ router.get('/organizers/followers',auth.authOrganizer,async (req,res)=>{
     }
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 
@@ -133,6 +138,7 @@ router.get('/organizers/followers',auth.authOrganizer,async (req,res)=>{
       else res.send(500)
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -146,6 +152,7 @@ router.patch('/organizers/changePassword', auth.authOrganizer, async(req,res) =>
       else res.send(500)
     }
     catch(e){
+        console.log(e)
         res.send(500)
     }
 })
@@ -162,7 +169,7 @@ router.patch('/organizers/editProfile', auth.authOrganizer,uploads.single('image
         else res.send(500)
     }
     catch(e){
-       
+       console.log(e)
         res.send(500)
     }
 })
