@@ -60,14 +60,17 @@ module.exports = {
 
         const proofImg = result[0].proofImage.toString('base64')
         result[0].proofImage=proofImg
-      
+        
 
         if(result[0].type == 0){
             const logoResult = await makeDBQuery("select logo from organization where organizerid =?",pendingOrganizerID) 
             const logo = logoResult[0].logo.toString('base64')
             result[0].logo=logo 
+            result[0].type ="organization"
+            
         }
         else{
+            result[0].type="individual"
             const profilePictureResult = await makeDBQuery("select profilePicture from individual2 where organizerid=?",pendingOrganizerID) 
            if(profilePictureResult[0].profilePicture==undefined)
            {
