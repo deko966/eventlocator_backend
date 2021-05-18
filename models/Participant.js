@@ -36,26 +36,13 @@ module.exports = {
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
       try{
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
-      }
-      catch(e){
-        return e.message
-      }
       const email = [participant.email] 
-      try{
-      participantID = await makeDBQuery("select id from participant where email = ?",email)
-      }
-      catch(e){
-        return e.message
-      }
-      const categoriesToInsert = []
+      let participantID = await makeDBQuery("select id from participant where email = ?",email)
       numberOfCategories = participant.preferredEventCategories.length
       for(let i=0;i<numberOfCategories;i++){
-        categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID[0].id,participant.preferredEventCategories[i]])
       }
-      try{
-   
-        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
-      }
+    }
       catch(e){
         return e.message
       }
@@ -250,7 +237,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
     }
     emailText+="\n\nKind Regards.\nEvent Locator team."
     
-    emailUtils.sendEmail(participantEmail[0].email, "Successful registration in an event", emailText)
+    emailUtils.sendOneEmail(participantEmail[0].email, "Successful registration in an event", emailText)
     }
     catch(e){
       return e.message
@@ -402,12 +389,11 @@ editParticipantCityAndCategories: async(participantID, participant) => {
   try{
     await makeDBQuery("UPDATE participant SET city = ? WHERE id = ?", [participant.city, participantID])
     await makeDBQuery("DELETE FROM participantpreferredeventcategories WHERE ParticipantID = ?", participantID)
-    const categoriesToInsert = []
     numberOfCategories = participant.preferredEventCategories.length
     for(let i=0;i<numberOfCategories;i++){
-      categoriesToInsert.push([participantID,participant.preferredEventCategories[i]])
+      result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID,participant.preferredEventCategories[i]])
     }
-    result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
+    
     return null
   }
   catch(e){

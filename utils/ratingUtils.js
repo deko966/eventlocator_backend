@@ -41,8 +41,9 @@ function makeDBQuery(query, arguments) {
   }
 
   const getOrganizerRatingUtil = async (organizerID) => {
+    const penalty = await makeDBQuery("SELECT ratingPenalty FROM organizer WHERE id = ?", organizerID)
     const result = await getFinishedEvents(organizerID)
-    if (result.length == 0) return 5.0
+    if (result.length == 0) return 5.0 - penalty[0].ratingPenalty
     let count = 0
     let sum = 0.0;
     for(let i = 0; i < result.length; i++ ){
@@ -52,7 +53,7 @@ function makeDBQuery(query, arguments) {
             sum += temp;
         }
     }
-    return sum/count
+    return (sum/count) - penalty[0].ratingPenalty
   }
 
   const checkToSuspendOrganizer = async (organizerID) => {
@@ -73,12 +74,12 @@ module.exports = {
     },
 
     applyPenaltyToAnOrganizer: async (organizerID) => {
-        await makeDBQuery("UPDATE organizer SET ratingPenalty = ((ratingPenatly*1000) + (0.4*1000)) WHERE organizerID = ?", organizerID)
+        await makeDBQuery("UPDATE organizer SET ratingPenalty = ((ratingPenalty*1000) + (0.4*1000))/1000 WHERE id = ?", organizerID)
         checkToSuspendOrganizer(organizerID)
     },
 
     removePenatlyFromAnOrganizer: async (organizerID) => {
-        await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(((ratingPenatly*1000) - (0.2*1000))/1000, 0.0) WHERE ID = ?", organizerID)
+        await makeDBQuery("UPDATE organizer SET ratingPenalty = GREATEST(((ratingPenalty*1000) - (0.2*1000))/1000, 0.0) WHERE ID = ?", organizerID)
     },
 
     addParticipantRating: async (participantID, eventID, rating, feedback) => {

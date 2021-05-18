@@ -67,6 +67,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
     try{
         const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
         if(events.failure){
+            console.log(events.message)
             res.send(500)
         }
         else if (events.length ==0){
@@ -238,7 +239,10 @@ router.post('/organizers/events/:id/cancel/:late',auth.authOrganizer,async (req,
             res.send(409)
         else if(eventResult.includes("ER_NO_REFERENCED"))
             res.send(406)
-        else res.send(500)
+        else {
+            console.log(eventResult)
+            res.send(500)
+        }
     }
     catch(e){  
         console.log(e)
