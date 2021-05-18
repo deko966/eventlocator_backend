@@ -237,7 +237,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
     }
     emailText+="\n\nKind Regards.\nEvent Locator team."
     
-    emailUtils.sendEmail(participantEmail[0].email, "Successful registration in an event", emailText)
+    emailUtils.sendOneEmail(participantEmail[0].email, "Successful registration in an event", emailText)
     }
     catch(e){
       return e.message
