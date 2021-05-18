@@ -764,7 +764,7 @@ module.exports = {
     for(let i = 0; i < participants.length; i++){
       emailList.push(participants[i].email)
     }
-    let preMessage = "The following email is sent by" + eventData[0].organizerName +", who is organizing the event: " + eventData[0].eventName +"\n"
+    let preMessage = "The following email is sent by " + eventData[0].organizerName +", who is organizing the event: " + eventData[0].eventName +"\n"
     preMessage += "You recieved this email because you are currently registered in this event.\n----------------------------------------------\n"
     emailUtils.sendMultipleEmails(emailList, emailData[0], preMessage + emailData[1])
   },
