@@ -53,6 +53,7 @@ module.exports = {
         categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
       }
       try{
+   
         result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
       }
       catch(e){
