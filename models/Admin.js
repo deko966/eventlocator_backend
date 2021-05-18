@@ -111,8 +111,9 @@ module.exports = {
  
         const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
         
-        let cityName = cities[i] = locatedEventDataResult[0].city
-        locatedEventDataResult[0].city = cityName
+        let cityName = cities[i] = locatedEventDataResult.city
+        console.log(locatedEventDataResult)
+        locatedEventDataResult.city = cityName
         console.log(cityName)
         if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
         let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
