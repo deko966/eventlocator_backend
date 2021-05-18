@@ -73,7 +73,7 @@ module.exports = {
     },
 
     applyPenaltyToAnOrganizer: async (organizerID) => {
-        await makeDBQuery("UPDATE organizer SET ratingPenalty = ((ratingPenalty*1000) + (0.4*1000)) WHERE id = ?", organizerID)
+        await makeDBQuery("UPDATE organizer SET ratingPenalty = ((ratingPenalty*1000) + (0.4*1000))/1000 WHERE id = ?", organizerID)
         checkToSuspendOrganizer(organizerID)
     },
 
