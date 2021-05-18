@@ -45,7 +45,7 @@ const getOrganizerEventsUtil = async (organizerID) => {
       }
     }
 
-    const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", id)
+    const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancellationDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", id)
   
     const categoriesResult = await makeDBQuery("SELECT category from eventCategories WHERE EventID = ?", id)
 
@@ -120,7 +120,7 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
     }
   }
 
-  const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
+  const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancellationDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
 
   const categoriesResult = await makeDBQuery("SELECT category from eventCategories WHERE EventID = ?", eventID)
 
@@ -294,7 +294,7 @@ module.exports = {
       }
     }
 
-    const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
+    const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancellationDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
     
     let locatedEventData= null
     let locations = []
@@ -534,7 +534,7 @@ module.exports = {
       }
     }
 
-    const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
+    const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancellationDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
     
     let locatedEventData= null
     let locations = []
@@ -641,7 +641,7 @@ module.exports = {
         }
       }
   
-      const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancelDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
+      const canceledEventDataResult = await makeDBQuery("SELECT cancellationReason, convert(cancellationDateTime,char) as cancellationDateTime from canceledevent where EventID = ?", eventID)
       
       let locatedEventData= null
       let locations = []
