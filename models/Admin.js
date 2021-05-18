@@ -91,7 +91,7 @@ module.exports = {
         let result = []
         let days = []
         let i = 0
-        let city = ["Amman","Al-Zarqa","Al-Balqa","Madaba","Irbid","Al-Mafraq","Jerash","Ajloun","Al-Karak","Al-Aqaba","Ma\`an","Al-Tafila"]
+        let cities = ["Amman","Al-Zarqa","Al-Balqa","Madaba","Irbid","Al-Mafraq","Jerash","Ajloun","Al-Karak","Al-Aqaba","Ma\`an","Al-Tafila"]
         const pendingEventID = eventID
         const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a/%d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a/%d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
         let organizerID = eventResult[0].organizerID
@@ -111,7 +111,7 @@ module.exports = {
  
         const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
         
-        let cityName = city[i] = locatedEventDataResult[0].city
+        let cityName = cities[i] = locatedEventDataResult[0].city
         locatedEventDataResult[0].city = cityName
         console.log(cityName)
         if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
