@@ -349,12 +349,13 @@ module.exports = {
       cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
       const eventName = await makeDBQuery("SELECT name FROM event WHERE id = ?", eventID)
       const messageContent = "The event " + eventName[0].name +" has been canceled"
-      if (tokens.getTokens().length == 0) return null
-      const message = {
-        data: {title: "Update", message: messageContent, eventID: eventID.toString()},
-        tokens: tokens.getTokens()
+      if (tokens.getTokens().length > 0){
+        const message = {
+          data: {title: "Update", message: messageContent, eventID: eventID.toString()},
+          tokens: tokens.getTokens()
+        }
+        admin.messaging().sendMulticast(message).then((response) => console.log(response))
       }
-      admin.messaging().sendMulticast(message).then((response) => console.log(response))
       try{
       await makeDBQuery("insert into canceledevent (eventid,cancellationdatetime,cancellationreason) values(?,?,?)",cancelData)
       if (late){
