@@ -172,8 +172,9 @@ const prepareUpcomingEventsUtil = async (currentParticipantID,eventResult) => {
 
   })
 }
-
+console.log(result)
 return result
+
 }
 
 const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
@@ -500,6 +501,8 @@ module.exports = {
 
     getUpcomingEvents: async (currentParticipantID) =>{
       const eventResult = await makeDBQuery("SELECT event.id as id, event.name as name, CONVERT(event.startDate, char) as startDate, CONVERT(event.endDate, char) as endDate, CONVERT(event.registrationCloseDateTime,char) as registrationCloseDateTime, event.maxParticipants, organizer.id as organizerID, organizer.name as organizerName FROM event JOIN organizer on organizer.id = event.organizerID and event.status = 1 AND cast(concat(event.startDate, ' ',(SELECT startTime FROM session where ID = 1 AND eventID = event.id) ) as datetime) > NOW() ")
+      console.log(eventResult)
+      console.log("----------------------------------------------------")
       return await prepareUpcomingEventsUtil(currentParticipantID,eventResult)
   },
 
