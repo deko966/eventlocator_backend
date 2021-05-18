@@ -346,7 +346,6 @@ module.exports = {
     
     
     cancelEvent: async (canceledEventData,eventID, late, organizerID) => {
-      console.log(typeof late)
       cancelData = [eventID,canceledEventData.cancellationDateTime,canceledEventData.cancellationReason]
       const eventName = await makeDBQuery("SELECT name FROM event WHERE id = ?", eventID)
       const messageContent = "The event " + eventName[0].name +" has been canceled"
@@ -359,7 +358,7 @@ module.exports = {
       }
       try{
       await makeDBQuery("insert into canceledevent (eventid,cancellationdatetime,cancellationreason) values(?,?,?)",cancelData)
-      if (late){
+      if (late == "true"){
         await ratingUtils.applyPenaltyToAnOrganizer(organizerID)
       }
       if (updateRatingMap[eventID])
