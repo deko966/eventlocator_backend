@@ -15,6 +15,7 @@ router.post('/participants/signup',async (req,res)=>{
             res.send(409)
         }
         else {
+            console.log(participant)
             res.send(500)
         }
     } 
