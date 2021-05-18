@@ -53,7 +53,7 @@ module.exports = {
         categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
       }
       try{
-        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?,?)",categoriesToInsert)
       }
       catch(e){
         return e.message
@@ -406,7 +406,7 @@ editParticipantCityAndCategories: async(participantID, participant) => {
     for(let i=0;i<numberOfCategories;i++){
       categoriesToInsert.push([participantID,participant.preferredEventCategories[i]])
     }
-    result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?)",categoriesToInsert)
+    result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",categoriesToInsert)
     return null
   }
   catch(e){
