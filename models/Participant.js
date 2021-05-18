@@ -38,10 +38,9 @@ module.exports = {
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
       const email = [participant.email] 
       let participantID = await makeDBQuery("select id from participant where email = ?",email)
-
       numberOfCategories = participant.preferredEventCategories.length
       for(let i=0;i<numberOfCategories;i++){
-        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID,participant.preferredEventCategories[i]])
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID[0].id,participant.preferredEventCategories[i]])
       }
     }
       catch(e){
