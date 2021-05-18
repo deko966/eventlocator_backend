@@ -173,6 +173,7 @@ router.post('/participants/event/:id/register', auth.authParticipant, async(req,
             res.send(406)
         }
         else{
+            console.log(registration)
             res.send(500)
         }
 
