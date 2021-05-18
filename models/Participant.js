@@ -36,23 +36,14 @@ module.exports = {
       participantDetails = [participant.firstName,participant.lastName,participant.email,hashed,participant.rating,participant.city]
       try{
       await makeDBQuery("INSERT INTO participant (firstName,lastName,email,password,rating,city) values (?,?,?,?,?,?)",participantDetails)
-      }
-      catch(e){
-        return e.message
-      }
       const email = [participant.email] 
-      try{
-      participantID = await makeDBQuery("select id from participant where email = ?",email)
-      }
-      catch(e){
-        return e.message
-      }
+      let participantID = await makeDBQuery("select id from participant where email = ?",email)
+
       numberOfCategories = participant.preferredEventCategories.length
-      try{
-        for(let i=0;i<numberOfCategories;i++){
-          result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID,participant.preferredEventCategories[i]])
-        }
+      for(let i=0;i<numberOfCategories;i++){
+        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID,participant.preferredEventCategories[i]])
       }
+    }
       catch(e){
         return e.message
       }
