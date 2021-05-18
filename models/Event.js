@@ -758,7 +758,7 @@ module.exports = {
 
   emailParticipantsOfAnEvent: async (eventID, emailData) => {
     const participants = await makeDBQuery("SELECT participant.email FROM participant JOIN participantsregisterinevent ON participant.id = participantsregisterinevent.participantID AND participantsregisterinevent.eventID = ?", eventID)
-    const eventData = await makeDBQuery("SELECT event.name AS eventName, organizer.name AS organizerName FROM event JOIN organizer ON event.organizerID = organizer.id and eventID = ?", eventID)
+    const eventData = await makeDBQuery("SELECT event.name AS eventName, organizer.name AS organizerName FROM event JOIN organizer ON event.organizerID = organizer.id and event.id = ?", eventID)
     if (participants.length == 0) return 404
     const emailList = []
     for(let i = 0; i < participants.length; i++){
