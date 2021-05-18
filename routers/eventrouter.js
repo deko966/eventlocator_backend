@@ -67,6 +67,7 @@ router.get('/organizers/events',auth.authOrganizer,async (req,res) =>{
     try{
         const events = await eventModel.getOrganizerEvents(req.authOrganizerInfo.id)
         if(events.failure){
+            console.log(events.message)
             res.send(500)
         }
         else if (events.length ==0){
