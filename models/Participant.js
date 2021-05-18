@@ -47,13 +47,11 @@ module.exports = {
       catch(e){
         return e.message
       }
-      const categoriesToInsert = []
       numberOfCategories = participant.preferredEventCategories.length
-      for(let i=0;i<numberOfCategories;i++){
-        categoriesToInsert.push([participantID[0].id,participant.preferredEventCategories[i]])
-      }
       try{
-        result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?,?)",categoriesToInsert)
+        for(let i=0;i<numberOfCategories;i++){
+          result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID,participant.preferredEventCategories[i]])
+        }
       }
       catch(e){
         return e.message
@@ -401,12 +399,11 @@ editParticipantCityAndCategories: async(participantID, participant) => {
   try{
     await makeDBQuery("UPDATE participant SET city = ? WHERE id = ?", [participant.city, participantID])
     await makeDBQuery("DELETE FROM participantpreferredeventcategories WHERE ParticipantID = ?", participantID)
-    const categoriesToInsert = []
     numberOfCategories = participant.preferredEventCategories.length
     for(let i=0;i<numberOfCategories;i++){
-      categoriesToInsert.push([participantID,participant.preferredEventCategories[i]])
+      result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",[participantID,participant.preferredEventCategories[i]])
     }
-    result = await makeDBQuery("INSERT INTO participantpreferredeventcategories(participantID, category) VALUES (?, ?)",categoriesToInsert)
+    
     return null
   }
   catch(e){
