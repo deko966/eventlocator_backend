@@ -238,7 +238,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
     emailText+="\n\nKind Regards.\nEvent Locator team."
     
     emailUtils.sendOneEmail(participantEmail[0].email, "Successful registration in an event", emailText)
-    
+
     }
     catch(e){
       return e.message
@@ -250,7 +250,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
       try{
       await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
       if (locatedEventData.length > 0 && eventInfo[0].maxParticipants > -1){
-        let finishDateTime = Date.parse(eventInfo.endDate +'T'+lastSessionEndTime)
+        let finishDateTime = Date.parse(eventInfo[0].endDate +'T'+lastSessionEndTime)
         finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
         console.log(finishDateTime)
         schedule.scheduleJob(finishDateTime, async () => {
@@ -265,7 +265,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
         emailText += eventInfo[0].whatsAppLink
       }
       emailText+="\n\nKind Regards.\nEvent Locator team."
-      emailUtils.sendEmail(participantEmail[0].email, "Successful registration in an event", emailText)
+      emailUtils.sendOneEmail(participantEmail[0].email, "Successful registration in an event", emailText)
       return undefined
       }
       catch(e)
