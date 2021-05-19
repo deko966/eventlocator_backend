@@ -753,22 +753,42 @@ module.exports = {
         toAdd.push(allSessions[i].id)
       }
     }
-    console.log("Here2")
-    for(let i = 0; i< toAdd.length; i++){
-      for(let j = 0; j <sessionsData.length;j++){
-        if (toAdd[i]>sessionsData[j].sessionID){
-          sessionsData.splice(j, 0, {
-            id: toAdd[i],
+    let finalSessions = []
+    let i =0
+    let j = 0
+    while (i < sessionsData.length || j <toAdd.length){
+      if (i >= sessionsData.length){
+        finalSessions.add({
+          id: toAdd[j],
+          total: -1,
+          avgArrivalTime: ""
+        })
+        j++
+      }
+      else if (j >= toAdd.length){
+        finalSessions.add(sessionsData[i])
+        i++
+      }
+      else{
+        if (toAdd[j] > sessionsData[i].sessionID){
+          finalSessions.add(sessionsData[i])
+          i++
+        }
+        else{
+          finalSessions.add({
+            id: toAdd[j],
             total: -1,
             avgArrivalTime: ""
           })
+          j++
         }
       }
     }
-    console.log("Here3")
+
+
     const res = {
       total: totalRegistered[0].total,
-      sessions: sessionsData
+      sessions: finalSessions
     }
 
     return res
