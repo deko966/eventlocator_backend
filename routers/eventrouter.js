@@ -132,7 +132,7 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
 router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID/confirm', 
     auth.authOrganizer, async (req, res) =>{
         try{
-            await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID)
+            await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
             res.send(200)
         }
         catch(e){
