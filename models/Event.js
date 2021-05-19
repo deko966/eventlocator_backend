@@ -736,8 +736,34 @@ module.exports = {
 
   getEventStatistics: async (eventID) => {
     const totalRegistered = await makeDBQuery("SELECT COUNT(participantID) AS total FROM participantsRegisterInEvent WHERE eventID = ?", eventID)
-    let sessionsData = await("SELECT sessionID,COUNT(participantID) as total, CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) AS avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP BY sessionID ORDER BY sessionID ASC", eventID)
+    let sessionsData = await makeDBQuery("SELECT sessionID, IFNULL((SELECT COUNT(*) FROM checkInParticipant WHERE sessionID = sessionID AND eventID = 7),0) as total, IFNULL(CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) , \"\") as avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP by sessionID order by sessionID ASC"
+    ,eventID)
+    let allSessions = await makeDBQuery("SELECT id FROM session WHERE eventID = ?", eventID)
     sessionsData = JSON.parse(JSON.stringify(sessionsData))
+    let toAdd = []
+    for(let i =0;i<allSessions.length; i++){
+      let found = false
+      for(let j = 0; j < sessionsData.length; j++){
+        if (allSessions[i].id == sessionsData[j].sessionID){
+          found = true
+          break
+        }
+      }
+      if (!found){
+        toAdd.push(allSessions[i].id)
+      }
+    }
+    for(let i = 0; i< toAdd.length; i++){
+      for(let j = 0; j <sessionsData.length;j++){
+        if (toAdd[i]>sessionsData[j].sessionID){
+          sessionsData.splice(j, 0, {
+            id: toAdd[i],
+            total: -1,
+            avgArrivalTime: ""
+          })
+        }
+      }
+    }
     const res = {
       total: totalRegistered[0].total,
       sessions: sessionsData
