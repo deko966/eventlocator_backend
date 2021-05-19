@@ -113,7 +113,7 @@ module.exports = {
         
         let cityName = cities[locatedEventDataResult.city]
         locatedEventDataResult.city =cityName
-        console.log(cityName)
+        console.log(cityName+"here")
 
         if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
         let limitedLocatedSessionData = await makeDBQuery("SELECT checkInTime FROM limitedLocatedSession WHERE EventID = ? ORDER BY SessionID ASC ", eventID)
