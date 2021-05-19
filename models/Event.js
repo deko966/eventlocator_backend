@@ -431,6 +431,8 @@ module.exports = {
 
     getOrganizerEventsForParticipantsApp: async (currentParticipantID,organizerID) => {
       const tempResult = await getOrganizerEventsUtil(organizerID)
+      console.log(tempResult)
+      console.log("---------------------------------------------------")
       const result = []
       for(let i = 0; i < tempResult.length; i++){
         if (tempResult[i].status!=1) continue
