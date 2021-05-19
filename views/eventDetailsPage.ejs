@@ -104,7 +104,7 @@
             <br>
             <br> 
             <%if(session.length>0) {%>
-        
+           
             <% session.forEach(function(session) { %>
               <div id = sessionInfo>
               <label for="">Session ID:</label>
@@ -143,13 +143,12 @@
             <strong><%= session.dayOfWeek %></strong>
               <br>
               <br> 
-
-              <% }); %> 
             </div>
-            <%}%>
+              <% }); %> 
+           <%}%>
            
               <% categories.forEach(function(categories) { %>
-              <label for=""> Event category:</label>
+              <label for=""> category:</label>
               <br>
               <br> 
              
@@ -187,21 +186,17 @@
 
                     <% }); %> 
                 
-                <% }else {} %> 
-            <% if(event.whatsappLink == ''){ %>
-              <% } else{ %>  
-            <label for="">WhatsappLink:</label>
+                <% } %> 
+            <% if(event.whatsappLink == ''){ } else{%>
+
+              <label for="">Whatsapp link:</label>
             <br>
             <br>
             <strong><%= event.whatsappLink %></strong>
             <br>
             <br> 
-            <% } %> 
-            
-     
-            
-            <br>
-            <br> 
+            <% } %>             
+          
           
    
      </div>   

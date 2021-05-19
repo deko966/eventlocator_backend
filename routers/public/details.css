@@ -80,9 +80,9 @@
 
   }
 #sessionInfo{
-    padding-bottom:3%;
-    background-color: #49599a;
-    width: 100%;
-  
+  padding-bottom:3%;
+  margin-bottom: 1%;
+  background-color: #e8eaf6;
+  width:100%
 }
   
