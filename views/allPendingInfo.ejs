@@ -22,23 +22,23 @@
     <% organizer.forEach(function(organizer) { %>
       
        <div id = organizerInfo>
-        <label for="">Organizer Name:</label>
+        <label for="">Name:</label>
         <br>
         <br>  
         <strong><a href="/organizers/edit/<%= organizer.id %>"><%= organizer.name %></a></strong>
         <br>
         <br>
-          <label for="">Organizer Email:</label>
+          <label for="">Email:</label>
           <br>
           <br> 
           <strong><%= organizer.email %></strong>
           <br>
           <br>
-          <label for="">Organizer phonenumber:</label> 
+          <label for="">phonenumber:</label> 
           <strong><%= organizer.phoneNumber %></strong>
           <br>
           <br>
-          <label for="">Organizer Type:</label>
+          <label for="">Type:</label>
          
           <strong><%= organizer.type %></strong>
         <br>
@@ -50,19 +50,19 @@
   <div id = "events">
     <% event.forEach(function(event) { %>
         <div id = eventInfo>
-        <label for="">Event Name:</label>
+        <label for="">Name:</label>
         <br>  
         <br>
         <strong><a href="/events/edit/<%= event.id %>"><%= event.name %></a></strong>
         <br>
         <br>
-          <label for="">Event Startdate:</label> 
+          <label for="">Start date:</label> 
           <br>
           <br>
           <strong><%= event.startDate %></strong>
           <br>
           <br>
-          <label for="">Event Enddate:</label>
+          <label for="">End date:</label>
           <br>
           <br> 
           <strong><%= event.endDate %></strong>
