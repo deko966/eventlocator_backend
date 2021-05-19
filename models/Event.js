@@ -661,6 +661,7 @@ module.exports = {
           cancellationDateTime: canceledEventDataResult[0].cancellationDateTime,
           cancellationReason: canceledEventDataResult[0].cancellationReason
         }
+        console.log("Correct")
       }
 
       const finishDateTime = Date.parse(eventResult[i].endDate +'T'+sessions[sessions.length-1].endTime)
