@@ -5,7 +5,6 @@ const auth = require('../middleware/auth')
 const  multer = require('multer');
 const { compareSync } = require('bcryptjs');
 const e = require('express');
-const util = require('util')
 
 const uploads = multer({
     limits: {
@@ -146,6 +145,8 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
     auth.authOrganizer, async (req, res) =>{
         try{
             const result = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
+            console.log(result)
+            console.log(typeof result)
             if (result == 1) res.send(404)
             else if (result == 2) res.send(409)
             else res.status(200).send(result)
