@@ -29,14 +29,14 @@ function makeDBQuery(query, arguments) {
   }
 
   const getEventRatingUtil = async (eventID) => {
-    const result = await makeDBQuery("SELECT Rating from participantsrateevent WHERE eventID = ?", eventID)
+    const result = await makeDBQuery("SELECT rating from participantsrateevent WHERE eventID = ?", eventID)
     if (result.length == 0)return -1
     else{
         let sum = 0;
         for(let i = 0; i< result.length; i++){
             sum += result[0].rating
         }
-        return sum/rating.length
+        return sum/result.length
     }
   }
 
@@ -53,6 +53,7 @@ function makeDBQuery(query, arguments) {
             sum += temp;
         }
     }
+    if (count == 0) return 5.0 - penalty[0].ratingPenalty
     return (sum/count) - penalty[0].ratingPenalty
   }
 

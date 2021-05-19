@@ -220,7 +220,10 @@ router.post('/participants/event/:id/rate',auth.authParticipant, async (req,res)
             res.send(409)
         else if(result.includes("ER_NO_REFERENCED"))
             res.send(406)
-        else res.send(500)
+        else {
+            console.log(result)
+            res.send(500)
+        }
     }
     catch(e){
         console.log(e)
