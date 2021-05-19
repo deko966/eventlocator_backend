@@ -53,6 +53,7 @@ function makeDBQuery(query, arguments) {
             sum += temp;
         }
     }
+    if (count == 0) return 5.0 - penalty[0].ratingPenalty
     return (sum/count) - penalty[0].ratingPenalty
   }
 
