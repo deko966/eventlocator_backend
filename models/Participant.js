@@ -231,7 +231,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
     await makeDBQuery("insert into participantsregisterinevent(eventID,participantID) values (?,?)",registrationIDs)
     tokens.addToken(token)
     let emailText = "Dear participant,\nYou successfully registered for the event " + eventInfo[0].name + ".\n" +"We hope that you enjoy your time during the event.\n"
-    if (eventInfo[0].whatsAppLink != ""){
+    if (eventInfo[0].whatsAppLink){
       emailText += "The organizer of this events recommends that you join this whatsapp group to stay updated about the event:\n"
       emailText += eventInfo[0].whatsAppLink
     }
@@ -260,7 +260,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
       }
       tokens.addToken(token)
       let emailText = "Dear participant,\nYou successfully registered for the event " + eventInfo[0].name + ".\n" +"We hope that you enjoy your time during the event.\n"
-      if (eventInfo[0].whatsAppLink != ""){
+      if (eventInfo[0].whatsAppLink){
         emailText += "The organizer of this events recommends that you join this whatsapp group to stay updated about the event:\n"
         emailText += eventInfo[0].whatsAppLink
       }
