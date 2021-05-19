@@ -395,7 +395,7 @@ module.exports = {
     },
     getParticipantsDuringALimitedLocatedSession: async(eventID) =>{
       const result = []
-      const participants = await makeDBQuery("select participant.id,participant.firstName,participant.lastName,participant.rating, checkinparticipant.arrivalTime FROM participant LEFT OUTER JOIN checkInParticipant ON  participant.id = checkinparticipant.participantID WHERE checkInParticipant.eventID = ?"
+      const participants = await makeDBQuery("select participant.id,participant.firstName,participant.lastName,participant.rating, checkinparticipant.arrivalTime FROM participant RIGHT OUTER JOIN checkInParticipant ON  participant.id = checkinparticipant.participantID WHERE checkInParticipant.eventID = ?"
       ,eventID)
       console.log(participants)
       if (participants.length == 0) return null
