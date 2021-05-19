@@ -756,9 +756,9 @@ module.exports = {
     let finalSessions = []
     let i =0
     let j = 0
-    while (i < sessionsData.length || j <toAdd.length){
+    while (i < sessionsData.length || j < toAdd.length){
       if (i >= sessionsData.length){
-        finalSessions.add({
+        finalSessions.push({
           id: toAdd[j],
           total: -1,
           avgArrivalTime: ""
@@ -766,16 +766,16 @@ module.exports = {
         j++
       }
       else if (j >= toAdd.length){
-        finalSessions.add(sessionsData[i])
+        finalSessions.push(sessionsData[i])
         i++
       }
       else{
         if (toAdd[j] > sessionsData[i].sessionID){
-          finalSessions.add(sessionsData[i])
+          finalSessions.push(sessionsData[i])
           i++
         }
         else{
-          finalSessions.add({
+          finalSessions.push({
             id: toAdd[j],
             total: -1,
             avgArrivalTime: ""
