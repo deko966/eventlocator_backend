@@ -41,7 +41,7 @@ router.post('/organizers/events/create',auth.authOrganizer,uploads.single('image
 router.get("/organizers/events/limited/:id/participants", auth.authOrganizer, async (req, res) =>{
     try{
         const participants = await eventModel.getParticipantsDuringALimitedLocatedSession(req.params.id)
-        if (participants == null) res.status(404)
+        if (participants == null) res.send(404)
         else res.status(200).send(participants)
     }
     catch(e){
@@ -132,7 +132,7 @@ router.get('/organizers/events/:id',auth.authOrganizer,async (req,res) =>{
 router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID/confirm', 
     auth.authOrganizer, async (req, res) =>{
         try{
-            await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID)
+            await eventModel.checkInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
             res.send(200)
         }
         catch(e){
@@ -144,10 +144,14 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
 router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID', 
     auth.authOrganizer, async (req, res) =>{
         try{
-            const res = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
-            if (res == 1) res.send(404)
-            else if (res == 2) res.send(409)
-            else res.status(200).send(res)
+            const result = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
+            if (result == 1) res.send(404)
+            else if (result == 2) res.send(409)
+            else {
+                let result2 = []
+                result2.push(result)
+                res.status(200).send(result2)
+            }
         }
         catch(e){
             console.log(e)
@@ -275,6 +279,7 @@ router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, as
 
     try{
         const data = await eventModel.getEventStatistics(req.params.id)
+        console.log(data)
         res.status(200).send(data)
     }
     catch(e){
