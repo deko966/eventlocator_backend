@@ -145,11 +145,13 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
     auth.authOrganizer, async (req, res) =>{
         try{
             const result = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
-            console.log(result)
-            console.log(typeof result)
             if (result == 1) res.send(404)
             else if (result == 2) res.send(409)
-            else res.status(200).send(result)
+            else {
+                let result2 = []
+                result2.push(result)
+                res.status(200).send(result2)
+            }
         }
         catch(e){
             console.log(e)
