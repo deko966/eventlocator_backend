@@ -731,7 +731,8 @@ module.exports = {
   },
 
   checkInParticipant: async (eventID, sessionID, participantID, organizerID) => {
-    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID, arrivalTime) VALUES (?,?,?,?, CONVERT_TZ(NOW(), 'UTC', 'EEST'))", [organizerID,participantID,eventID,sessionID])
+    const currentTime = await
+    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID, arrivalTime) VALUES (?,?,?,?, CURRENT_TIME())", [organizerID,participantID,eventID,sessionID])
   },
 
   getEventStatistics: async (eventID) => {
