@@ -753,6 +753,7 @@ module.exports = {
         toAdd.push(allSessions[i].id)
       }
     }
+    console.log("Here2")
     for(let i = 0; i< toAdd.length; i++){
       for(let j = 0; j <sessionsData.length;j++){
         if (toAdd[i]>sessionsData[j].sessionID){
@@ -764,6 +765,7 @@ module.exports = {
         }
       }
     }
+    console.log("Here3")
     const res = {
       total: totalRegistered[0].total,
       sessions: sessionsData
