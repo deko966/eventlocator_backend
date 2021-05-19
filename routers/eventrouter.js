@@ -144,9 +144,9 @@ router.get('/organizers/events/:eventID/session/:sessionID/participant/:particip
 router.get('/organizers/events/:eventID/session/:sessionID/participant/:participantID', 
     auth.authOrganizer, async (req, res) =>{
         try{
-            const res = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
-            if (res == 1) res.send(404)
-            else if (res == 2) res.send(409)
+            const result = await eventModel.prepareToCheckInParticipant(req.params.eventID, req.params.sessionID, req.params.participantID, req.authOrganizerInfo.id)
+            if (result == 1) res.send(404)
+            else if (result == 2) res.send(409)
             else res.status(200).send(res)
         }
         catch(e){
