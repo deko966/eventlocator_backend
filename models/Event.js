@@ -1,7 +1,7 @@
 const sql = require('./db.js');
 const ratingUtils = require('../utils/ratingUtils')
 const schedule = require('node-schedule')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const admin = require('../utils/firebaseAdmin')
 const tokens = require('../utils/tokens');
 const { response } = require('express');
@@ -731,7 +731,7 @@ module.exports = {
   },
 
   checkInParticipant: async (eventID, sessionID, participantID, organizerID) => {
-    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID, arrivalTime) VALUES (?,?,?,?,?)", [organizerID,participantID,eventID,sessionID, moment().format("hh:mm:ss")])
+    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID, arrivalTime) VALUES (?,?,?,?,?)", [organizerID,participantID,eventID,sessionID, moment().tz('EEST').format("HH:mm:ss")])
   },
 
   getEventStatistics: async (eventID) => {
