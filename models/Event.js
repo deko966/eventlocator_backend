@@ -397,6 +397,7 @@ module.exports = {
       const result = []
       const participants = await makeDBQuery("select participant.id,participant.firstName,participant.lastName,participant.rating, checkinparticipant.arrivalTime FROM participant LEFT OUTER JOIN checkInParticipant ON  participant.id = checkinparticipant.participantID WHERE checkInParticipant.eventID = ?"
       ,eventID)
+      console.log(participants)
       if (participants.length == 0) return null
       for(i=0;i<participants.length;i++){
         let arrivalTime = ""
