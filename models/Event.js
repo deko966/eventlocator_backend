@@ -495,6 +495,7 @@ module.exports = {
         })
 
       }
+      console.log(result)
       return result
     },
 
