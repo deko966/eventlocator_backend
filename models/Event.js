@@ -731,7 +731,7 @@ module.exports = {
   },
 
   checkInParticipant: async (eventID, sessionID, participantID, organizerID) => {
-    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID) VALUES (?,?,?,?)", [organizerID,participantID,eventID,sessionID])
+    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID, arrivalTime) VALUES (?,?,?,?, NOW())", [organizerID,participantID,eventID,sessionID])
   },
 
   getEventStatistics: async (eventID) => {
