@@ -114,7 +114,7 @@ login: async(credentials)=>{
 
     organizerInfo = [credentials[0]]
     const result = await makeDBQuery("Select id,email,password,phoneNumber,type, accountStatus from organizer where Email =? ", organizerInfo)
-    
+   
     if(result.length == 0){
       return null
     }

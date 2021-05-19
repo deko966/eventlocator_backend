@@ -22,6 +22,7 @@ const uploads = multer({
 router.post('/organizers/login',async (req,res)=>{
    try{ 
         const token = await OrganizerModel.login(req.body)
+        
         if (token != null) res.status(202).send(token)
         else if (token == null) res.send(404)
         else res.send(500)
@@ -92,6 +93,7 @@ router.get('/organizers/profile', auth.authOrganizer,async (req,res) =>{
 
 router.post('/organizers/signup/:type',uploads.array('image',2), async(req,res)=>{
     try{
+        console.log(req.files)
         const organizer =  JSON.parse(req.body.organizer)
         organizerResult= await OrganizerModel.createOrganizer(organizer,req.files,req.params.type);
         if(organizerResult == undefined){

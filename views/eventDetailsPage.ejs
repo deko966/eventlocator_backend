@@ -103,8 +103,10 @@
             <strong><%= event.maxParticipants %></strong>
             <br>
             <br> 
-
+            <%if(session.length>0) {%>
+            <div id = sessionInfo>
             <% session.forEach(function(session) { %>
+              
               <label for="">Session ID:</label>
               <br>
               <br> 
@@ -143,6 +145,9 @@
               <br> 
 
               <% }); %> 
+            </div>
+            <%}%>
+           
               <% categories.forEach(function(categories) { %>
               <label for=""> Event category:</label>
               <br>
@@ -152,6 +157,7 @@
               <br>
               <br> 
                 <% }); %> 
+                
 
                 
                 <%if(locatedevent.length>0){  %> 

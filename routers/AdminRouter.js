@@ -16,7 +16,6 @@ router.post('/admin/login',async (req,res)=>{
     const token = await AdminModel.login(req.body)
 
     if (!token) {
-        req.flash('error', 'erroroor');
         return res.status(401).redirect('index')
     }
 
