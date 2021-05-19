@@ -164,7 +164,7 @@ router.patch('/organizers/editProfile', auth.authOrganizer,uploads.single('image
         const organizer =  JSON.parse(req.body.organizer)
         let image = undefined
         if (req.file) image = req.file.buffer
-        console.log(organizer)
+    
         const result = await OrganizerModel.editOrganizerProfile(req.authOrganizerInfo, organizer, image, req.body.flag)
         if (result.success) res.status(200).send(result.token)
         else if (result == 409)res.send(409)
