@@ -185,6 +185,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
     ,eventgeneralDetails)
     }
     catch(e){
+      console.log("HERE1 ", e)
       return e.message
     }
     organizerID =[authOrganizerInfo.id]
@@ -195,6 +196,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
      await makeDBQuery("insert into locatedevent (eventID,city,latitude,longitude) values (?,?,?,?) ",eventlocation)
      }
      catch(e){
+      console.log("HERE12 ", e)
        return e.message
      }
     }
@@ -208,6 +210,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
       await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
       }
     catch(e){
+      console.log("HERE123 ", e)
       return e.message
     }
     }
@@ -222,7 +225,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
   await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
   }
   catch(e){
-    console.log(e)
+    console.log("HERE1234 ", e)
     return e.message
   }
 }
@@ -235,7 +238,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
       await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
      }
      catch(e){
-      console.log(e)
+      console.log("HERE12345 ", e)
        return e.message
      }
     }
@@ -829,7 +832,6 @@ module.exports = {
       if(!isNaN(result))
         return {code:201, id: result}
       else{
-        console.log(result)
         if(result.includes("ER_DUP_ENTRY"))
             return {code:409}
         else if(result.includes("ER_NO_REFERENCED"))
