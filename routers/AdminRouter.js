@@ -85,14 +85,14 @@ router.get('/account/:organizerId/:response',auth.authAdmin,async (req,res)=>{
     organizer = await AdminModel.setResponseOrganizer(req.params.organizerId,req.adminID,req.params.response)
     if(req.params.response == 0){
         const subject = "Account accepted"
-        const text = "Dear"+ organizerInfo[0].name+",\n We are happy to inform you that your account has been accepted and you can now login and create events.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n Kind regards. \n\n Event Locator team. " 
+        const text = "Dear "+ organizerInfo[0].name+",\nWe are happy to inform you that your account has been accepted and you can now login and create events.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n\nKind regards.\nEvent Locator team. " 
         emailUtils.sendOneEmail(organizerInfo[0].email,subject,text)
         return res.status(200).redirect('/pending/all')
     }
 
     if(req.params.response == 1){
         const subject = "Account rejected"
-        const text = "Dear"+ organizerinfo[0].name+",\n We are sorry to inform you that your account has been rejected.\n If you feel like this was unfair, please feel free to contact us using this email.\n\n Kind regards. \n\n Event Locator team. " 
+        const text = "Dear "+ organizerinfo[0].name+",\nWe are sorry to inform you that your account has been rejected.\nIf you feel like this was unfair, please feel free to contact us using this email.\n\n\nKind regards. \nEvent Locator team. " 
         emailUtils.sendOneEmail(organizerInfo[0].email,subject,text)
         return res.status(200).redirect('/pending/all')
     }
@@ -108,13 +108,13 @@ router.get('/event/:organizerId/:eventId/:response',auth.authAdmin,async (req,re
     const event = allEventInfo[0]
     if(req.params.response == 0){
         const subject = "Event accepted"
-        const text = "Dear"+ organizerInfo[0].name+",\nWe are happy to inform you that your event" + event.name +" has been accepted, and is now visible for participants and they are able to register in it.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n Kind regards. \n\n Event Locator team. " 
+        const text = "Dear "+ organizerInfo[0].name+",\nWe are happy to inform you that your event" + event.name +" has been accepted, and is now visible for participants and they are able to register in it.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n\nKind regards.\nEvent Locator team. " 
         emailUtils.sendOneEmail(organizerInfo[0].email,subject,text)
         return res.status(200).redirect('/pending/all')
     }
     if(req.params.response == 1){
         const subject = "Event rejected"
-        const text = "Dear"+ organizerInfo[0].name+",\n We are sorry to inform you that your event " + event.name +"  has been rejected.\n If you feel like this was unfair, please feel free to contact us using this email.\n\n Kind regards. \n\n Event Locator team. " 
+        const text = "Dear "+ organizerInfo[0].name+",\nWe are sorry to inform you that your event " + event.name +" has been rejected.\nIf you feel like this was unfair, please feel free to contact us using this email.\n\n\n Kind regards.\n Event Locator team. " 
         emailUtils.sendOneEmail(organizerInfo[0].email,subject,text)
         return res.status(200).redirect('/pending/all')
     }
