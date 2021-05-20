@@ -185,6 +185,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
     ,eventgeneralDetails)
     }
     catch(e){
+      console.log("HERE1 ", e)
       return e.message
     }
     organizerID =[authOrganizerInfo.id]
@@ -195,6 +196,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
      await makeDBQuery("insert into locatedevent (eventID,city,latitude,longitude) values (?,?,?,?) ",eventlocation)
      }
      catch(e){
+      console.log("HERE12 ", e)
        return e.message
      }
     }
@@ -208,6 +210,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
       await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
       }
     catch(e){
+      console.log("HERE123 ", e)
       return e.message
     }
     }
@@ -222,7 +225,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
   await makeDBQuery("insert into eventcategories(eventID,category) values (?,?)",eventCategoriesData )
   }
   catch(e){
-    console.log(e)
+    console.log("HERE1234 ", e)
     return e.message
   }
 }
@@ -235,7 +238,7 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
       await makeDBQuery("insert into limitedlocatedsession (eventID,sessionID,checkInTime) values (?,?,?) ",limitedLocatedSessionData)
      }
      catch(e){
-      console.log(e)
+      console.log("HERE12345 ", e)
        return e.message
      }
     }
@@ -736,8 +739,8 @@ module.exports = {
 
   getEventStatistics: async (eventID) => {
     const totalRegistered = await makeDBQuery("SELECT COUNT(participantID) AS total FROM participantsRegisterInEvent WHERE eventID = ?", eventID)
-    let sessionsData = await makeDBQuery("SELECT sessionID, IFNULL((SELECT COUNT(*) FROM checkInParticipant WHERE sessionID = sessionID AND eventID = 7),0) as total, IFNULL(CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) , \"\") as avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP by sessionID order by sessionID ASC"
-    ,eventID)
+    let sessionsData = await makeDBQuery("SELECT sessionID, IFNULL((SELECT COUNT(*) FROM checkInParticipant WHERE sessionID = sessionID AND eventID = ?),0) as total, IFNULL(DATE_FORMAT(CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char),'%H:%i:%s') , \"\") as avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP by sessionID order by sessionID ASC"
+    ,[eventID, eventID])
     let allSessions = await makeDBQuery("SELECT id FROM session WHERE eventID = ?", eventID)
     sessionsData = JSON.parse(JSON.stringify(sessionsData))
     let toAdd = []
@@ -759,8 +762,8 @@ module.exports = {
     while (i < sessionsData.length || j < toAdd.length){
       if (i >= sessionsData.length){
         finalSessions.push({
-          id: toAdd[j],
-          total: -1,
+          sessionID: toAdd[j],
+          total: 0,
           avgArrivalTime: ""
         })
         j++
@@ -776,8 +779,8 @@ module.exports = {
         }
         else{
           finalSessions.push({
-            id: toAdd[j],
-            total: -1,
+            sessionID: toAdd[j],
+            total: 0,
             avgArrivalTime: ""
           })
           j++
