@@ -142,7 +142,7 @@ module.exports = {
         if(response == 0)
          status = parseInt(response)+1
         else{
-            status = parseInt(response) +2
+            status = parseInt(response) +1
         }
         const today = new Date();
 
@@ -157,12 +157,12 @@ module.exports = {
     
     setResponseEvent:async(eventId,adminID,response)=>{
         let status = 0
-        console.log(response)
+     
         if(response == 0){
          status = parseInt(response)+1
         }
         else{
-            status = parseInt(response) + 2
+            status = parseInt(response) + 1
         }
         const today = new Date();
 
