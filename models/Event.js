@@ -760,7 +760,7 @@ module.exports = {
       if (i >= sessionsData.length){
         finalSessions.push({
           id: toAdd[j],
-          total: -1,
+          total: 0,
           avgArrivalTime: ""
         })
         j++
