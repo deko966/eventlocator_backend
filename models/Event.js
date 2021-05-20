@@ -759,7 +759,7 @@ module.exports = {
     while (i < sessionsData.length || j < toAdd.length){
       if (i >= sessionsData.length){
         finalSessions.push({
-          id: toAdd[j],
+          sessionID: toAdd[j],
           total: 0,
           avgArrivalTime: ""
         })
@@ -776,7 +776,7 @@ module.exports = {
         }
         else{
           finalSessions.push({
-            id: toAdd[j],
+            sessionID: toAdd[j],
             total: 0,
             avgArrivalTime: ""
           })
