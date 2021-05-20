@@ -777,7 +777,7 @@ module.exports = {
         else{
           finalSessions.push({
             id: toAdd[j],
-            total: -1,
+            total: 0,
             avgArrivalTime: ""
           })
           j++
