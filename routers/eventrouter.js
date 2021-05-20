@@ -276,10 +276,10 @@ router.get('/organizers/events/:id/participants',auth.authOrganizer, async (req,
 
 
 router.get('/organizers/events/:id/attendanceStatistics', auth.authOrganizer, async (req,res) => {
-    console.log("Here")
+    
     try{
         const data = await eventModel.getEventStatistics(req.params.id)
-        console.log(data)
+  
         res.status(200).send(data)
     }
     catch(e){
