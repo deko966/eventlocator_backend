@@ -83,6 +83,7 @@ router.get('/account/:organizerId/:response',auth.authAdmin,async (req,res)=>{
   
     organizerInfo = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
     organizer = await AdminModel.setResponseOrganizer(req.params.organizerId,req.adminID,req.params.response)
+    console.log(organizerInfo[0].email)
     if(req.params.response == 0){
         const subject = "Account accepted"
         const text = "Dear "+ organizerInfo[0].name+",\nWe are happy to inform you that your account has been accepted and you can now login and create events.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n\nKind regards.\nEvent Locator team. " 
