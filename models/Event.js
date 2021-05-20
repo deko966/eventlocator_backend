@@ -736,8 +736,8 @@ module.exports = {
 
   getEventStatistics: async (eventID) => {
     const totalRegistered = await makeDBQuery("SELECT COUNT(participantID) AS total FROM participantsRegisterInEvent WHERE eventID = ?", eventID)
-    let sessionsData = await makeDBQuery("SELECT sessionID, IFNULL((SELECT COUNT(*) FROM checkInParticipant WHERE sessionID = sessionID AND eventID = 7),0) as total, IFNULL(CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) , \"\") as avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP by sessionID order by sessionID ASC"
-    ,eventID)
+    let sessionsData = await makeDBQuery("SELECT sessionID, IFNULL((SELECT COUNT(*) FROM checkInParticipant WHERE sessionID = sessionID AND eventID = ?),0) as total, IFNULL(DATE_FORMAT(CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char),'%H:%i:%s') , \"\") as avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP by sessionID order by sessionID ASC"
+    ,[eventID, eventID])
     let allSessions = await makeDBQuery("SELECT id FROM session WHERE eventID = ?", eventID)
     sessionsData = JSON.parse(JSON.stringify(sessionsData))
     let toAdd = []
