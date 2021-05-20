@@ -50,6 +50,9 @@ router.get('/organizers/edit/:organizerId', auth.authAdmin, async (req,res)=>{
 
 router.get('/events/edit/:eventId',auth.authAdmin,async (req,res)=>{
     const allEventInfo = await AdminModel.getPendingEventInfo(req.params.eventId);
+    if(!allEventInfo){
+        res.send(404)
+    }
     const event = allEventInfo[0]
     const organizer = allEventInfo[1]
     const session = allEventInfo[2]
@@ -77,19 +80,45 @@ router.get('/admin/logout',auth.authAdmin,async (req,res)=>{
 
 router.get('/account/:organizerId/:response',auth.authAdmin,async (req,res)=>{
   
-    organizerEmail = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
+    organizerInfo = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
     organizer = await AdminModel.setResponseOrganizer(req.params.organizerId,req.adminID,req.params.response)
-    // emailUtils.sendOneEmail('adel.minwer66@gmail.com',subject,text)
-    return res.status(200).redirect('/pending/all')
+    if(req.params.response == 0){
+        const subject = "Account accepted"
+        const text = "Dear"+ organizerInfo.name+",\n We are happy to inform you that your account has been accepted and you can now login and create events.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n Kind regards. \n\n Event Locator team. " 
+        emailUtils.sendOneEmail(organizerInfo.email,subject,text)
+        return res.status(200).redirect('/pending/all')
+    }
+
+    if(req.params.response == 1){
+        const subject = "Account rejected"
+        const text = "Dear"+ organizerinfo.name+",\n We are sorry to inform you that your account has been rejected.\n If you feel like this was unfair, please feel free to contact us using this email.\n\n Kind regards. \n\n Event Locator team. " 
+        emailUtils.sendOneEmail(organizerInfo.email,subject,text)
+        return res.status(200).redirect('/pending/all')
+    }
+   
  
 })
 
 
 router.get('/event/:organizerId/:eventId/:response',auth.authAdmin,async (req,res)=>{
-    organizerEmail = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
+    organizerInfo = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
     organizer = await AdminModel.setResponseEvent(req.params.eventId,req.adminID,req.params.response)
-    // emailUtils.sendOneEmail('adel.minwer66@gmail.com',subject,text)
-    return res.status(200).redirect('/pending/all')
+    const allEventInfo = await AdminModel.getPendingEventInfo(req.params.eventId);
+    const event = allEventInfo[0]
+    if(req.params.response == 0){
+        const subject = "Event accepted"
+        const text = "Dear"+ organizerInfo.name+",\nWe are happy to inform you that your event" + event.name +" has been accepted, and is now visible for participants and they are able to register in it.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n Kind regards. \n\n Event Locator team. " 
+        emailUtils.sendOneEmail(organizeeInfo.email,subject,text)
+        return res.status(200).redirect('/pending/all')
+    }
+    if(req.params.response == 1){
+        const subject = "Event rejected"
+        const text = "Dear"+ organizerInfo.name+",\n We are sorry to inform you that your event " + event.name +"  has been rejected.\n If you feel like this was unfair, please feel free to contact us using this email.\n\n Kind regards. \n\n Event Locator team. " 
+        emailUtils.sendOneEmail(organizerInfo.email,subject,text)
+        return res.status(200).redirect('/pending/all')
+    }
+
+    
 })
 
 module.exports = router

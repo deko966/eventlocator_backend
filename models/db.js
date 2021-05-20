@@ -11,10 +11,10 @@ var connection;
   //otherwise, we're going to use our local connection!  put your local db set stuff here
   //(and remember our best practice of using the dotenv package and a .env file ;)
   connection = mysql.createConnection({
-    host: 'bmlx3df4ma7r1yh4.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
-    user: 'rdy8jeb4kq2r499d',
-    password: 'f28na29osz7i9uco',
-    database: 'iifg7gg8zgz54yaa'
+    HOST: "bmlx3df4ma7r1yh4.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
+    USER: "rdy8jeb4kq2r499d",
+    PASSWORD: "f28na29osz7i9uco",
+    database: "iifg7gg8zgz54yaa"
 });
 }
 connection.connect(error => {
