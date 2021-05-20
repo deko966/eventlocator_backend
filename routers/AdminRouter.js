@@ -92,7 +92,7 @@ router.get('/account/:organizerId/:response',auth.authAdmin,async (req,res)=>{
 
     if(req.params.response == 1){
         const subject = "Account rejected"
-        const text = "Dear "+ organizerinfo[0].name+",\nWe are sorry to inform you that your account has been rejected.\nIf you feel like this was unfair, please feel free to contact us using this email.\n\n\nKind regards. \nEvent Locator team. " 
+        const text = "Dear "+ organizerInfo[0].name+",\nWe are sorry to inform you that your account has been rejected.\nIf you feel like this was unfair, please feel free to contact us using this email.\n\n\nKind regards. \nEvent Locator team. " 
         emailUtils.sendOneEmail(organizerInfo[0].email,subject,text)
         return res.status(200).redirect('/pending/all')
     }
