@@ -829,6 +829,7 @@ module.exports = {
       if(!isNaN(result))
         return {code:201, id: result}
       else{
+        console.log(result)
         if(result.includes("ER_DUP_ENTRY"))
             return {code:409}
         else if(result.includes("ER_NO_REFERENCED"))

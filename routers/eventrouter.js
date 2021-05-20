@@ -313,7 +313,7 @@ router.patch('/organizers/events/:id/editPending', auth.authOrganizer, uploads.s
         const result = await eventModel.editPendingEvent(req.params.id, event, req.authOrganizerInfo.id, image)
         if (result.code && result.id)
             res.status(result.code).send(result.id.toString())
-        else if(result.code) res.send(result.code)
+        else if(result.code) res.send(result.id)
         else {
             console.log(event)
             res.send(500)
