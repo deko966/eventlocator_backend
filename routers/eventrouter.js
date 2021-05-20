@@ -314,7 +314,10 @@ router.patch('/organizers/events/:id/editPending', auth.authOrganizer, uploads.s
         if (result.code && result.id)
             res.status(result.code).send(result.id.toString())
         else if(result.code) res.send(result.code)
-        else res.send(500)
+        else {
+            console.log(event)
+            res.send(500)
+        }
     }
     catch(e){
         console.log(e)
