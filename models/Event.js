@@ -1,7 +1,7 @@
 const sql = require('./db.js');
 const ratingUtils = require('../utils/ratingUtils')
 const schedule = require('node-schedule')
-const moment = require('moment')
+const moment = require('moment-timezone')
 const admin = require('../utils/firebaseAdmin')
 const tokens = require('../utils/tokens');
 const { response } = require('express');
@@ -731,16 +731,64 @@ module.exports = {
   },
 
   checkInParticipant: async (eventID, sessionID, participantID, organizerID) => {
-    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID) VALUES (?,?,?,?)", [organizerID,participantID,eventID,sessionID])
+    await makeDBQuery("INSERT INTO checkInParticipant(organizerID, participantID, eventID, sessionID, arrivalTime) VALUES (?,?,?,?,?)", [organizerID,participantID,eventID,sessionID, moment().utc(Date.now()).tz('Asia/Amman').format("HH:mm:ss")])
   },
 
   getEventStatistics: async (eventID) => {
     const totalRegistered = await makeDBQuery("SELECT COUNT(participantID) AS total FROM participantsRegisterInEvent WHERE eventID = ?", eventID)
-    let sessionsData = await("SELECT sessionID,COUNT(participantID) as total, CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) AS avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP BY sessionID ORDER BY sessionID ASC", eventID)
+    let sessionsData = await makeDBQuery("SELECT sessionID, IFNULL((SELECT COUNT(*) FROM checkInParticipant WHERE sessionID = sessionID AND eventID = 7),0) as total, IFNULL(CONVERT(FROM_UNIXTIME(ROUND(AVG(UNIX_TIMESTAMP(arrivalTime)))),char) , \"\") as avgArrivalTime FROM checkInParticipant WHERE eventID = ? GROUP by sessionID order by sessionID ASC"
+    ,eventID)
+    let allSessions = await makeDBQuery("SELECT id FROM session WHERE eventID = ?", eventID)
     sessionsData = JSON.parse(JSON.stringify(sessionsData))
+    let toAdd = []
+    for(let i =0;i<allSessions.length; i++){
+      let found = false
+      for(let j = 0; j < sessionsData.length; j++){
+        if (allSessions[i].id == sessionsData[j].sessionID){
+          found = true
+          break
+        }
+      }
+      if (!found){
+        toAdd.push(allSessions[i].id)
+      }
+    }
+    let finalSessions = []
+    let i =0
+    let j = 0
+    while (i < sessionsData.length || j < toAdd.length){
+      if (i >= sessionsData.length){
+        finalSessions.push({
+          id: toAdd[j],
+          total: -1,
+          avgArrivalTime: ""
+        })
+        j++
+      }
+      else if (j >= toAdd.length){
+        finalSessions.push(sessionsData[i])
+        i++
+      }
+      else{
+        if (toAdd[j] > sessionsData[i].sessionID){
+          finalSessions.push(sessionsData[i])
+          i++
+        }
+        else{
+          finalSessions.push({
+            id: toAdd[j],
+            total: -1,
+            avgArrivalTime: ""
+          })
+          j++
+        }
+      }
+    }
+
+
     const res = {
       total: totalRegistered[0].total,
-      sessions: sessionsData
+      sessions: finalSessions
     }
 
     return res
