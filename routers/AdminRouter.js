@@ -39,7 +39,7 @@ router.get('/pending/all', auth.authAdmin, async (req,res)=>{
 router.get('/organizers/edit/:organizerId', auth.authAdmin, async (req,res)=>{
   
     const organizer = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
-    console.log(organizer)
+    
     if(organizer == undefined ){
         res.send(404)
     }
