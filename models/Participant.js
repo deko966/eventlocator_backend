@@ -200,6 +200,7 @@ getParticipantByID:async (participantID) =>{
 } ,  
 
 participantRegisterInEvent: async (participantID,eventID, token) => {
+
   let registrationIDs = [eventID,participantID]
   let eventInfo = await makeDBQuery("select name, maxParticipants, whatsAppLink, CONVERT(EndDate,char)as endDate from event where ID = ?",eventID)
   const currentEventSessions = await makeDBQuery("SELECT id,convert(date,char) as date, startTime, endTime FROM session WHERE eventID = ?", eventID)
@@ -254,7 +255,6 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
         finishDateTime = moment(finishDateTime).add(30, 'm').toDate()
         console.log(finishDateTime)
         schedule.scheduleJob(finishDateTime, async () => {
-          console.log("")
           await ratingUtils.alterParticipantRatingAfterLimitedLocatedEvent(participantID,eventID)
         })
       }
