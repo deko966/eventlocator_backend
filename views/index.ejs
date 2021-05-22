@@ -26,13 +26,14 @@
       </div>
 
       <button class="btn" id="myBtn" type="button"  onkeydown="handleEnter(event)" onclick="login()">Login</button>
-     <div id = "errorMessage"><%- message  %> </div> 
+     <div id = "errorMessage"> <% = message  %> </div> 
+     
     </form>
     </div>
     <script type="text/javascript">
-              
-
-
+      console.log("here")
+      var name = "<%= message %>";
+      
 
       function handleEnter(e) {
         if(e.keyCode == 13){
@@ -43,6 +44,7 @@
 
 
       function login() {
+      
         fetch('/admin/login', {
           method: 'POST',
           body: new URLSearchParams({

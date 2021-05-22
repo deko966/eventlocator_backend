@@ -210,7 +210,6 @@ const createEventUtil = async(eventInfo, authOrganizerInfo, image) => {
       await makeDBQuery("insert into session (eventID,id,date,startTime,endTime,dayOfWeek) values (?,?,?,?,?,?)",sessionData)
       }
     catch(e){
-      console.log("HERE123 ", e)
       return e.message
     }
     }
