@@ -15,7 +15,7 @@
       </div>
       <div id="content"></div>
         <br/>
-      <p id = detailstext>Application below:</p>
+      <p id = detailstext>Event information:</p>
      <div id = detailbox>
         <% event.forEach(function(event) { %>
           
@@ -36,13 +36,6 @@
           <img src="data:image/jpeg;base64,<%- event.logo  %>"/>
           <br>
           <br>
-          <label for="">OrganizerID:</label>
-            <br>
-            <br> 
-          <strong><%= event.organizerID %></strong>
-          <br>
-          <br> 
-
           <% organizer.forEach(function(organizer) { %>
             <label for="">Organizer name:</label>
             <br>
@@ -66,7 +59,7 @@
             <br> 
 
               <% }); %> 
-            <label for="">event description:</label> 
+            <label for="">Event description:</label> 
             <br>
             <br>
             <strong><%= event.description %></strong>
@@ -75,7 +68,7 @@
 
 
 
-            <label for="">event startDate:</label>
+            <label for="">Event start date:</label>
             <br>
             <br> 
             <strong><%= event.startDate %></strong>
@@ -83,13 +76,13 @@
             <br> 
 
 
-            <label for="">event endDate :</label>
+            <label for="">event end date :</label>
             <br>
             <br> 
             <strong><%= event.endDate %></strong>
             <br>
             <br> 
-            <label for="">registrationCloseDateTime:</label>
+            <label for="">Registration close date and time:</label>
             <br>
             <br> 
             <strong><%= event.registrationCloseDateTime %></strong>
@@ -97,7 +90,7 @@
             <br> 
 
 
-            <label for="">maxParticipants:</label>
+            <label for="">Max participants:</label>
             <br>
             <br> 
             <strong><%= event.maxParticipants %></strong>
@@ -136,14 +129,6 @@
               <br>
               <br> 
 
-              <label for=""> day of week:</label>
-              <br>
-              <br> 
-             
-            <strong><%= session.dayOfWeek %></strong>
-              <br>
-              <br> 
-            </div>
               <% }); %> 
            <%}%>
            
@@ -184,9 +169,10 @@
                 
                 <% } %> 
 
-                
-                <% if( event.WhatsappLink == ''){%>
+
+                <% if( event.whatsappLink == 0 ){%>
                   <%} else {%>
+  
                 <label for="">Whatsapp link:</label>
                 <br>
                 <br>
@@ -198,9 +184,9 @@
           
    
      </div>   
-    <div class= buttons> 
-      <button class="btn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/0'">Accept</button>
-      <button class="btn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/1'">Reject</button>
+    <div class= "buttons "> 
+      <button class="acceptBtn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/0'">Accept</button>
+      <button class="rejectBtn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/1'">Reject</button>
     </div>
     <% }); %>
     

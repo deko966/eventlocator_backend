@@ -25,9 +25,7 @@ router.post('/admin/login',async (req,res)=>{
 router.get('/pending/all', auth.authAdmin, async (req,res)=>{
 
     const allPending = await AdminModel.getallpendingInfo()
-    if(!allPending){
-        res.send(404)
-    }
+  
     const organizer = allPending[0]
     const event = allPending[1]
     res.render('allPendingInfo', {

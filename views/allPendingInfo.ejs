@@ -15,7 +15,7 @@
   <div id="content"></div>
     <br/>
 
-  <p style="margin-left:10px">below are the organizers and events ready for handeling </p>
+  <p style="margin-left:10px; font-weight:bold" >below are the organizers and events ready for handeling </p>
   <p id = "organizerTitle">Organizers:</p>
   <br>
   <div id ="organizers">
@@ -41,7 +41,7 @@
           <br>
           <br>
           <label for="">Type:</label>
-         
+          
           <strong><%= organizer.type %></strong>
         <br>
         <br>
@@ -54,7 +54,7 @@
   <div id = "events">
     <% event.forEach(function(event) { %>
       <% if( event.length == 0){%>
-        <p> no pending events </p>
+        <p> no pending events </p> 
           <%}%>
         <div id = eventInfo>
         <label for="">Name:</label>

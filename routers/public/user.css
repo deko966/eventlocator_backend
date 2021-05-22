@@ -82,10 +82,13 @@ body{
     float:right;
     margin-right: 39%;
     margin-top: -42%;
+    font-weight: bold;
+
 
 }
 #organizerTitle{
     margin-left: 10px;
+    font-weight: bold;
 }
 a:link{
   color:black

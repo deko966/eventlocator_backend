@@ -22,7 +22,7 @@
 #detailbox{
 
     height:500px;
-    width:80%;
+    width:60%;
     overflow:auto;
     margin-left: 10px;
     background-color:white;
@@ -37,16 +37,16 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 10px;
     text-align: center;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    
+    margin-left: auto;
+    margin-right: auto;
+
+  
   }
 
  
   #detailstext{
-      margin-left: 10px;
+      margin-left: 40px;
+      font-weight: bold;
   }
 
   a:link{
@@ -66,24 +66,37 @@
     width: 100%;
     
   }
-  .btn{
-    
+  .buttons{
+    text-align: center;
+  }
+
+  .acceptBtn{
     background-color: #49599a;
-    margin-top: 1%;
-    margin-left: 1%;
-    width:100px;
+    width:250px;
     height:30px;
-    margin-bottom: 1%;
-    width: 250px;
+    justify-content: center;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     text-align: center;
-    border-radius: 10px;
+    border-radius: 20px;
+    margin:1% auto;
+    display:inline-flex;
+  }
+  .rejectBtn{
+    background-color: #49599a;
+    width:250px;
+    height:30px;
+    justify-content: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+    border-radius: 20px;
+    margin:1% auto;
+    display:inline-flex;
   }
   img{
-    width: 200px;
-    height: 250px;
-    object-fit:cover ;
-    border-radius: 4px;
+    width: 300px;
+    height: 300px;
+    object-fit:contain ;
+    
 
   }
 #sessionInfo{

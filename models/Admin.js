@@ -18,6 +18,19 @@ function makeDBQuery(query, arguments) {
         )
     })
   }
+ function setDate(dateString){
+    dateString = new Date(dateString).toGMTString();
+  
+    dateString = dateString.split(' ').slice(0, 4).join(' ');
+    return dateString
+ } 
+
+ function setDateTime(dateString){
+    dateString = new Date(dateString).toGMTString();
+    dateString = dateString.split(' ').slice(0,5).join(' ');
+    return dateString
+ } 
+  
   
 
 
@@ -50,7 +63,25 @@ module.exports = {
         accountStatus = 0;
         eventStatus = 0;
         organizerResult = await makeDBQuery("select id,name, email,phoneNumber,type from organizer where accountStatus = ?",accountStatus)
+        
         eventResult = await makeDBQuery("select id, name,startDate,endDate from event where status =?",eventStatus )
+        startDate = setDate(eventResult[0].startDate)
+        endDate = setDate(eventResult[0].endDate)
+
+        eventResult[0].startDate = startDate
+        eventResult[0].endDate = endDate
+        if(organizerResult==0){
+            organizerResult = []
+        }
+
+        else if(organizerResult[0].type==0){
+
+            organizerResult[0].type = "Organization"
+        }
+        else{
+            organizerResult[0].type = "Individual"
+        }
+
         const result = [organizerResult,eventResult]
         return result;
     },
@@ -91,20 +122,24 @@ module.exports = {
         let result = []       
         let cities = ["Amman","Al-Zarqa","Al-Balqa","Madaba","Irbid","Al-Mafraq","Jerash","Ajloun","Al-Karak","Al-Aqaba","Ma\`an","Al-Tafila"]
         let categoryName = ["Educational", "entertainment", "volunteering", "sports"]
-        toDisplay = []
+        let toDisplay = []
+        let days = []
         const pendingEventID = eventID
-        const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a/%d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a/%d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
+        const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a  %d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a %d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
         let organizerID = eventResult[0].organizerID
-        console.log(eventResult[0].whatsappLink + "here1")
-        if (eventResult[0].whatsappLink == null)
-            eventResult[0].whatsappLink=""
-
+        newRegistrationCloseDateTime = setDateTime(eventResult[0].registrationCloseDateTime)
+        eventResult[0].registrationCloseDateTime = newRegistrationCloseDateTime
+       
+        if (eventResult[0].whatsappLink == null){
+            eventResult[0].whatsappLink = 0
+           
+        }
      
        const organizerResult= await makeDBQuery("select name ,email, phoneNumber from organizer where id =? ",organizerID)
         const img = eventResult[0].logo.toString('base64')
         eventResult[0].logo = img
         let sessions = await makeDBQuery("select id,DATE_FORMAT(session.date,'%d/%m/%Y') as date,startTime,endTime,dayOfWeek from session where eventid = ? ORDER BY id ASC",eventID)
-
+        
 
         const categoriesResult = await makeDBQuery("select category from eventcategories where eventID =?",eventID)
         const categories = []
@@ -112,7 +147,7 @@ module.exports = {
         categories.push(categoriesResult[k].category)
         for (i = 0; i < categories.length; i++)
         {
-            toDisplay+= categoryName[categories[i]] + ','
+            toDisplay+= categoryName[categories[i]] + ' '
         }
 
  
