@@ -3,7 +3,7 @@ const bcrypt =require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const auth = require('../middleware/auth');
-const { date } = require('faker');
+
 
 
 function makeDBQuery(query, arguments) {

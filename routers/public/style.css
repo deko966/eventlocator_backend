@@ -77,7 +77,7 @@ a{
 h3{
   color: red;
 }
-.errorMessage{
+#errorMessage{
   color: black;
 
 }

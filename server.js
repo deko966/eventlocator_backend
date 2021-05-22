@@ -13,8 +13,8 @@ const app = express()
 
 
 app.set('view engine', 'ejs');
-app.use(cookieParser());
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(express.static(path.join(__dirname+'/routers/public')))
