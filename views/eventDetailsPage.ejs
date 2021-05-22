@@ -147,17 +147,13 @@
               <% }); %> 
            <%}%>
            
-              <% categories.forEach(function(categories) { %>
-              <label for=""> category:</label>
+              <label for=""> categories:</label>
               <br>
               <br> 
-             
               <strong><%= categories %></strong>
               <br>
               <br> 
-                <% }); %> 
-                
-
+        
                 
                 <%if(locatedevent.length>0){  %> 
                 <% locatedevent.forEach(function(locatedevent) { %>
@@ -187,6 +183,8 @@
                     <% }); %> 
                 
                 <% } %> 
+
+                
                 <% if( event.WhatsappLink == ''){%>
                   <%} else {%>
                 <label for="">Whatsapp link:</label>

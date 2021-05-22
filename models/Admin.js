@@ -88,14 +88,13 @@ module.exports = {
 
     getPendingEventInfo: async(eventID) =>{
 
-        let result = []
-        let days = []
-        let i = 0
+        let result = []       
         let cities = ["Amman","Al-Zarqa","Al-Balqa","Madaba","Irbid","Al-Mafraq","Jerash","Ajloun","Al-Karak","Al-Aqaba","Ma\`an","Al-Tafila"]
+        let categoryName = ["Educational", "entertainment", "volunteering", "sports"]
         const pendingEventID = eventID
         const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a/%d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a/%d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
         let organizerID = eventResult[0].organizerID
-        if (eventResult[0].whatsappLink == undefined)
+        if (eventResult[0].whatsappLink == null)
             eventResult[0].whatsappLink=""
 
      
@@ -109,7 +108,11 @@ module.exports = {
         const categories = []
         for(let k = 0; k < categoriesResult.length; k++)
         categories.push(categoriesResult[k].category)
-    
+        for (i = 0; i < categories.length; i++)
+        {
+            toDisplay+= categoryName[categories[i]] + ','
+        }
+
  
         const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
         if(locatedEventDataResult.length>0){
@@ -132,7 +135,7 @@ module.exports = {
         }
 
 
-        result = [eventResult,organizerResult,sessions,categories,locatedEventDataResult]
+        result = [eventResult,organizerResult,sessions,toDisplay,locatedEventDataResult]
         return result
     },
 
