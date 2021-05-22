@@ -16,8 +16,7 @@ router.post('/admin/login',async (req,res)=>{
     const token = await AdminModel.login(req.body)
 
     if (!token || token == -1 ) {
-       const message = "something wrong "
-        return res.status(401).render('index',{ message})
+        return res.status(401).render('index')
     }
 
     res.cookie('Authorization', `Bearer ${token}`).end();
