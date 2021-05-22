@@ -95,7 +95,7 @@ module.exports = {
         const pendingEventID = eventID
         const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a/%d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a/%d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
         let organizerID = eventResult[0].organizerID
-        console.log(eventResult[0].whatsappLink)
+        console.log(eventResult[0].whatsappLink+ "here1")
         if (eventResult[0].whatsappLink == null)
             eventResult[0].whatsappLink=""
 
