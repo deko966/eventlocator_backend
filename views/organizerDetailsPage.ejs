@@ -167,8 +167,6 @@
               <br> 
               <% } %> 
               
-              <br> 
-              <br> 
               <label for=""> Organizer type:</label>
               <strong><%= organizer.type %></strong>
               <br>
@@ -177,8 +175,10 @@
             </div>
      </div>   
     
-      <button class="btn" type="button" onclick="window.location.href='/account/<%= organizer.id %>/0'">Accept</button>
-      <button class="btn" type="button" onclick="window.location.href='/account/<%= organizer.id %>/1'">Reject</button>
+     <div class= "buttons "> 
+      <button class="acceptBtn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/0'">Accept</button>
+      <button class="rejectBtn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/1'">Reject</button>
+    </div>
      <% }); %>
     </div>
 
