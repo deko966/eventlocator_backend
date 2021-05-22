@@ -91,6 +91,7 @@ module.exports = {
         let result = []       
         let cities = ["Amman","Al-Zarqa","Al-Balqa","Madaba","Irbid","Al-Mafraq","Jerash","Ajloun","Al-Karak","Al-Aqaba","Ma\`an","Al-Tafila"]
         let categoryName = ["Educational", "entertainment", "volunteering", "sports"]
+        toDisplay = []
         const pendingEventID = eventID
         const eventResult = await makeDBQuery("select ID, name, description, picture as logo, DATE_FORMAT(startDate,'%a/%d/%m/%Y') as startDate, DATE_FORMAT(endDate,' %a/%d/%m/%Y') as endDate, registrationCloseDateTime, maxParticipants, whatsappLink, organizerID from event where id =?",pendingEventID)
         let organizerID = eventResult[0].organizerID
