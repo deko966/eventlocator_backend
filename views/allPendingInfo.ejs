@@ -53,7 +53,7 @@
   <div id = "eventTitle">Events:</div>
   <div id = "events">
     <% event.forEach(function(event) { %>
-      <% if( organizer.length == 0){%>
+      <% if( event.length == 0){%>
         <p> no pending events </p>
           <%}%>
         <div id = eventInfo>
