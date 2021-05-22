@@ -20,7 +20,9 @@
   <br>
   <div id ="organizers">
     <% organizer.forEach(function(organizer) { %>
-      
+        <% if( organizer.length == 0){%>
+        <p> no pending organizers </p>
+          <%}%>
        <div id = organizerInfo>
         <label for="">Name:</label>
         <br>
@@ -51,6 +53,9 @@
   <div id = "eventTitle">Events:</div>
   <div id = "events">
     <% event.forEach(function(event) { %>
+      <% if( organizer.length == 0){%>
+        <p> no pending events </p>
+          <%}%>
         <div id = eventInfo>
         <label for="">Name:</label>
         <br>  
