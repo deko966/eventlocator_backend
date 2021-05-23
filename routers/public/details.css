@@ -105,4 +105,10 @@
   background-color: #e8eaf6;
   width:100%
 }
+
+#map {
+  height: 400px;
+  width: 30%;
+
+}
   

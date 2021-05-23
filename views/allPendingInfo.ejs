@@ -20,7 +20,7 @@
   <br>
   <div id ="organizers">
     <% organizer.forEach(function(organizer) { %>
-        <% if( organizer.length == 0){%>
+        <% if( organizer == []){%>
         <p> no pending organizers </p>
           <%}%>
        <div id = organizerInfo>
@@ -41,7 +41,7 @@
           <br>
           <br>
           <label for="">Type:</label>
-          
+
           <strong><%= organizer.type %></strong>
         <br>
         <br>
@@ -81,7 +81,7 @@
   </div>
 
   <script>
-    
+   
   </script>
 </body>
 </html>
