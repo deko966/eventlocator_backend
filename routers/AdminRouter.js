@@ -14,12 +14,14 @@ router.post('/signup/admin',async (req,res)=>{
 
 router.post('/admin/login',async (req,res)=>{   
     const token = await AdminModel.login(req.body)
-
-    if (!token || token == -1 ) {
-        return res.status(401).render('index');
+    
+    if (token == null ) {
+        return res.status(401).redirect('index');
     }
-
-    res.cookie('Authorization', `Bearer ${token}`).end();
+    else
+    {
+        res.cookie('Authorization', `Bearer ${token}`).end();
+    }
 })
 
 router.get('/pending/all', auth.authAdmin, async (req,res)=>{

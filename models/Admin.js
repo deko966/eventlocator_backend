@@ -43,12 +43,14 @@ module.exports = {
 
     },
     login: async(credentials)=>{
+       
         adminID = credentials.username
     
         adminResult = await makeDBQuery("select loginID,password from admin where loginID = ?",adminID)
-       
+        
+
         if(adminResult.length == 0){
-            return -1
+            return null
         }
         const isMatch = await bcrypt.compare(credentials.password,adminResult[0].password)
        
