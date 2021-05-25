@@ -6,23 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/details.css">
     <title>Details</title>  
-    
-    <script
-src="http://maps.googleapis.com/maps/api/js">
-</script>
-
-<script defer>
-function initialize() {
-  var mapProp = {
-    center:new google.maps.LatLng(51.508742,-0.120850),
-    zoom:5,
-    mapTypeId:google.maps.MapTypeId.ROADMAP
-  };
-  var map=new google.maps.Map(document.getElementById("googleMap"), mapProp);
-}
-google.maps.event.addDomListener(window, 'load', initialize);
-</script>
-
+      
 </head>
 <body>
     <div id="header">
@@ -160,36 +144,30 @@ google.maps.event.addDomListener(window, 'load', initialize);
               <br> 
         
                 
-                <%if(locatedevent.length>0){  %> 
-                <% locatedevent.forEach(function(locatedevent) { %>
-                  <label for=""> city:</label>
-                  <br>
-                  <br> 
-                 
-                  <strong ><%= locatedevent.city %></strong>
-                  <br>
-                  <br> 
-                  <label for=""> longitude:</label>
-                  <br>
-                  <br> 
-                 
-                  <strong id = longitude><%= locatedevent.longitude %></strong>
-                  <br>
-                  <br> 
+              <label for=""> city:</label>
+              <br>
+              <br> 
+              
+              <strong ><%= locatedevent.city %></strong>
+              <br>
+              <br> 
+              <label for=""> longitude:</label>
+              <br>
+              <br> 
+              
+              <strong id = longitude><%= locatedevent.longitude %></strong>
+              <br>
+              <br> 
 
-                  <label for=""> latitude:</label>
-                  <br>
-                  <br> 
-                 
-                  <strong id = latitude><%= locatedevent.latitude %></strong>
-                  <br>
-                  <br> 
+              <label for=""> latitude:</label>
+              <br>
+              <br> 
+              
+              <strong id = latitude><%= locatedevent.latitude %></strong>
+              <br>
+              <br> 
 
-                 <div id = googlemap></div>
-
-                    <% }); %> 
-                
-                <% } %> 
+              <div id="googleMap"></div>
 
 
                 <% if( event.whatsappLink == 0 ){%>
@@ -211,7 +189,25 @@ google.maps.event.addDomListener(window, 'load', initialize);
       <button class="rejectBtn" type="button" onclick="window.location.href='/event/<%=event.organizerID%>/<%= event.ID %>/1'">Reject</button>
     </div>
     <% }); %>
->
-    
+
+    <script>
+      function initMap() {
+      
+        const myLatLng = { lat: parseFloat("<%= locatedevent.latitude %>"), lng:parseFloat("<%= locatedevent.longitude %>") };
+        var mapProp = {
+          center: {
+            lat: parseFloat("<%= locatedevent.latitude %>"),
+            lng: parseFloat("<%= locatedevent.longitude %>"),
+          },
+          zoom: 15,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+        let marker = new google.maps.Marker({position: myLatLng , map})
+        marker.setMap(map);
+      }
+      
+      </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxcVfLDkP6gwJ8a3_vgJo0OM5SPeG0Feg&callback=initMap"></script>
 </body>
 </html>

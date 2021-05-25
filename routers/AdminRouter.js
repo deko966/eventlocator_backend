@@ -17,7 +17,7 @@ router.post('/admin/login',async (req,res)=>{
     
     if (token == null ) {
         return res.status(401).redirect('index');
-    }
+    }   
     else
     {
         res.cookie('Authorization', `Bearer ${token}`).end();
@@ -49,7 +49,7 @@ router.get('/organizers/edit/:organizerId', auth.authAdmin, async (req,res)=>{
     });
 })
 
-router.get('/events/edit/:eventId',auth.authAdmin,async (req,res)=>{
+router.get('/events/edit/:eventId', auth.authAdmin, async (req, res) => {
     const allEventInfo = await AdminModel.getPendingEventInfo(req.params.eventId);
     if(!allEventInfo){
         res.send(404)
@@ -58,15 +58,14 @@ router.get('/events/edit/:eventId',auth.authAdmin,async (req,res)=>{
     const organizer = allEventInfo[1]
     const session = allEventInfo[2]
     const categories = allEventInfo[3]
-    const locatedevent = allEventInfo[4]
- 
+    const locatedevent = allEventInfo[4][0]
+
     res.render('eventDetailsPage', {
         event,
         organizer,
         session,
         categories,
-        locatedevent
-        
+        locatedevent,
     });
 
 })

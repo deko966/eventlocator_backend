@@ -106,9 +106,10 @@
   width:100%
 }
 
-#map {
+#googleMap {
+  margin-left: 25%;
   height: 400px;
-  width: 30%;
+  width: 50%;
 
 }
   
