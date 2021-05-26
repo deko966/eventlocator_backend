@@ -143,7 +143,7 @@
               <br>
               <br> 
         
-                
+             <% if (locatedevent.city != undefined) { 
               <label for=""> city:</label>
               <br>
               <br> 
@@ -151,24 +151,12 @@
               <strong ><%= locatedevent.city %></strong>
               <br>
               <br> 
-              <label for=""> longitude:</label>
-              <br>
-              <br> 
-              
-              <strong id = longitude><%= locatedevent.longitude %></strong>
-              <br>
-              <br> 
-
-              <label for=""> latitude:</label>
-              <br>
-              <br> 
-              
-              <strong id = latitude><%= locatedevent.latitude %></strong>
-              <br>
-              <br> 
+         
 
               <div id="googleMap"></div>
-
+                <br>
+                <br>
+                <%}%>
 
                 <% if( event.whatsappLink == 0 ){%>
                   <%} else {%>
@@ -199,7 +187,7 @@
             lat: parseFloat("<%= locatedevent.latitude %>"),
             lng: parseFloat("<%= locatedevent.longitude %>"),
           },
-          zoom: 15,
+          zoom: 14,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
