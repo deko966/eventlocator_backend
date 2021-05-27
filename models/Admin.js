@@ -66,23 +66,24 @@ module.exports = {
         eventStatus = 0;
         organizerResult = await makeDBQuery("select id,name, email,phoneNumber,type from organizer where accountStatus = ?",accountStatus)
         
-        eventResult = await makeDBQuery("select id, name,startDate,endDate from event where status =?",eventStatus )
-        startDate = setDate(eventResult[0].startDate)
-        endDate = setDate(eventResult[0].endDate)
-
-        eventResult[0].startDate = startDate
-        eventResult[0].endDate = endDate
-        if(organizerResult==0){
-            organizerResult = []
+        eventResult = await makeDBQuery("select id, name,startDate,endDate from event where status =?",eventStatus)
+        for(let i = 0; i< eventResult.length;i++){
+            startDate = setDate(eventResult[i].startDate)
+            endDate = setDate(eventResult[i].endDate)
+    
+            eventResult[i].startDate = startDate
+            eventResult[i].endDate = endDate
         }
 
-        else if(organizerResult[0].type==0){
+        for(let j = 0; j< organizerResult.length; j++){
+            if(organizerResult[j].type==0){
+                organizerResult[j].type = "Organization"
+            }
+            else{
+                organizerResult[j].type = "Individual"
+            }
+        }
 
-            organizerResult[0].type = "Organization"
-        }
-        else{
-            organizerResult[0].type = "Individual"
-        }
 
         const result = [organizerResult,eventResult]
         return result;
