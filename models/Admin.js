@@ -89,7 +89,8 @@ module.exports = {
     },
      getPendingOrganizerInfo: async(organizerID)=>{
         pendingOrganizerID = organizerID
-        const result = await makeDBQuery("SELECT id, name, email, description, proofImage, phoneNumber, facebookName, facebookLink, instagramName, instagramLink, twitterName, twitterLink, youTubeName, youTubeLink, type FROM organizer WHERE id =?",pendingOrganizerID)
+       
+        const result = await makeDBQuery("SELECT ID, name, email, description, proofImage, phoneNumber, facebookName, facebookLink, instagramName, instagramLink, twitterName, twitterLink, youTubeName, youTubeLink type FROM organizer WHERE ID =?",pendingOrganizerID)
 
         const proofImg = result[0].proofImage.toString('base64')
         result[0].proofImage=proofImg
@@ -104,13 +105,14 @@ module.exports = {
         }
         else{
             result[0].type="individual"
-            const profilePictureResult = await makeDBQuery("select profilePicture from individual2 where organizerid=?",pendingOrganizerID) 
-           if(profilePictureResult[0].profilePicture==undefined)
+            const individualResult = await makeDBQuery("select profilePicture,linkedInName,linkedInLink from individual2 where organizerid=?",pendingOrganizerID) 
+           
+            if(individualResult[0].profilePicture == null)
            {
             return result
            }
            else{
-            const profilePicture = profilePictureResult[0].profilePicture.toString('base64')
+            const profilePicture = individualResult[0].profilePicture.toString('base64')
             result[0].profilePicture = profilePicture
            }
         }

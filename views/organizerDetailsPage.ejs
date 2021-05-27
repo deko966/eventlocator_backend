@@ -18,6 +18,7 @@
      <div id = detailbox>
         <% organizer.forEach(function(organizer) { %>
           <div id= allInfo>
+            <strong> <%- organizer.ID %> </strong>
             <br>
             <br>
             <label for="">Organizer name:</label>
@@ -84,7 +85,7 @@
               <br>
               <br>
 
-              <% if( organizer.facebookName == ''){%>
+              <% if( organizer.facebookName == null){%>
               <%} else {%>
               <label for="">Facebook name:</label>
               <br>
@@ -94,7 +95,7 @@
               <br> 
                <%}%>
 
-               <% if( organizer.facebookLink == ''){%>
+               <% if( organizer.facebookLink == null){%>
                   <%} else {%>
               <label for="">Facebook link:</label>
               <br>
@@ -104,7 +105,7 @@
               <br>
               <%}%>
 
-              <% if( organizer.instagramName == ''){%>
+              <% if( organizer.instagramName == null){%>
                 <%} else {%>
               <label for="">Instagram name:</label>
               <br>
@@ -114,7 +115,7 @@
               <br> 
               <%}%>
 
-              <% if( organizer.instagramLink == ''){%>
+              <% if( organizer.instagramLink == null){%>
                 <%} else {%>
             <label for=""> Instagram link:</label>
             <br>
@@ -124,7 +125,7 @@
             <br>
             <%}%>
 
-              <% if( organizer.twitterName == ''){%>
+              <% if( organizer.twitterName == null){%>
                 <%} else {%>
               <label for="">Twitter name:</label>
               <br>
@@ -134,7 +135,7 @@
               <br> 
               <%}%>
 
-              <% if( organizer.twitterLink == ''){%>
+              <% if( organizer.twitterLink == null){%>
                 <%} else {%>
               <label for="">Twitter link:</label>
               <br>
@@ -145,7 +146,7 @@
               <% } %> 
 
 
-              <% if( organizer.youTubeName == ''){%>
+              <% if( organizer.youTubeName == null){%>
                 <%} else {%>
               <label for="">Youtube name:</label>
               <br>
@@ -157,7 +158,7 @@
               <br>
               <br> 
 
-              <% if( organizer.youTubeLink == ''){%>
+              <% if( organizer.youTubeLink == null){%>
                 <%} else {%>
               <label for="">youTube link:</label>
               <br>
@@ -166,6 +167,27 @@
               <br>
               <br> 
               <% } %> 
+
+              <% if( organizer.linkedInName == null){%>
+                <%} else {%>
+              <label for="">linkedIn name:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.linkedInName %></strong>
+              <br>
+              <br> 
+              <% } %>
+
+              <% if( organizer.linkedInLink == null){%>
+                <%} else {%>
+              <label for="">linkedIn lnk:</label>
+              <br>
+              <br> 
+              <strong><%= organizer.linkedInLink %></strong>
+              <br>
+              <br> 
+              <% } %>
+
               <label for=""> Organizer type:</label>
               <br>
               <br>
@@ -175,12 +197,12 @@
 
             </div>
      </div> 
-     <% }); %>  
+   
      <div class= "buttons "> 
-      <button class="acceptBtn" type="button" onclick="window.location.href='/account/<%= organizer.id %>/0'">Accept</button>
-      <button class="rejectBtn" type="button" onclick="window.location.href='/account/<%= organizer.id %>/1'">Reject</button>
+      <button class="acceptBtn" type="button" onclick="window.location.href='/account/<%= organizer.ID %>/0'">Accept</button>
+      <button class="rejectBtn" type="button" onclick="window.location.href='/account/<%= organizer.ID %>/1'">Reject</button>
     </div>
-     
+    <% }); %>  
     
 
 </body>

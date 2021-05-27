@@ -79,7 +79,7 @@ router.get('/admin/logout',auth.authAdmin,async (req,res)=>{
 })
 
 router.get('/account/:organizerId/:response',auth.authAdmin,async (req,res)=>{
-  
+    
     organizerInfo = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
     organizer = await AdminModel.setResponseOrganizer(req.params.organizerId,req.adminID,req.params.response)
     if(req.params.response == 0){
