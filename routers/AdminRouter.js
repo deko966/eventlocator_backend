@@ -102,6 +102,7 @@ router.get('/account/:organizerId/:response',auth.authAdmin,async (req,res)=>{
 
 
 router.get('/event/:organizerId/:eventId/:response',auth.authAdmin,async (req,res)=>{
+    console.log("Responding to event")
     organizerInfo = await AdminModel.getPendingOrganizerInfo(req.params.organizerId)
     organizer = await AdminModel.setResponseEvent(req.params.eventId,req.adminID,req.params.response)
     const allEventInfo = await AdminModel.getPendingEventInfo(req.params.eventId);
