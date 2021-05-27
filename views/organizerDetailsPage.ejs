@@ -44,21 +44,14 @@
                 <br>
 
                 <% } else{ %> 
-                  <%if (organizer.profilePicture == undefined){%>
+                  <%if (organizer.profilePicture == null){%>
                   <label for=""> profile picture:</label> 
                 <br>
                 <br>
                   <strong>No profile picture available</strong>
                 <br>
                 <br>
-              <% }else {%>
-                <label for="">Organization logo:</label> 
-                <br>
-                <br>
-                <img src="data:image/jpeg;base64,<%- organizer.profilePicture  %>"/>
-                <br>
-                <br>
-                <% }} %>
+              <% }} %>
 
 
 
