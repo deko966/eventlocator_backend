@@ -179,7 +179,7 @@
 
     <script>
       function initMap() {
-      
+        if("<%=locatedevent%>" != undefined){
         const myLatLng = { lat: parseFloat("<%= locatedevent.latitude %>"), lng:parseFloat("<%= locatedevent.longitude %>") };
         var mapProp = {
           center: {
@@ -193,7 +193,7 @@
         let marker = new google.maps.Marker({position: myLatLng , map})
         marker.setMap(map);
       }
-      
+    }
       </script>
       <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxcVfLDkP6gwJ8a3_vgJo0OM5SPeG0Feg&callback=initMap"></script>
 </body>
