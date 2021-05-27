@@ -35,11 +35,11 @@
               <strong><%= organizer.email %></strong>
               <br>
               <br>
-              <%if (organizer.type == 0){%>
+              <%if (organizer.type == "organization"){%>
                 <label for="">logo:</label> 
                 <br>
                 <br>
-                <img src="data:image/jpeg;base64,<%- organizer.logo  %>"/>
+                <img src="data:image/jpeg;base64,<%= organizer.logo  %>"/>
                 <br>
                 <br>
 

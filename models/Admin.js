@@ -91,7 +91,7 @@ module.exports = {
        
        
         const result = await makeDBQuery("SELECT ID, name, email, description, proofImage, phoneNumber, facebookName, facebookLink, instagramName, instagramLink, twitterName, twitterLink, youTubeName, youTubeLink,type FROM organizer WHERE ID =?",organizerID)
-       
+        
         const proofImg = result[0].proofImage.toString('base64')
         result[0].proofImage=proofImg
         
@@ -105,6 +105,7 @@ module.exports = {
             
         }
         else{
+            if(result[0].type == 1){
             result[0].type="individual"
             const individualResult = await makeDBQuery("select profilePicture,linkedInName,linkedInLink from individual2 where organizerid=?",organizerID) 
            
@@ -115,7 +116,8 @@ module.exports = {
            else{
             const profilePicture = individualResult[0].profilePicture.toString('base64')
             result[0].profilePicture = profilePicture
-           }
+            }
+        }
         }
 
         return result
