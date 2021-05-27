@@ -220,7 +220,7 @@ participantRegisterInEvent: async (participantID,eventID, token) => {
         let sessionStartTime = Date.parse(sessions[j].date+'T'+sessions[j].startTime)
         let sessionEndTime = Date.parse(sessions[j].date+'T'+sessions[j].endTime)
         if (Date.parse(currentEventSessions[k].date) == Date.parse(sessions[j].date)){
-          if (!(currentSessionEndTime < sessionStartTime && currentSessionStartTime > sessionEndTime)){
+          if (!(currentSessionEndTime < sessionStartTime || currentSessionStartTime > sessionEndTime)){
             return {conflict: true}
           }
         }
