@@ -108,10 +108,11 @@ module.exports = {
             if(result[0].type == 1){
             result[0].type="individual"
             const individualResult = await makeDBQuery("select profilePicture,linkedInName,linkedInLink from individual2 where organizerid=?",organizerID) 
-           
+          
             if(individualResult[0].profilePicture == null)
            {
-            return result
+            result[0].linkedInName=individualResult[0].linkedInName
+            result[0].linkedInLink=individualResult[0].linkedInLink
            }
            else{
             const profilePicture = individualResult[0].profilePicture.toString('base64')

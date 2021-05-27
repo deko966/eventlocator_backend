@@ -167,7 +167,7 @@
               <% } %> 
 
               <% if(organizer.type == "individual"){ %> 
-              <% if( organizer.linkedInName == null){%>
+              <% if( organizer.linkedInName == ''){%>
                 <%} else {%>
               <label for="">LinkedIn name:</label>
               <br>
@@ -177,7 +177,7 @@
               <br> 
               <% } %>
 
-              <% if( organizer.linkedInLink == null){%>
+              <% if( organizer.linkedInLink == ''){%>
                 <%} else {%>
               <label for="">LinkedIn link:</label>
               <br>
