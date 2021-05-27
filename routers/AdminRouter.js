@@ -34,6 +34,7 @@ router.get('/pending/all', auth.authAdmin, async (req,res)=>{
         organizer,
         event,
     });
+
 })
 
 router.get('/organizers/edit/:organizerId', auth.authAdmin, async (req,res)=>{
