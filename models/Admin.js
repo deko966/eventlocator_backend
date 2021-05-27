@@ -84,7 +84,6 @@ module.exports = {
             }
         }
 
-
         const result = [organizerResult,eventResult]
         return result;
     },
