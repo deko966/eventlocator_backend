@@ -60,7 +60,7 @@ router.get('/events/edit/:eventId', auth.authAdmin, async (req, res) => {
     const session = allEventInfo[2]
     const categories = allEventInfo[3]
     const locatedevent = allEventInfo[4][0]
- 
+    
     res.render('eventDetailsPage', {
         event,
         organizer,
