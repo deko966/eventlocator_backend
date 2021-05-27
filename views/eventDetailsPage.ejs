@@ -179,7 +179,7 @@
 
     <script>
       function initMap() {
-        if(typeof  locatedevent == "undefined"){
+        if(typeof  locatedevent != "undefined"){
         const myLatLng = { lat: parseFloat("<%= locatedevent.latitude %>"), lng:parseFloat("<%= locatedevent.longitude %>") };
         var mapProp = {
           center: {
