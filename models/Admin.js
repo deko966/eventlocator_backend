@@ -117,6 +117,8 @@ module.exports = {
            else{
             const profilePicture = individualResult[0].profilePicture.toString('base64')
             result[0].profilePicture = profilePicture
+            result[0].linkedInName=individualResult[0].linkedInName
+            result[0].linkedInLink=individualResult[0].linkedInLink
             }
         }
         }
