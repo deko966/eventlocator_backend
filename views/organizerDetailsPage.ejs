@@ -51,9 +51,14 @@
                   <strong>No profile picture available</strong>
                 <br>
                 <br>
-              <% }} %>
-
-
+                <% } else{ %>
+                  <label for=""> profile picture:</label> 
+                <br>
+                <br>
+                  <strong><%= organizer.profilePicture   %> </strong>
+                <br>
+                <br>
+                  <% } %> 
 
               <label for="">Organizer description:</label>
               <br>
