@@ -158,13 +158,11 @@
                 <br>
                 <%}%>
 
-                <% if( event.whatsappLink == 0 ){%>
-                  <%} else {%>
-  
+                <% if( event.whatsappLink != 0 )%>
                 <label for="">Whatsapp link:</label>
                 <br>
                 <br>
-                <strong><%= event.WhatsappLink %></strong>
+                <strong><%= event.whatsappLink %></strong>
                 <br>
                 <br> 
                 <%}%>            
