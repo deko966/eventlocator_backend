@@ -107,6 +107,7 @@ router.get('/event/:organizerId/:eventId/:response',auth.authAdmin,async (req,re
     const allEventInfo = await AdminModel.getPendingEventInfo(req.params.eventId);
     const event = allEventInfo[0]
     if(req.params.response == 0){
+        
         const subject = "Event accepted"
         const text = "Dear "+ organizerInfo[0].name+",\nWe are happy to inform you that your event " + event[0].name +" has been accepted, and is now visible for participants and they are able to register in it.\nIf you face any issues, please don’t hesitate to contact this email for help.\n\n\nKind regards.\nEvent Locator team. " 
         emailUtils.sendOneEmail(organizerInfo[0].email,subject,text)
