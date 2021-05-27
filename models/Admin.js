@@ -111,15 +111,15 @@ module.exports = {
           
             if(individualResult[0].profilePicture == null)
            {
-            result[0].linkedInName=individualResult[0].linkedInName
-            result[0].linkedInLink=individualResult[0].linkedInLink
+           
            }
            else{
             const profilePicture = individualResult[0].profilePicture.toString('base64')
             result[0].profilePicture = profilePicture
-            result[0].linkedInName=individualResult[0].linkedInName
-            result[0].linkedInLink=individualResult[0].linkedInLink
+           
             }
+            result[0].linkedInName = individualResult[0].linkedInName
+            result[0].linkedInLink = individualResult[0].linkedInLink
         }
         }
 
@@ -162,8 +162,10 @@ module.exports = {
 
  
         const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
+        console.log(locatedEventDataResult[0].city)
         if(locatedEventDataResult.length>0){
         let cityName = cities[locatedEventDataResult[0].city]
+        console.log(cityName)
         locatedEventDataResult[0].city = cityName
         }
         if (eventResult[0].maxParticipants > 0 && locatedEventDataResult.length >0){
