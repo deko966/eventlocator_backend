@@ -143,7 +143,7 @@
               <br>
               <br> 
               
-             <% if (typeof locatedevent != "undefined"){ %>
+             <% if (typeof locatedevent !== "undefined") { %>
               <label for=""> city:</label>
               <br>
               <br> 
@@ -152,6 +152,7 @@
               <br>
               <br> 
          
+
               <div id="googleMap"></div>
                 <br>
                 <br>
@@ -177,9 +178,10 @@
     </div>
     <% }); %>
 
+    <%if (locatedevent) { %>
     <script>
       function initMap() {
-        if(typeof  locatedevent != "undefined"){
+      
         const myLatLng = { lat: parseFloat("<%= locatedevent.latitude %>"), lng:parseFloat("<%= locatedevent.longitude %>") };
         var mapProp = {
           center: {
@@ -193,8 +195,8 @@
         let marker = new google.maps.Marker({position: myLatLng , map})
         marker.setMap(map);
       }
-    }
       </script>
+    <% } %>
       <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxcVfLDkP6gwJ8a3_vgJo0OM5SPeG0Feg&callback=initMap"></script>
 </body>
 </html>

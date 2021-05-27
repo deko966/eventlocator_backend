@@ -162,7 +162,8 @@ module.exports = {
 
  
         const locatedEventDataResult = await makeDBQuery("SELECT city, longitude, latitude FROM locatedevent WHERE EventID = ?", eventID)
-        
+        if (locatedEventDataResult.length == 0)
+
         if(locatedEventDataResult.length>0){
         let cityName = cities[locatedEventDataResult[0].city]
        
